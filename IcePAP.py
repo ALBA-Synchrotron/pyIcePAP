@@ -69,6 +69,11 @@ class IcePAP:
             iex = IcePAPException(IcePAPException.CMD, ans)
             raise iex
     
+    def getConfig(self,addr):
+        command = "%d:?CFG" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+        
     def setCfgParameter(self, addr, parameter, value):
         command = "%d:CFG %s %s" % (addr, parameter, value)
         self.sendWriteCommand(command)
