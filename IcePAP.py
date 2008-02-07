@@ -112,6 +112,9 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
     
+    def getSystemVersion(self, addr):
+        return self.getVersion(addr, "")
+    
     def getVersionDsp(self, addr):
         return self.getVersion(addr, "DSP")
     
