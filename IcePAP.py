@@ -14,6 +14,13 @@ class IcePAPException:
         self.code = code
         self.name = name
 
+    def __str__(self):
+        string = "IcePAPException("+str(self.code)+","+str(self.name)+")"
+        return string
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class IcePAP:    
     
