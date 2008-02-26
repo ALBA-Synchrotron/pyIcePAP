@@ -10,12 +10,13 @@ class CStatus:
             
 class IcePAPException:
     ERROR, TIMEOUT, CMD = range(3)
-    def __init__(self, code, name):
+    def __init__(self, code, name, msg=""):
         self.code = code
         self.name = name
+        self.msg = msg
 
     def __str__(self):
-        string = "IcePAPException("+str(self.code)+","+str(self.name)+")"
+        string = "IcePAPException("+str(self.code)+","+str(self.name)+","+str(self.msg)+")"
         return string
 
     def __repr__(self):
@@ -78,6 +79,16 @@ class IcePAP:
     
     def getConfig(self,addr):
         command = "%d:?CFG" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+        
+    def getCfgInfo(self,addr):
+        command = "%d:?CFGINFO" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+        
+    def getCfgInfoParam(self,addr,param):
+        command = "%d:?CFGINFO %s" % (addr,param)
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
         
