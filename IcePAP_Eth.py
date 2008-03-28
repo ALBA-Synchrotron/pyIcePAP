@@ -1,14 +1,18 @@
 import socket
 import struct
-from IcePAP import *
+import errno
 import time
-from errno import EWOULDBLOCK
 import icepapdef
+from IcePAP import *
+
 
 class EthIcePAP(IcePAP):
 
+    connected=0
+
     def connect(self):
         #print "connecting"
+	#print "MYLOG IS THIS"
         if (self.Status == CStatus.Connected):
             return 0
         self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,40 +34,56 @@ class EthIcePAP(IcePAP):
             raise iex
         self.Status = CStatus.Connected
         #self.IcPaSock.settimeout( 0 )
-        #print "connected"
+        #print "should be connected"
+        self.connected=1
         return 0
     
     def sendWriteReadCommand(self, cmd, size = 8192):
         try:
+            #print "sendWriteReadCommand"
             message = cmd
             cmd = cmd + "\n"
             self.lock.acquire()
             self.IcPaSock.send(cmd)
+            #print "lock acquired, socket sending"
             #MEANWHILE WORKAROUND
             # AS IT IS SAID IN http://www.amk.ca/python/howto/sockets/
             # SECTION "3 Using a Socket"
             # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS FOUND
             # OR SOME OTHER BETTER APPROACH
-            if cmd.count("CFGINFO") > 0:
-                time.sleep(0.2)
+            #if cmd.count("CFGINFO") > 0:
+            #    time.sleep(0.2)
             data = self.IcPaSock.recv(size)
+            #print "Length of data string received is: ", data.__len__()
+            #receive_result = self.IcPaSock.recv_into(data,<n0_bytes>,[<flags>)] (???)
             self.lock.release()
             message = message + "\t\t[ " + data + " ]"
             self.writeLog(message)
             return data
         except socket.timeout, msg:
+            #print "socket TIME OUT"
             self.writeLog(message + " " + str(msg))  
-            #self.disconnect()   
-            self.lock.release()              
+            self.lock.release()
+            self.disconnect()   
+            #print "Disconnected socket\n"
+            self.connected=0
+            self.connect_retry()
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex
         except socket.error, msg:
+            a,b,c=sys.exc_info()
+            e,f=b
             self.writeLog(message + " " + str(sys.exc_info()))
             self.lock.release()  
-            print msg
-            print "Unexpected error:", sys.exc_info()            
-            iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
-            raise iex          
+            #print msg
+            #print "Unexpected error:", sys.exc_info()            
+            if e==errno.ECONNRESET or e==errno.EPIPE:
+                self.disconnect()
+                #print "Disconnected socket"
+                self.connect_retry()
+            else:
+                iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
+                raise iex          
         
 
     
@@ -76,7 +96,6 @@ class EthIcePAP(IcePAP):
             self.writeLog(message)
             self.lock.release()
         except socket.timeout, msg:
-            #self.disconnect()
             self.writeLog(message + " " + msg)      
             self.lock.release()           
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
@@ -84,7 +103,7 @@ class EthIcePAP(IcePAP):
         except socket.error, msg:
             self.writeLog(message + " " + str(sys.exc_info()))
             self.lock.release()  
-            print "Unexpected error:", sys.exc_info()
+            #print "Unexpected error:", sys.exc_info()
             iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
             raise iex   
             
@@ -96,13 +115,12 @@ class EthIcePAP(IcePAP):
             self.lock.release()
         except socket.timeout, msg:
             self.lock.release()
-            print msg  
-            #self.disconnect()          
+            #print msg  
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex
         except socket.error, msg:
             self.lock.release()
-            print msg
+            #print msg
             iex = IcePAPException(IcePAPException.ERROR, "Error sending data to the Icepap",msg)
             raise iex   
     
@@ -119,5 +137,26 @@ class EthIcePAP(IcePAP):
             iex = IcePAPException(IcePAPException.ERROR, "Error disconnecting the Icepap")
             raise iex   
         
-  
-
+    def connect_retry(self):
+        #print "connection broken\n trying to reconnect for a short while..."
+        self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.IcPaSock.settimeout( self.timeout )
+        NOLINGER = struct.pack('ii', 1, 0)
+        self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
+        nsec=1;
+        while nsec<=256:
+            #print "nsec is ", nsec, "\n"
+            try:
+                self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
+                #print "reconnected!"
+                nsec=257
+                self.connected=1
+            except:
+                if nsec<=128:
+                    #print "sleeping for ", nsec, "seconds"
+                    time.sleep(nsec)
+                nsec<<=1
+                #print "nsec after left shift is ", nsec, "\n"
+        if nsec<>257:
+            #print "you've got a new socket that is not yet connected\ntry connecting it later"
+            self.connected=0
