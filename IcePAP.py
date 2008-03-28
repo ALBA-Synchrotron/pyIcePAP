@@ -25,7 +25,7 @@ class IcePAPException:
 
 class IcePAP:    
     
-    def __init__(self, host,port, timeout = 1, log_path = None):
+    def __init__(self, host,port, timeout = 3, log_path = None):
         #print "IcePAP object created"
         self.IcePAPhost = host
         self.IcePAPport = int(port)
