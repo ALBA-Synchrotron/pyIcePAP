@@ -9,10 +9,12 @@ from IcePAP import *
 class EthIcePAP(IcePAP):
 
     connected=0
+    shouldReconnect = True
 
-    def connect(self):
+    def connect(self,shouldReconnect=True):
         #print "connecting"
-	#print "MYLOG IS THIS"
+        #print "MYLOG IS THIS"
+        self.shouldReconnect = shouldReconnect
         if (self.Status == CStatus.Connected):
             return 0
         self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,6 +41,8 @@ class EthIcePAP(IcePAP):
         return 0
     
     def sendWriteReadCommand(self, cmd, size = 8192):
+        if not self.connected:
+            raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
         try:
             #print "sendWriteReadCommand"
             message = cmd
@@ -67,7 +71,8 @@ class EthIcePAP(IcePAP):
             self.disconnect()   
             #print "Disconnected socket\n"
             self.connected=0
-            self.connect_retry()
+            if self.shouldReconnect:
+                self.connect_retry()
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex
         except socket.error, msg:
@@ -88,6 +93,8 @@ class EthIcePAP(IcePAP):
 
     
     def sendWriteCommand(self, cmd):
+        if not self.connected:
+            raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
         try:
             message = cmd
             cmd = cmd + "\n"
