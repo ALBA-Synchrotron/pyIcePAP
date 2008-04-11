@@ -12,7 +12,7 @@ class EthIcePAP(IcePAP):
     shouldReconnect = True
 
     def connect(self,shouldReconnect=True):
-        #print "connecting"
+        print "connecting"
         #print "MYLOG IS THIS"
         self.shouldReconnect = shouldReconnect
         if (self.Status == CStatus.Connected):
@@ -49,17 +49,44 @@ class EthIcePAP(IcePAP):
             cmd = cmd + "\n"
             self.lock.acquire()
             self.IcPaSock.send(cmd)
-            #print "lock acquired, socket sending"
-            #MEANWHILE WORKAROUND
-            # AS IT IS SAID IN http://www.amk.ca/python/howto/sockets/
-            # SECTION "3 Using a Socket"
-            # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS FOUND
-            # OR SOME OTHER BETTER APPROACH
-            #if cmd.count("CFGINFO") > 0:
-            #    time.sleep(0.2)
             data = self.IcPaSock.recv(size)
-            #print "Length of data string received is: ", data.__len__()
-            #receive_result = self.IcPaSock.recv_into(data,<n0_bytes>,[<flags>)] (???)
+            if cmd.count("CFGINFO") > 0:
+                ################################################
+                # WORKAROUND
+                ################################################
+                # AS IT IS SAID IN http://www.amk.ca/python/howto/sockets/
+                # SECTION "3 Using a Socket"
+                #
+                # A protocol like HTTP uses a socket for only one
+                # transfer. The client sends a request, the reads a
+                # reply. That's it. The socket is discarded. This
+                # means that a client can detect the end of the reply
+                # by receiving 0 bytes.
+                # 
+                # But if you plan to reuse your socket for further
+                # transfers, you need to realize that there is no
+                # "EOT" (End of Transfer) on a socket. I repeat: if a
+                # socket send or recv returns after handling 0 bytes,
+                # the connection has been broken. If the connection
+                # has not been broken, you may wait on a recv forever,
+                # because the socket will not tell you that there's
+                # nothing more to read (for now). Now if you think
+                # about that a bit, you'll come to realize a
+                # fundamental truth of sockets: messages must either
+                # be fixed length (yuck), or be delimited (shrug), or
+                # indicate how long they are (much better), or end by
+                # shutting down the connection. The choice is entirely
+                # yours, (but some ways are righter than others).
+
+                # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
+                # FOUND OR SOME OTHER SIMILAR APPROACH
+                dollar_count = data.count("$")
+                while dollar_count < 2:
+                    data = data + self.IcPaSock.recv(size)
+                    print "-----------------------------> more receive"
+                    dollar_count = data.count("$")
+                ################################################
+
             self.lock.release()
             message = message + "\t\t[ " + data + " ]"
             self.writeLog(message)
@@ -68,10 +95,10 @@ class EthIcePAP(IcePAP):
             #print "socket TIME OUT"
             self.writeLog(message + " " + str(msg))  
             self.lock.release()
-            self.disconnect()   
-            #print "Disconnected socket\n"
-            self.connected=0
             if self.shouldReconnect:
+                self.disconnect()   
+                #print "Disconnected socket\n"
+                self.connected=0
                 self.connect_retry()
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex
@@ -83,9 +110,10 @@ class EthIcePAP(IcePAP):
             #print msg
             #print "Unexpected error:", sys.exc_info()            
             if e==errno.ECONNRESET or e==errno.EPIPE:
-                self.disconnect()
-                #print "Disconnected socket"
-                self.connect_retry()
+                if self.shouldReconnect:
+                    self.disconnect()   
+                    #print "Disconnected socket\n"
+                    self.connect_retry()
             else:
                 iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
                 raise iex          
