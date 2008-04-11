@@ -77,7 +77,7 @@ class EthIcePAP(IcePAP):
                 # indicate how long they are (much better), or end by
                 # shutting down the connection. The choice is entirely
                 # yours, (but some ways are righter than others).
-
+                #
                 # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
                 # FOUND OR SOME OTHER SIMILAR APPROACH
                 dollar_count = data.count("$")
