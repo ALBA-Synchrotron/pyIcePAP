@@ -12,7 +12,7 @@ class EthIcePAP(IcePAP):
     shouldReconnect = True
 
     def connect(self,shouldReconnect=True):
-        print "connecting"
+        #print "connecting"
         #print "MYLOG IS THIS"
         self.shouldReconnect = shouldReconnect
         if (self.Status == CStatus.Connected):
