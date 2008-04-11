@@ -79,7 +79,7 @@ class EthIcePAP(IcePAP):
                 # yours, (but some ways are righter than others).
                 #
                 # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
-                # FOUND OR SOME OTHER SIMILAR APPROACH
+                # FOUND
                 dollar_count = data.count("$")
                 while dollar_count < 2:
                     data = data + self.IcPaSock.recv(size)
