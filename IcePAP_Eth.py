@@ -1,90 +1,88 @@
-	import socket
-	import struct
-	import errno
-	import time
-	import icepapdef
-	from IcePAP import *
+import socket
+import struct
+import errno
+import time
+import icepapdef
+from IcePAP import *
 
 
-	class EthIcePAP(IcePAP):
+class EthIcePAP(IcePAP):
 
-	    connected=0
-	    shouldReconnect = True
+    connected=0
+    shouldReconnect = True
 
-	    def connect(self,shouldReconnect=True):
-		#print "connecting"
-		#print "MYLOG IS THIS"
-		self.shouldReconnect = shouldReconnect
-		if (self.Status == CStatus.Connected):
-		    return 0
-		self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.IcPaSock.settimeout( self.timeout )
-		#self.IcPaSock.settimeout( 0.001 )
-		
-		NOLINGER = struct.pack('ii', 1, 0)
-		self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
-		
-		try:
-		    self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
-		    if self.log_path:
-			self.openLogFile()
-		except socket.error, msg:            
-		    iex = IcePAPException(IcePAPException.TIMEOUT, "Error connecting to the Icepap",msg)
-		    raise iex
-		except:
-		    iex = IcePAPException(IcePAPException.ERROR, "Error creating log file")
-		    raise iex
-		self.Status = CStatus.Connected
-		#self.IcPaSock.settimeout( 0 )
-		#print "should be connected"
-		self.connected=1
-		return 0
-	    
-	    def sendWriteReadCommand(self, cmd, size = 8192):
-		if not self.connected:
-		    raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
-		try:
-		    #print "sendWriteReadCommand"
-		    message = cmd
-		    cmd = cmd + "\n"
-		    self.lock.acquire()
-		    self.IcPaSock.send(cmd)
-		    data = self.IcPaSock.recv(size)
-		    if cmd.count("CFGINFO") > 0:
-			################################################
-			# WORKAROUND
-			################################################
-			# AS IT IS SAID IN http://www.amk.ca/python/howto/sockets/
-			# SECTION "3 Using a Socket"
-			#
-			# A protocol like HTTP uses a socket for only one
-			# transfer. The client sends a request, the reads a
-			# reply. That's it. The socket is discarded. This
-			# means that a client can detect the end of the reply
-			# by receiving 0 bytes.
-			# 
-			# But if you plan to reuse your socket for further
-			# transfers, you need to realize that there is no
-			# "EOT" (End of Transfer) on a socket. I repeat: if a
-			# socket send or recv returns after handling 0 bytes,
-			# the connection has been broken. If the connection
-			# has not been broken, you may wait on a recv forever,
-			# because the socket will not tell you that there's
-			# nothing more to read (for now). Now if you think
-			# about that a bit, you'll come to realize a
-			# fundamental truth of sockets: messages must either
-			# be fixed length (yuck), or be delimited (shrug), or
-			# indicate how long they are (much better), or end by
-			# shutting down the connection. The choice is entirely
-			# yours, (but some ways are righter than others).
-			#
-			# WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
-			# FOUND
-			dollar_count = data.count("$")
-			while dollar_count < 2:
-			    data = data + self.IcPaSock.recv(size)
-			    #print "-----------------------------> more receive"
-                    dollar_count = data.count("$")
+    def connect(self,shouldReconnect=True):
+        #print "connecting"
+        #print "MYLOG IS THIS"
+        self.shouldReconnect = shouldReconnect
+        if (self.Status == CStatus.Connected):
+            return 0
+        self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.IcPaSock.settimeout( self.timeout )
+        #self.IcPaSock.settimeout( 0.001 )
+        
+        NOLINGER = struct.pack('ii', 1, 0)
+        self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
+        
+        try:
+            self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
+            if self.log_path:
+                self.openLogFile()
+        except socket.error, msg:            
+            iex = IcePAPException(IcePAPException.TIMEOUT, "Error connecting to the Icepap",msg)
+            raise iex
+        except:
+            iex = IcePAPException(IcePAPException.ERROR, "Error creating log file")
+            raise iex
+        self.Status = CStatus.Connected
+        #self.IcPaSock.settimeout( 0 )
+        #print "should be connected"
+        self.connected=1
+        return 0
+    
+    def sendWriteReadCommand(self, cmd, size = 8192):
+        if not self.connected:
+            raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
+        try:
+            #print "sendWriteReadCommand"
+            message = cmd
+            cmd = cmd + "\n"
+            self.lock.acquire()
+            self.IcPaSock.send(cmd)
+            data = self.IcPaSock.recv(size)
+            if data.count("$") > 0:
+                ################################################
+                # WORKAROUND
+                ################################################
+                # AS IT IS SAID IN http://www.amk.ca/python/howto/sockets/
+                # SECTION "3 Using a Socket"
+                #
+                # A protocol like HTTP uses a socket for only one
+                # transfer. The client sends a request, the reads a
+                # reply. That's it. The socket is discarded. This
+                # means that a client can detect the end of the reply
+                # by receiving 0 bytes.
+                # 
+                # But if you plan to reuse your socket for further
+                # transfers, you need to realize that there is no
+                # "EOT" (End of Transfer) on a socket. I repeat: if a
+                # socket send or recv returns after handling 0 bytes,
+                # the connection has been broken. If the connection
+                # has not been broken, you may wait on a recv forever,
+                # because the socket will not tell you that there's
+                # nothing more to read (for now). Now if you think
+                # about that a bit, you'll come to realize a
+                # fundamental truth of sockets: messages must either
+                # be fixed length (yuck), or be delimited (shrug), or
+                # indicate how long they are (much better), or end by
+                # shutting down the connection. The choice is entirely
+                # yours, (but some ways are righter than others).
+                #
+                # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
+                # FOUND
+                while data.count('$') < 2:
+                    data = data + self.IcPaSock.recv(size)
+                    #print "-----------------------------> more receive"
                 ################################################
 
             self.lock.release()
