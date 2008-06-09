@@ -115,7 +115,7 @@ class IcePAP:
         self.sendWriteCommand(command)
    
     def setMode(self, addr, mode):
-        command = "%d:NAME %s" % (addr, mode)
+        command = "%d:MODE %s" % (addr, mode)
         self.sendWriteCommand(command)
     
     def getMode(self, addr):
@@ -141,8 +141,12 @@ class IcePAP:
     
     def getName(self, addr):
         command = "%d:?NAME" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
+        # FIX BUG OF INVALID NAMES
+        try:
+            ans = self.sendWriteReadCommand(command)
+            return self.parseResponse(command, ans)
+        except:
+            return ""
     
     def setName(self, addr, name):
         command = "%d:NAME %s" % (addr, name)
