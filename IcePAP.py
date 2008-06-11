@@ -114,6 +114,10 @@ class IcePAP:
         command = "%d:CONFIG %s" % (addr, signature)
         self.sendWriteCommand(command)
    
+    def setDefaultConfig(self,addr):
+        command = "%d:_CFG DEFAULT" % addr
+        self.sendWriteCommand(command)
+
     def setMode(self, addr, mode):
         command = "%d:MODE %s" % (addr, mode)
         self.sendWriteCommand(command)
