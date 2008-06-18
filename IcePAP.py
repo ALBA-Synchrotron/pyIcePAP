@@ -138,6 +138,11 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse("%d:?VER" % addr, ans)    
             
+    def getActive(self, addr):
+        command = "%d:?ACTIVE" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+    
     def getId(self, addr):
         command = "%d:?ID HW" % addr
         ans = self.sendWriteReadCommand(command)
