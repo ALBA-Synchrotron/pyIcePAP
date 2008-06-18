@@ -43,7 +43,7 @@ class IcepapStatus:
         return val
     @staticmethod
     def isActive(register):
-        val = register >> 5
+        val = register >> 4
         val = val & 1
         return not val
     @staticmethod
