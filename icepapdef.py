@@ -45,7 +45,7 @@ class IcepapStatus:
     def isActive(register):
         val = register >> 4
         val = val & 7
-        return val == 0
+        return val == 1
     @staticmethod
     def isReady(register):
         val = register >> 9
