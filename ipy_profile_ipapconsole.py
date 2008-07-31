@@ -54,12 +54,12 @@ def main():
 
             print "Setting MODE PROG"
             cmd = "#MODE PROG"
-            answer = wr(cmd)
+            answer = self.ice.sendWriteReadCommand(cmd)
             print answer
         
             print "Transferring firmware"
             cmd = "*PROG SAVE"
-            w(cmd)
+            self.ice.sendWriteCommand(cmd)
             
             startmark = 0xa5aa555a
             maskedchksum = chksum & 0xffffffff
@@ -72,7 +72,7 @@ def main():
                 self.ice.sendData(struct.pack('H',data[i]))
             time.sleep(7)
             print "Remember Icepap system is in MODE PROG"
-            return wr("?MODE")
+            return self.ice.sendWriteReadCommand("?MODE")
         except Exception,e:
             print "!<- Some exception occurred: ",e
             return e
