@@ -16,6 +16,11 @@ def main():
         self.ice.connect(shouldReconnect=False)
     ip.expose_magic("connect",connect)
 
+    def disconnect(self,parameter_s='',name="disconnect"):
+        self.ice.disconnect()
+        self.ice = None
+    ip.expose_magic("disconnect",disconnect)
+
     def w(self,parameter_s='',name="w"):
         command = parameter_s.upper()
         command = command.replace("\\","")
@@ -101,6 +106,6 @@ def main():
                         versions_dict[addr] = version
         return versions_dict
     ip.expose_magic("listversions",listversions)
-        
+
 
 main()
