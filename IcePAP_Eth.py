@@ -8,10 +8,10 @@ from IcePAP import *
 
 class EthIcePAP(IcePAP):
 
-    connected=0
-    shouldReconnect = True
 
     def connect(self,shouldReconnect=True):
+        self.connected = 0
+        self.DEBUG = False
         #print "connecting"
         #print "MYLOG IS THIS"
         self.shouldReconnect = shouldReconnect
@@ -88,6 +88,8 @@ class EthIcePAP(IcePAP):
             self.lock.release()
             message = message + "\t\t[ " + data + " ]"
             self.writeLog(message)
+            if self.DEBUG:
+                print "SEND:>%s<\t\t\tRECEIVE:>%s<" % (cmd,data)
             return data
         except socket.timeout, msg:
             #print "socket TIME OUT"
@@ -128,6 +130,8 @@ class EthIcePAP(IcePAP):
             self.IcPaSock.send(cmd)
             self.writeLog(message)
             self.lock.release()
+            if self.DEBUG:
+                print "SEND:>%s<" % cmd
         except socket.timeout, msg:
             self.writeLog(message + " " + msg)      
             self.lock.release()           
