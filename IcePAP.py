@@ -164,6 +164,17 @@ class IcePAP:
     def getCurrent(self, addr):
         return self.getCfgParameter(addr, "NCURR")
     
+    def isExpertFlagSet(self,addr):
+        # IF FIRMWARE HAS NO
+        try:
+            return self.getCfgParameter(addr, "EXPERT")
+        except:
+            return "NO"
+
+    def setExpertFlag(self,addr):
+        command = "%d:CFG EXPERT" % (addr)
+        self.sendWriteCommand(command)
+
     def move_in_config(self, addr, steps):
         command = "%d:CMOVE %d " % (addr, steps)
         self.sendWriteCommand(command)
@@ -260,6 +271,10 @@ class IcePAP:
 
     def abortMotor(self, addr):
         command = "%d:ABORT" % addr
+        self.sendWriteCommand(command)
+
+    def blink(self, addr, secs):
+        command = "%d:BLINK %d" % (addr,secs)
         self.sendWriteCommand(command)
     
     def rmove(self, addr, steps):
