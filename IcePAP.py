@@ -288,11 +288,19 @@ class IcePAP:
     def move(self, addr, abs_pos):
         command = "%d:MOVE %d " % (addr, abs_pos)
         self.sendWriteCommand(command)                
-       
-    
+           
     def jog(self, addr, speed):
         self.sendWriteCommand(addr, 'J '+str(speed))
-    
+
+    def getClosedLoop(self,addr):
+        command = "%d:?PCLOOP" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command,ans)
+
+    def setClosedLoop(self,addr,enc):
+        command = "%d:PCLOOP %s" % (addr,enc)
+        self.sendWriteCommand(command)
+
     # ---- multiple axis commands ----------
     def getMultiplePositions(self, axis_list, pos_sel = "AXIS"):
         axis = ""
