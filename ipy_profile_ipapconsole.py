@@ -32,17 +32,20 @@ def main():
             return e
     ip.expose_magic("w",w)
 
-    def wr(self,parameter_s='',name="wr"):
+    def wro(self,parameter_s='',name="wro"):
         command = parameter_s.upper()
         command = command.replace("\\","")
         print "-> "+command
         try:
-            #print "<- "+self.ice.sendWriteReadCommand(command)
             ans = self.ice.sendWriteReadCommand(command)
             return ans
         except Exception,e:
             print "!<- Some exception occurred: ",e
             return e
+    ip.expose_magic("wro",wro)
+
+    def wr(self,parameter_s='',name="wr"):
+        print wro(self,parameter_s)
     ip.expose_magic("wr",wr)
 
 
