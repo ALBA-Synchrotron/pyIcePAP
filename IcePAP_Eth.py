@@ -18,7 +18,7 @@ class ReconnectThread(Thread):
                 if self.icepap.DEBUG:
                     print "Reconnect Thread: Trying to reconnect"
                 self.icepap.try_to_connect()
-            time.sleep(sleeptime)
+            time.sleep(self.sleeptime)
         
 class EthIcePAP(IcePAP):
 
