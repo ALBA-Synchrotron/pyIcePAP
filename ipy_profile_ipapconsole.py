@@ -13,7 +13,7 @@ def main():
         if len(split) == 2:
             port = split[1]
         self.ice = EthIcePAP(host,port)
-        self.ice.connect(shouldReconnect=False)
+        self.ice.connect()
     ip.expose_magic("connect",connect)
 
     def disconnect(self,parameter_s='',name="disconnect"):

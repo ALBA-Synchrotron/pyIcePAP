@@ -4,42 +4,32 @@ import errno
 import time
 import icepapdef
 from IcePAP import *
+from threading import Thread
 
+class ReconnectThread(Thread):
+    def __init__(self,icepap,sleeptime):
+        Thread.__init__(self)
+        self.icepap = icepap
+        self.sleeptime = sleeptime
 
+    def run(self):
+        while True:
+            if not self.icepap.connected:
+                if self.icepap.DEBUG:
+                    print "Reconnect Thread: Trying to reconnect"
+                self.icepap.try_to_connect()
+            time.sleep(sleeptime)
+        
 class EthIcePAP(IcePAP):
 
-
-    def connect(self,shouldReconnect=True):
+    def __init__(self,host,port,timeout=3,log_path=None):
+        IcePAP.__init__(self,host,port,timeout,log_path)
         self.connected = 0
         self.DEBUG = False
-        #print "connecting"
-        #print "MYLOG IS THIS"
-        self.shouldReconnect = shouldReconnect
-        if (self.Status == CStatus.Connected):
-            return 0
-        self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.IcPaSock.settimeout( self.timeout )
-        #self.IcPaSock.settimeout( 0.001 )
-        
-        NOLINGER = struct.pack('ii', 1, 0)
-        self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
-        
-        try:
-            self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
-            if self.log_path:
-                self.openLogFile()
-        except socket.error, msg:            
-            iex = IcePAPException(IcePAPException.TIMEOUT, "Error connecting to the Icepap",msg)
-            raise iex
-        except:
-            iex = IcePAPException(IcePAPException.ERROR, "Error creating log file")
-            raise iex
-        self.Status = CStatus.Connected
-        #self.IcPaSock.settimeout( 0 )
-        #print "should be connected"
-        self.connected=1
-        return 0
-    
+        self.reconnect_thread = ReconnectThread(self,self.timeout)
+        self.reconnect_thread.setDaemon(True)
+        self.reconnect_thread.start()
+
     def sendWriteReadCommand(self, cmd, size = 8192):
         if not self.connected:
             raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
@@ -82,41 +72,37 @@ class EthIcePAP(IcePAP):
                 # FOUND
                 while data.count('$') < 2:
                     data = data + self.IcPaSock.recv(size)
-                    #print "-----------------------------> more receive"
                 ################################################
 
             self.lock.release()
             message = message + "\t\t[ " + data + " ]"
             self.writeLog(message)
             if self.DEBUG:
-                print "SEND:>%s<\t\t\tRECEIVE:>%s<" % (cmd,data)
+                print "\t\tSEND: %s\t\tRECEIVE: %s" % (cmd,data)
             return data
         except socket.timeout, msg:
-            #print "socket TIME OUT"
+            if self.DEBUG:
+                print "socket TIME OUT"
             self.writeLog(message + " " + str(msg))  
             self.lock.release()
-            if self.shouldReconnect:
-                self.disconnect()   
-                #print "Disconnected socket\n"
-                self.connected=0
-                self.connect_retry()
+            self.disconnect()   
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex
         except socket.error, msg:
+            if self.DEBUG:
+                print "socket ERROR: %s"%msg
             a,b,c=sys.exc_info()
             e,f=b
             self.writeLog(message + " " + str(sys.exc_info()))
             self.lock.release()  
-            #print msg
-            #print "Unexpected error:", sys.exc_info()            
+            self.disconnect()   
             if e==errno.ECONNRESET or e==errno.EPIPE:
-                if self.shouldReconnect:
-                    self.disconnect()   
                     #print "Disconnected socket\n"
-                    self.connect_retry()
+                    #self.connect_retry()
+                    pass
             else:
                 iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
-                raise iex          
+                raise iex
         
 
     
@@ -133,13 +119,19 @@ class EthIcePAP(IcePAP):
             if self.DEBUG:
                 print "SEND:>%s<" % cmd
         except socket.timeout, msg:
+            if self.DEBUG:
+                print "socket TIME OUT"
             self.writeLog(message + " " + msg)      
-            self.lock.release()           
+            self.lock.release()
+            self.disconnect()
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex            
         except socket.error, msg:
+            if self.DEBUG:
+                print "socket ERROR: %s"%msg
             self.writeLog(message + " " + str(sys.exc_info()))
             self.lock.release()  
+            self.disconnect()
             #print "Unexpected error:", sys.exc_info()
             iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
             raise iex   
@@ -162,18 +154,45 @@ class EthIcePAP(IcePAP):
             raise iex   
     
     def disconnect(self):
-        #print "Disconnecting ..."
         if (self.Status == CStatus.Disconnected):
-            return 0
+            return
+        if self.DEBUG:
+            print "disconnecting from icepap..."
         try:
             self.IcPaSock.close()
             self.closeLogFile()
             self.Status = CStatus.Disconnected
-            return 0
+            self.connected = 0
         except:
             iex = IcePAPException(IcePAPException.ERROR, "Error disconnecting the Icepap")
             raise iex   
         
+    def try_to_connect(self):
+        self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.IcPaSock.settimeout( self.timeout )        
+        NOLINGER = struct.pack('ii', 1, 0)
+        self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
+        try:
+            self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
+            if self.log_path:
+                self.openLogFile()
+            self.Status = CStatus.Connected
+            self.connected = 1
+            if self.DEBUG:
+                print "Connected to %s with DEBUG"%self.IcePAPhost
+        except socket.error, msg:
+            iex = IcePAPException(IcePAPException.TIMEOUT, "Error connecting to the Icepap",msg)
+            #raise iex
+            if self.DEBUG:
+                print "Socket error while trying to connect to %s"%self.IcePAPhost
+        except:
+            iex = IcePAPException(IcePAPException.ERROR, "Error creating log file")
+            #raise iex
+            if self.DEBUG:
+                print "Some exception while trying to connect to %s"%self.IcePAPhost
+
+
+    # THIS IS NOT USED ANY MORE...
     def connect_retry(self):
         #print "connection broken\n trying to reconnect for a short while..."
         self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
