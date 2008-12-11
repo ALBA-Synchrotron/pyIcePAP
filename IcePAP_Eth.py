@@ -33,7 +33,7 @@ class EthIcePAP(IcePAP):
     def connect(self):
         total_sleep = 0
         inc = self.timeout/10.0
-        while not self.connected or total_sleep < self.timeout:
+        while (not self.connected) and (total_sleep < self.timeout):
             time.sleep(inc)
             total_sleep += inc
         if self.connected:
