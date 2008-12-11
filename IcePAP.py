@@ -8,7 +8,7 @@ import icepapdef
 class CStatus:
     Disconnected, Connected, Error = range(3)
             
-class IcePAPException:
+class IcePAPException(Exception):
     ERROR, TIMEOUT, CMD = range(3)
     def __init__(self, code, name, msg=""):
         self.code = code
