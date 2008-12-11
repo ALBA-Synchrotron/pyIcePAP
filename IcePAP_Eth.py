@@ -26,10 +26,21 @@ class EthIcePAP(IcePAP):
         IcePAP.__init__(self,host,port,timeout,log_path)
         self.connected = 0
         self.DEBUG = False
-        self.reconnect_thread = ReconnectThread(self,self.timeout)
+        self.reconnect_thread = ReconnectThread(self,self.timeout/10.0)
         self.reconnect_thread.setDaemon(True)
         self.reconnect_thread.start()
 
+    def connect(self):
+        total_sleep = 0
+        inc = self.timeout/10.0
+        while not self.connected or total_sleep < self.timeout:
+            time.sleep(inc)
+            total_sleep += inc
+        if self.connected:
+            return True
+        raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
+        
+            
     def sendWriteReadCommand(self, cmd, size = 8192):
         if not self.connected:
             raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
@@ -85,6 +96,7 @@ class EthIcePAP(IcePAP):
                 print "socket TIME OUT"
             self.writeLog(message + " " + str(msg))  
             self.lock.release()
+            print "disconnectin 1"
             self.disconnect()   
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex
@@ -95,6 +107,7 @@ class EthIcePAP(IcePAP):
             e,f=b
             self.writeLog(message + " " + str(sys.exc_info()))
             self.lock.release()  
+            print "disconnectin 2"
             self.disconnect()   
             if e==errno.ECONNRESET or e==errno.EPIPE:
                     #print "Disconnected socket\n"
@@ -123,6 +136,7 @@ class EthIcePAP(IcePAP):
                 print "socket TIME OUT"
             self.writeLog(message + " " + msg)      
             self.lock.release()
+            print "disconnectin 3"
             self.disconnect()
             iex = IcePAPException(IcePAPException.TIMEOUT, "Connection Timeout",msg)
             raise iex            
@@ -131,6 +145,7 @@ class EthIcePAP(IcePAP):
                 print "socket ERROR: %s"%msg
             self.writeLog(message + " " + str(sys.exc_info()))
             self.lock.release()  
+            print "disconnectin 4"
             self.disconnect()
             #print "Unexpected error:", sys.exc_info()
             iex = IcePAPException(IcePAPException.ERROR, "Error sending command to the Icepap",msg)
@@ -154,10 +169,12 @@ class EthIcePAP(IcePAP):
             raise iex   
     
     def disconnect(self):
-        if (self.Status == CStatus.Disconnected):
-            return
         if self.DEBUG:
             print "disconnecting from icepap..."
+        if (self.Status == CStatus.Disconnected):
+            if self.DEBUG:
+                print "I was already disconnected!..."
+            return
         try:
             self.IcPaSock.close()
             self.closeLogFile()
