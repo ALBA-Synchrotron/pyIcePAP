@@ -132,7 +132,20 @@ class IcePAP:
     
     def getVersionDsp(self, addr):
         return self.getVersion(addr, "DSP")
-    
+
+    def getVersionSaved(self):
+        controller_version = self.getVersion(0,'CONTROLLER')
+        if controller_version < '1.16':
+            return 'Not_Available'
+        #command = "?VER SAVED DRIVER"
+        command = "?VER SAVED"
+        ans = self.sendWriteReadCommand(command)
+        ans = ans[ans.find('DRIVER'):]
+        ans = ans.split('\n')[0]
+        ans = ans.split(':')[1]
+        driver_saved = ans.replace(' ','')
+        return driver_saved
+            
     def getVersion(self, addr, module):
         command = "%d:?VER %s" % (addr, module)
         ans = self.sendWriteReadCommand(command)
@@ -178,6 +191,45 @@ class IcePAP:
     def move_in_config(self, addr, steps):
         command = "%d:CMOVE %d " % (addr, steps)
         self.sendWriteCommand(command)
+
+
+    # ------------ ISG HOMING TEMPORARY FUNCTIONS ------------------------------      
+
+    def isg_cfghome(self,addr,signal,edge):
+        command = "%d:ISG CFGHOME %d %d" % (addr,signal,edge)
+        # THIS IS FOR THE BUG IN THE ICEPAP FIRMWARE...
+        self.sendWriteCommand(command)
+        self.sendWriteCommand(command)
+
+    def isg_homecfgd(self,addr):
+        command = "%d:?ISG ?HOMECFGD" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?ISG"%addr, ans)
+
+    def isg_homed(self,addr):
+        command = "%d:?ISG ?HOMED" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return '1' ==  self.parseResponse("%d:?ISG"%addr, ans)
+        
+    def isg_switches(self,addr,switch=None):
+        command = "%d:?ISG ?SW" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        ans = self.parseResponse("%d:?ISG"%addr, ans)
+        switches = ans.split()
+        if switch is None:
+            return [int(switches[0]),int(switches[1]),int(switches[2])]
+        else:
+            return int(switches[switch])
+    
+    
+    def isg_sw_lim_neg(self,addr):
+        return self.isg_switches(addr,0) == 1
+        
+    def isg_sw_lim_pos(self,addr):
+        return self.isg_switches(addr,1) == 1
+        
+    def isg_sw_home(self,addr):
+        return self.isg_switches(addr,2) == 1
         
     # ------------ Power and Motion control Commands ------------------------------      
     def readParameter(self, addr, name, args = ""):
@@ -290,7 +342,7 @@ class IcePAP:
         self.sendWriteCommand(command)                
            
     def jog(self, addr, speed):
-        self.sendWriteCommand(addr, 'J '+str(speed))
+        self.sendWriteCommand("%d:JOG %d" % (addr, speed))
 
     def getClosedLoop(self,addr):
         command = "%d:?PCLOOP" % addr
@@ -471,7 +523,22 @@ class IcePAP:
             return "IcePAPError. Not Identified"
       
     
-    
+    # ------------- library utilities ------------------------
+    def getProgressStatus(self):
+        # TRY FIRST THE NEW ?_PROG command
+        command = "?_PROG"
+        ans = self.sendWriteReadCommand(command)
+        ans = self.parseResponse(command, ans)
+        # IF ANY ERROR, TRY THE OLD ?PROG command
+        if ans.count("ERROR") > 0:
+            command = "?PROG"
+            ans = self.sendWriteReadCommand(command)
+            ans = self.parseResponse(command, ans)
+        if ans.count("ACTIVE") > 0:
+            p = int(ans.split(" ")[1].split(".")[0])
+            return p
+        return None
+        
         
    
         
