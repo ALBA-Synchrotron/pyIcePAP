@@ -1,4 +1,4 @@
-#PyIcepap for Icepap version 1.52
+# PyIcepap for Icepap firmware version 1.16
 import serial
 import sys
 from threading import Lock
@@ -47,7 +47,9 @@ class IcePAP:
         if self.log_file:
             prompt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ">\t"
             self.log_file.write(prompt+message+"\n")        
-           
+
+    # ------------ Interface Commands ------------------------------
+
     def connect(self):
         pass
     
@@ -63,25 +65,64 @@ class IcePAP:
     def disconnect(self):
         pass
 
+    ################################# BOARD COMMANDS ###########################################
+
     # ------------ Board Configuration and Identifaction Commands ------------------------------
+
+    def getActive(self, addr):
+        command = "%d:?ACTIVE" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
     
-    def parseResponse(self, command, ans):
-        if ans.find(command) != -1:
-            #print ans
-            ans = ans.replace(command, "")
-            ans = ans.lstrip()
-            #print ans
-            return  ans
-        else:
-            print ans + " " + command
-            iex = IcePAPException(IcePAPException.CMD, ans)
-            raise iex
+    def getMode(self, addr):
+        command = "%d:?MODE" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+
+    def setMode(self, addr, mode):
+        command = "%d:MODE %s" % (addr, mode)
+        self.sendWriteCommand(command)
+
+    def getStatus(self, addr):
+        command = "%d:?STATUS" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
     
+    def startConfig(self, addr):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'start_config'", "use 'setConfig'")
+        raise iex
+        
+    def setConfig(self, addr):
+        command = "%d:CONFIG" % addr
+        self.sendWriteCommand(command)
+        
+    def signConfig(self, addr, signature):
+        command = "%d:CONFIG %s" % (addr, signature)
+        self.sendWriteCommand(command)
+   
+    def getConfigSignature(self, addr):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'getConfigSignature'", "use 'getConfig'")
+        raise iex
+
     def getConfig(self,addr):
+        command = "%d:?CONFIG" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+    
+    def getCfg(self,addr):
         command = "%d:?CFG" % (addr)
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
-        
+
+    def getCfgParameter(self, addr, parameter):
+        command = "%d:?CFG %s" % (addr, parameter)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+    
+    def setCfgParameter(self, addr, parameter, value):
+        command = "%d:CFG %s %s" % (addr, parameter, value)
+        self.sendWriteCommand(command)
+    
     def getCfgInfo(self,addr):
         command = "%d:?CFGINFO" % (addr)
         ans = self.sendWriteReadCommand(command)
@@ -92,44 +133,11 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
         
-    def setCfgParameter(self, addr, parameter, value):
-        command = "%d:CFG %s %s" % (addr, parameter, value)
-        self.sendWriteCommand(command)
-    
-    def getCfgParameter(self, addr, parameter):
-        command = "%d:?CFG %s" % (addr, parameter)
+    def getVersion(self, addr, module):
+        command = "%d:?VER %s" % (addr, module)
         ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
-    def startConfig(self, addr):
-        command = "%d:CONFIG" % addr
-        self.sendWriteCommand(command)
-        
-    def getConfigSignature(self, addr):
-        command = "%d:?CONFIG" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
-    def signConfig(self, addr, signature):
-        command = "%d:CONFIG %s" % (addr, signature)
-        self.sendWriteCommand(command)
-   
-    def setDefaultConfig(self,addr):
-        command = "%d:_CFG DEFAULT" % addr
-        self.sendWriteCommand(command)
+        return self.parseResponse("%d:?VER" % addr, ans)
 
-    def setMode(self, addr, mode):
-        command = "%d:MODE %s" % (addr, mode)
-        self.sendWriteCommand(command)
-    
-    def getMode(self, addr):
-        command = "%d:?MODE" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
-    def getSystemVersion(self):
-        return self.getVersion(0, "")
-    
     def getVersionDsp(self, addr):
         return self.getVersion(addr, "DSP")
 
@@ -145,102 +153,28 @@ class IcePAP:
         ans = ans.split(':')[1]
         driver_saved = ans.replace(' ','')
         return driver_saved
-            
-    def getVersion(self, addr, module):
-        command = "%d:?VER %s" % (addr, module)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?VER" % addr, ans)    
-            
-    def getActive(self, addr):
-        command = "%d:?ACTIVE" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
-    def getId(self, addr):
-        command = "%d:?ID HW" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?ID" % addr, ans)
-    
+
     def getName(self, addr):
         command = "%d:?NAME" % addr
         # FIX BUG OF INVALID NAMES
+        # THIS COULD HAPPEN WHEN RECEIVED FROM FACTORY
         try:
             ans = self.sendWriteReadCommand(command)
             return self.parseResponse(command, ans)
         except:
-            return ""
+            return "NOT_PRINTABLE_CHARACTERS_FOUND"
     
     def setName(self, addr, name):
         command = "%d:NAME %s" % (addr, name)
         self.sendWriteCommand(command)
 
-    def getCurrent(self, addr):
-        return self.getCfgParameter(addr, "NCURR")
-    
-    def isExpertFlagSet(self,addr):
-        # IF FIRMWARE HAS NO
-        try:
-            return self.getCfgParameter(addr, "EXPERT")
-        except:
-            return "NO"
-
-    def setExpertFlag(self,addr):
-        command = "%d:CFG EXPERT" % (addr)
-        self.sendWriteCommand(command)
-
-    def move_in_config(self, addr, steps):
-        command = "%d:CMOVE %d " % (addr, steps)
-        self.sendWriteCommand(command)
-
-
-    # ------------ ISG HOMING TEMPORARY FUNCTIONS ------------------------------      
-
-    def isg_cfghome(self,addr,signal,edge):
-        command = "%d:ISG CFGHOME %d %d" % (addr,signal,edge)
-        # THIS IS FOR THE BUG IN THE ICEPAP FIRMWARE...
-        self.sendWriteCommand(command)
-        self.sendWriteCommand(command)
-
-    def isg_homecfgd(self,addr):
-        command = "%d:?ISG ?HOMECFGD" % (addr)
+    def getId(self, addr):
+        command = "%d:?ID HW" % addr
         ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?ISG"%addr, ans)
-
-    def isg_homed(self,addr):
-        command = "%d:?ISG ?HOMED" % (addr)
-        ans = self.sendWriteReadCommand(command)
-        return '1' ==  self.parseResponse("%d:?ISG"%addr, ans)
-        
-    def isg_switches(self,addr,switch=None):
-        command = "%d:?ISG ?SW" % (addr)
-        ans = self.sendWriteReadCommand(command)
-        ans = self.parseResponse("%d:?ISG"%addr, ans)
-        switches = ans.split()
-        if switch is None:
-            return [int(switches[0]),int(switches[1]),int(switches[2])]
-        else:
-            return int(switches[switch])
+        return self.parseResponse("%d:?ID" % addr, ans)
     
-    
-    def isg_sw_lim_neg(self,addr):
-        return self.isg_switches(addr,0) == 1
-        
-    def isg_sw_lim_pos(self,addr):
-        return self.isg_switches(addr,1) == 1
-        
-    def isg_sw_home(self,addr):
-        return self.isg_switches(addr,2) == 1
-        
     # ------------ Power and Motion control Commands ------------------------------      
-    def readParameter(self, addr, name, args = ""):
-        command = "%d:?%s %s" % (addr, name, args)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?%s" % (addr, name) , ans)
-        
-    def writeParameter(self, addr, name, value):
-        command = "%d:%s %s" % (addr, name, value)
-        self.sendWriteCommand(command)
-        
+
     def getPower(self, addr):
         command = "%d:?POWER" % addr
         ans = self.sendWriteReadCommand(command)
@@ -249,12 +183,6 @@ class IcePAP:
     def setPower(self, addr, value):
         command = "%d:POWER %s" % (addr, value)
         self.sendWriteCommand(command)
-    
-    def disable(self, addr):
-        self.setPower(addr, "OFF")
-    
-    def enable(self, addr):
-        self.setPower(addr, "ON")
     
     def getAuxPS(self, addr):
         command = "%d:?AUXPS" % addr
@@ -301,49 +229,45 @@ class IcePAP:
         command = "%d:ACCTIME %s" % (addr, acctime)
         self.sendWriteCommand(command)
     
-    def getStatus(self, addr):
-        command = "%d:?STATUS" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
-    def getRackStatus(self, racknr):
-        command = "?SYSSTAT %d" % racknr
-        ans = self.sendWriteReadCommand(command)
-        ans = self.parseResponse("?SYSSTAT", ans)
-        return ans.split()
-        
-    def getSysStatus(self):
-        command = "?SYSSTAT"
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-   
-    def stopMotor(self, addr):
-        command = "%d:STOP" % addr
-        self.sendWriteCommand(command)
-
-    def abortMotor(self, addr):
-        command = "%d:ABORT" % addr
-        self.sendWriteCommand(command)
-
-    def blink(self, addr, secs):
-        command = "%d:BLINK %d" % (addr,secs)
-        self.sendWriteCommand(command)
-    
-    def rmove(self, addr, steps):
-        command = "%d:RMOVE %d " % (addr, steps)
-        self.sendWriteCommand(command)
-    
-    def cmove(self, addr, steps):
-        command = "%d:CMOVE %d " % (addr, steps)
-        self.sendWriteCommand(command)
-    
     def move(self, addr, abs_pos):
         command = "%d:MOVE %d " % (addr, abs_pos)
         self.sendWriteCommand(command)                
            
+    def rmove(self, addr, steps):
+        command = "%d:RMOVE %d " % (addr, steps)
+        self.sendWriteCommand(command)
+    
+    def move_in_config(self, addr, steps):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'move_in_config'", "use 'cmove'")
+        raise iex
+
+    def cmove(self, addr, steps):
+        command = "%d:CMOVE %d " % (addr, steps)
+        self.sendWriteCommand(command)
+    
     def jog(self, addr, speed):
         self.sendWriteCommand("%d:JOG %d" % (addr, speed))
 
+    def cjog(self, addr, speed):
+        self.sendWriteCommand("%d:CJOG %d" % (addr, speed))
+
+    def stopMotor(self, addr):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'stopMotor'", "use 'stop'")
+        raise iex
+
+    def stop(self, addr):
+        command = "%d:STOP" % addr
+        self.sendWriteCommand(command)
+
+    def abortMotor(self, addr):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'abortMotor'", "use 'abort'")
+        raise iex
+
+    def abort(self, addr):
+        command = "%d:ABORT" % addr
+        self.sendWriteCommand(command)
+
+    # ------------- Closed Loop commands ------------------------
     def getClosedLoop(self,addr):
         command = "%d:?PCLOOP" % addr
         ans = self.sendWriteReadCommand(command)
@@ -353,7 +277,70 @@ class IcePAP:
         command = "%d:PCLOOP %s" % (addr,enc)
         self.sendWriteCommand(command)
 
-    # ---- multiple axis commands ----------
+    def syncEncoders(self, addr):
+        command = "%d:ESYNC"
+        self.sendWriteCommand(command)
+
+    # ------------- Input/Output commands ------------------------
+    def getIndexerSource(self, addr):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'getIndexerSource'", "use 'getIndexer'")
+        raise iex
+
+    def getIndexer(self, addr):
+        command = "%d:?INDEXER" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+    
+    def setIndexerSource(self, addr, src):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'setIndexerSource'", "use 'setIndexer'")
+        raise iex
+
+    def setIndexer(self, addr, src):
+        command = "%d:INDEXER %s" % (addr, src)
+        self.sendWriteCommand(command)
+        
+    def getInfoSource(self, addr, info):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'getInfoSource'", "use 'getInfo'")
+        raise iex
+
+    def getInfo(self, addr, info):
+        command = "%d:?%s" % (addr, info)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+     
+    def setInfoSource(self, addr, info, src, polarity="NORMAL"):
+        iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'setInfoSource'", "use 'setInfo'")
+        raise iex
+
+    def setInfo(self, addr, info, src, polarity="NORMAL"):
+        command = "%d:%s %s %s" % (addr, info, src, polarity)
+        self.sendWriteCommand(command)
+        
+    # ------------- Help and error commands ------------------------
+    def blink(self, addr, secs):
+        command = "%d:BLINK %d" % (addr,secs)
+        self.sendWriteCommand(command)
+    
+
+    ################################# SYSTEM COMMANDS ###########################################
+
+    def getSysStatus(self):
+        command = "?SYSSTAT"
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+   
+    def getRackStatus(self, racknr):
+        command = "?SYSSTAT %d" % racknr
+        ans = self.sendWriteReadCommand(command)
+        ans = self.parseResponse("?SYSSTAT", ans)
+        return ans.split()
+
+    def getSystemVersion(self):
+        return self.getVersion(0, "")
+    
+    def resetSystem(self):
+        self.sendWriteCommand("RESET")
+
     def getMultiplePositions(self, axis_list, pos_sel = "AXIS"):
         axis = ""
         for addr in axis_list:
@@ -369,7 +356,6 @@ class IcePAP:
             i = i + 1
         return pos_values     
         
-                
     def setMultiplePosition(self, pos_val_list, pos_sel = "AXIS"):
         values = ""
         for addr, value in pos_val_list:
@@ -443,6 +429,20 @@ class IcePAP:
         command = "ACCTIME %s" % values
         self.sendWriteCommand(command)
     
+    def moveMultiple(self, val_list):
+        values = ""
+        for addr, value in val_list:
+            values = values + str(addr) + " " + str(value) + " "
+        command = "MOVE %s " % values
+        self.sendWriteCommand(command)
+    
+    def rmoveMultiple(self, val_list):
+        values = ""
+        for addr, value in val_list:
+            values = values + str(addr) + " " + str(value) + " "
+        command = "RMOVE %s " % values
+        self.sendWriteCommand(command)
+    
     def stopMultipleMotor(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -456,57 +456,51 @@ class IcePAP:
             axis = axis + str(addr) + " " 
         command = "ABORT %s" % axis
         self.sendWriteCommand(command)
-    
-    def rmoveMultiple(self, val_list):
-        values = ""
-        for addr, value in val_list:
-            values = values + str(addr) + " " + str(value) + " "
-        command = "RMOVE %s " % values
+
+
+
+    ############################################################################################
+    ############################################################################################
+
+
+    def setDefaultConfig(self,addr):
+        command = "%d:_CFG DEFAULT" % addr
         self.sendWriteCommand(command)
+
+    def getCurrent(self, addr):
+        return self.getCfgParameter(addr, "NCURR")
     
-    
-    def moveMultiple(self, val_list):
-        values = ""
-        for addr, value in val_list:
-            values = values + str(addr) + " " + str(value) + " "
-        command = "MOVE %s " % values
-        self.sendWriteCommand(command)
-    
-        
-    # ------------- Input/Output commands ------------------------
-    def setIndexerSource(self, addr, src):
-        command = "%d:INDEXER %s" % (addr, src)
-        print command
-        self.sendWriteCommand(command)
-        
-    def getIndexerSource(self, addr):
-        command = "%d:?INDEXER" % addr
+    def readParameter(self, addr, name, args = ""):
+        command = "%d:?%s %s" % (addr, name, args)
         ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
-    def setInfoSource(self, addr, info, src, polarity="NORMAL"):
-        command = "%d:%s %s %s" % (addr, info, src, polarity)
+        return self.parseResponse("%d:?%s" % (addr, name) , ans)
+        
+    def writeParameter(self, addr, name, value):
+        command = "%d:%s %s" % (addr, name, value)
         self.sendWriteCommand(command)
         
-    def getInfoSource(self, addr, info):
-        command = "%d:?%s" % (addr, info)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-     
+    def isExpertFlagSet(self,addr):
+        try:
+            return self.getCfgParameter(addr, "EXPERT")
+        except:
+            return "NO"
+
+    def setExpertFlag(self,addr):
+        command = "%d:CFG EXPERT" % (addr)
+        self.sendWriteCommand(command)
+
+    def disable(self, addr):
+        self.setPower(addr, "OFF")
     
+    def enable(self, addr):
+        self.setPower(addr, "ON")
+
     def checkDriver(self, addr):
-        #print "checking driver"
-        
-        ans= self.getId(addr)
-
-        #if self.IceFindError(ans):
-        #    return -1
-
+        ans = self.getId(addr)
         return 0
     
     def icepapfiforst(self):
         print ""
-
             
     def IceFindError(self,ice_answer):
         if (ice_answer.find("ERROR") != -1):
@@ -521,9 +515,24 @@ class IcePAP:
             return new_ans
         else:
             return "IcePAPError. Not Identified"
-      
-    
+
+    def parseResponse(self, command, ans):
+        if ans.find(command) != -1:
+            ans = ans.replace(command, "")
+            ans = ans.lstrip()
+            return  ans
+        else:
+            print ans + " " + command
+            iex = IcePAPException(IcePAPException.CMD, ans)
+            raise iex
+
+
+    ############################################################################################
+    ############################################################################################
+
     # ------------- library utilities ------------------------
+    
+    # GET PROGRAMMING PROGRESS STATUS
     def getProgressStatus(self):
         # TRY FIRST THE NEW ?_PROG command
         command = "?_PROG"
@@ -539,9 +548,56 @@ class IcePAP:
             return p
         return None
         
+
+    # ISG HOMING TEMPORARY FUNCTIONS
+    def isg_cfghome(self,addr,signal,edge):
+        command = "%d:ISG CFGHOME %d %d" % (addr,signal,edge)
+        # THIS IS FOR THE BUG IN THE ICEPAP FIRMWARE...
+        self.sendWriteCommand(command)
+        self.sendWriteCommand(command)
+
+    def isg_homecfgd(self,addr):
+        command = "%d:?ISG ?HOMECFGD" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?ISG"%addr, ans)
+
+    def isg_homed(self,addr):
+        command = "%d:?ISG ?HOMED" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return '1' ==  self.parseResponse("%d:?ISG"%addr, ans)
         
+    def isg_switches(self,addr,switch=None):
+        command = "%d:?ISG ?SW" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        ans = self.parseResponse("%d:?ISG"%addr, ans)
+        switches = ans.split()
+        if switch is None:
+            return [int(switches[0]),int(switches[1]),int(switches[2])]
+        else:
+            return int(switches[switch])
+    
+    
+    def isg_sw_lim_neg(self,addr):
+        return self.isg_switches(addr,0) == 1
+        
+    def isg_sw_lim_pos(self,addr):
+        return self.isg_switches(addr,1) == 1
+        
+    def isg_sw_home(self,addr):
+        return self.isg_switches(addr,2) == 1
+
    
         
+
+
+
+
+
+
+
+
+
+
     def serialScan():
         available = []
         for i in range(256):
