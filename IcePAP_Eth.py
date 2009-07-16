@@ -117,9 +117,20 @@ class EthIcePAP(IcePAP):
         
 
     
-    def sendWriteCommand(self, cmd):
+    def sendWriteCommand(self, cmd, prepend_ack=True):
         if not self.connected:
             raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
+
+        if prepend_ack:
+            ack_cmd = cmd
+            if cmd.find('#') != 0:
+                ack_cmd = '#'+cmd
+            ans = self.sendWriteReadCommand(ack_cmd)
+            if ans.find('OK') == -1:
+                msg = 'Error sending command %s, icepap answered %s' % (cmd,ans)
+                iex = IcePAPException(IcePAPException.ERROR, "SendWriteCommand failed the 'ACK'", msg)
+                raise iex
+            return
         try:
             message = cmd
             cmd = cmd + "\n"
