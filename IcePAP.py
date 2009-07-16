@@ -549,6 +549,21 @@ class IcePAP:
         return None
         
 
+    # GET DRIVERS ALIVE
+    def getDriversAlive(self):
+        drivers = []
+        rackMask = int(self.getSysStatus(),16)
+        for rack in range(16):
+            if (rackMask & (1<<rack)) != 0:
+                rackStatus = self.getRackStatus(rack)
+                driverMask = int(rackStatus[1],16)
+                for driver in range(8):
+                    if (driverMask & (1<<driver)) != 0:
+                        drivers.append((rack*10)+driver+1)
+        return drivers
+
+
+        
     # ISG HOMING TEMPORARY FUNCTIONS
     def isg_cfghome(self,addr,signal,edge):
         command = "%d:ISG CFGHOME %d %d" % (addr,signal,edge)
