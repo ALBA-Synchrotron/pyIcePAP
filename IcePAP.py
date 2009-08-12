@@ -548,7 +548,6 @@ class IcePAP:
             return p
         return None
         
-
     # GET DRIVERS ALIVE
     def getDriversAlive(self):
         drivers = []
@@ -562,8 +561,6 @@ class IcePAP:
                         drivers.append((rack*10)+driver+1)
         return drivers
 
-
-        
     # ISG HOMING TEMPORARY FUNCTIONS
     def isg_cfghome(self,addr,signal,edge):
         command = "%d:ISG CFGHOME %d %d" % (addr,signal,edge)
@@ -590,8 +587,7 @@ class IcePAP:
             return [int(switches[0]),int(switches[1]),int(switches[2])]
         else:
             return int(switches[switch])
-    
-    
+
     def isg_sw_lim_neg(self,addr):
         return self.isg_switches(addr,0) == 1
         
@@ -601,6 +597,11 @@ class IcePAP:
     def isg_sw_home(self,addr):
         return self.isg_switches(addr,2) == 1
 
+    # ISG POWER INFO
+    def isg_powerinfo(self,addr):
+        command = "%d:?ISG ?PWRINFO" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?ISG"%addr, ans)
    
         
 
