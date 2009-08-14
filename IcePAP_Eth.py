@@ -121,6 +121,10 @@ class EthIcePAP(IcePAP):
         if not self.connected:
             raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
 
+        # BUG FOUND DOING AND ACK TO ALL COMMANDS BY DEFAULT
+        if cmd.startswith('PROG') or cmd.startswith(':'):
+            prepend_ack = False
+
         if prepend_ack:
             ack_cmd = cmd
             if cmd.find('#') != 0:
