@@ -517,6 +517,7 @@ class IcePAP:
             return "IcePAPError. Not Identified"
 
     def parseResponse(self, command, ans):
+        command = command.upper()
         if ans.find(command) != -1:
             ans = ans.replace(command, "")
             ans = ans.lstrip()
