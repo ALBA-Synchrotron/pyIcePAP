@@ -122,7 +122,7 @@ class EthIcePAP(IcePAP):
             raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
 
         # BUG FOUND DOING AND ACK TO ALL COMMANDS BY DEFAULT
-        if cmd.startswith('PROG') or cmd.startswith(':'):
+        if cmd.startswith('PROG') or cmd.startswith('*PROG') or cmd.startswith(':'):
             prepend_ack = False
 
         if prepend_ack:
