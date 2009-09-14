@@ -320,7 +320,6 @@ class IcePAP:
     def blink(self, addr, secs):
         command = "%d:BLINK %d" % (addr,secs)
         self.sendWriteCommand(command)
-    
 
     ################################# SYSTEM COMMANDS ###########################################
 
@@ -604,7 +603,57 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse("%d:?ISG"%addr, ans)
    
-        
+    # JLIDON COMMANDS FOR TESTING THE BOARDS
+    # 02/09/2009
+    def getTOvl(self, addr, pos_sel = "ovl"):
+        command = "%d:?_T_CMD %s" % (addr, pos_sel)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?_T_CMD" % addr, ans)
+
+    def setTOvl(self, addr, pos_val, pos_sel = "ovl"):
+        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
+        self.sendWriteCommand(command)
+
+    def getTSD(self, addr, pos_sel = "vm"):
+        command = "%d:?MEAS %s" % (addr, pos_sel)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?MEAS" % addr, ans)
+
+    def setTSD(self, addr, pos_val, pos_sel = "dcsd"):
+        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
+        self.sendWriteCommand(command)
+
+    def getTVA(self, addr, pos_sel = "ia"):
+        command = "%d:?MEAS %s" % (addr, pos_sel)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?MEAS" % addr, ans)
+
+    def setTVA(self, addr, pos_val, pos_sel = "dca"):
+        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
+        self.sendWriteCommand(command)
+
+    def getTVB(self, addr, pos_sel = "ib"):
+        command = "%d:?MEAS %s" % (addr, pos_sel)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?MEAS" % addr, ans)
+
+    def setTVB(self, addr, pos_val, pos_sel = "dcb"):
+        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
+        self.sendWriteCommand(command)
+
+    def getTVCC(self, addr, pos_sel = "vcc"):
+        command = "%d:?MEAS %s" % (addr, pos_sel)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?MEAS" % addr, ans)
+
+
+
+
+
+
+
+
+
 
 
 
