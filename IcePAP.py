@@ -605,6 +605,11 @@ class IcePAP:
    
     # JLIDON COMMANDS FOR TESTING THE BOARDS
     # 02/09/2009
+    def getMeas(self, addr, meas_sel = "I"):
+        command = "%d:?MEAS %s" % (addr, meas_sel)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse("%d:?MEAS" % addr, ans)
+
     def getTOvl(self, addr, pos_sel = "ovl"):
         command = "%d:?_T_CMD %s" % (addr, pos_sel)
         ans = self.sendWriteReadCommand(command)
@@ -614,41 +619,30 @@ class IcePAP:
         command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
         self.sendWriteCommand(command)
 
-    def getTSD(self, addr, pos_sel = "vm"):
-        command = "%d:?MEAS %s" % (addr, pos_sel)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?MEAS" % addr, ans)
-
-    def setTSD(self, addr, pos_val, pos_sel = "dcsd"):
-        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
+    def setDC(self, addr, dc_val, dc_sel = "dcsd"):
+        command = "%d:_T_CMD %s %d" % (addr, dc_sel, dc_val)
         self.sendWriteCommand(command)
 
-    def getTVA(self, addr, pos_sel = "ia"):
-        command = "%d:?MEAS %s" % (addr, pos_sel)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?MEAS" % addr, ans)
+    def getTSD(self, addr):
+        return self.getMeas(addr, "VM")
 
-    def setTVA(self, addr, pos_val, pos_sel = "dca"):
-        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
-        self.sendWriteCommand(command)
+    def setTSD(self, addr, pos_val):
+        self.setDC(addr, dc_val, "DCSD")
 
-    def getTVB(self, addr, pos_sel = "ib"):
-        command = "%d:?MEAS %s" % (addr, pos_sel)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?MEAS" % addr, ans)
+    def getTVA(self, addr):
+        return self.getMeas(addr, "IA")
+
+    def setTVA(self, addr, pos_val):
+        self.setDC(addr, dc_val, "DCA")
+
+    def getTVB(self, addr):
+        return self.getMeas(addr, "IB")
 
     def setTVB(self, addr, pos_val, pos_sel = "dcb"):
-        command = "%d:_T_CMD %s %d" % (addr, pos_sel, pos_val)
-        self.sendWriteCommand(command)
+        self.setDC(addr, dc_val, "DCB")
 
-    def getTVCC(self, addr, pos_sel = "vcc"):
-        command = "%d:?MEAS %s" % (addr, pos_sel)
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse("%d:?MEAS" % addr, ans)
-
-
-
-
+    def getTVCC(self, addr):
+        return self.getMeas(addr, "VCC")
 
 
 
