@@ -1,6 +1,7 @@
 # PyIcepap for Icepap firmware version 1.16
 import serial
 import sys
+import re
 from threading import Lock
 import time, datetime
 import icepapdef
@@ -34,6 +35,11 @@ class IcePAP:
         self.lock = Lock()
         self.log_path = log_path
         self.log_file = None
+
+        # THANKS TO VR FOR THE HINT...
+        self.version_keys = ['CONTROLLER','DSP','FPGA','MCPU1','MCPU0','MCPU2','DRIVER']
+        self.version_reg_exp = re.compile("(%s)\s*:\s*(\d+\.\d+)" % "|".join(self.version_keys),re.VERBOSE)
+
     
     def openLogFile(self):
         name = self.log_path+"/" + self.IcePAPhost + "."+datetime.datetime.now().strftime("%Y%m%d.%H%M%S")
@@ -140,6 +146,12 @@ class IcePAP:
 
     def getVersionDsp(self, addr):
         return self.getVersion(addr, "DSP")
+
+    def getVersionInfoDict(self, addr):
+        command = "%d:?VER INFO" % (addr)
+        ans = self.sendWriteReadCommand(command)
+        info = self.version_reg_exp.findall(ans)
+        return dict(info)
 
     def getVersionSaved(self):
         controller_version = self.getVersion(0,'CONTROLLER')
@@ -548,6 +560,15 @@ class IcePAP:
             return p
         return None
         
+    # GET RACKS ALIVE
+    def getRacksAlive(self):
+        racks = []
+        rackMask = int(self.getSysStatus(),16)
+        for rack in range(16):
+            if (rackMask & (1<<rack)) != 0:
+                racks.append(rack*10)
+        return racks
+
     # GET DRIVERS ALIVE
     def getDriversAlive(self):
         drivers = []
