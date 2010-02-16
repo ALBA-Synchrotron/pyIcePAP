@@ -122,9 +122,12 @@ class EthIcePAP(IcePAP):
             raise IcePAPException(IcePAPException.ERROR, "Connection error","no connection with the Icepap sytem")
 
         # BUG FOUND DOING AND ACK TO ALL COMMANDS BY DEFAULT
-        if cmd.startswith('PROG') or cmd.startswith('*PROG') or cmd.startswith(':') or cmd.startswith('_'):
+        if cmd.startswith('PROG') or cmd.startswith('RESET') or cmd.startswith('*PROG') or cmd.startswith(':') or cmd.startswith('_'):
             prepend_ack = False
 
+        if cmd.count('RESET') > 0:
+            prepend_ack = False
+    
         if prepend_ack:
             ack_cmd = cmd
             if cmd.find('#') != 0:
@@ -166,7 +169,8 @@ class EthIcePAP(IcePAP):
     def sendData(self, data):
         try:
             self.lock.acquire()
-            self.IcPaSock.send(data)            
+            #self.IcPaSock.send(data)            
+            self.IcPaSock.sendall(data)            
             self.lock.release()
         except socket.timeout, msg:
             self.lock.release()
@@ -178,7 +182,7 @@ class EthIcePAP(IcePAP):
             #print msg
             iex = IcePAPException(IcePAPException.ERROR, "Error sending data to the Icepap",msg)
             raise iex   
-    
+
     def disconnect(self):
         if self.DEBUG:
             print "disconnecting from icepap..."
@@ -221,26 +225,26 @@ class EthIcePAP(IcePAP):
 
 
     # THIS IS NOT USED ANY MORE...
-    def connect_retry(self):
-        #print "connection broken\n trying to reconnect for a short while..."
-        self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.IcPaSock.settimeout( self.timeout )
-        NOLINGER = struct.pack('ii', 1, 0)
-        self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
-        nsec=1;
-        while nsec<=256:
-            #print "nsec is ", nsec, "\n"
-            try:
-                self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
-                #print "reconnected!"
-                nsec=257
-                self.connected=1
-            except:
-                if nsec<=128:
-                    #print "sleeping for ", nsec, "seconds"
-                    time.sleep(nsec)
-                nsec<<=1
-                #print "nsec after left shift is ", nsec, "\n"
-        if nsec<>257:
-            #print "you've got a new socket that is not yet connected\ntry connecting it later"
-            self.connected=0
+    #def connect_retry(self):
+    #    #print "connection broken\n trying to reconnect for a short while..."
+    #    self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #    self.IcPaSock.settimeout( self.timeout )
+    #    NOLINGER = struct.pack('ii', 1, 0)
+    #    self.IcPaSock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, NOLINGER)
+    #    nsec=1;
+    #    while nsec<=256:
+    #        #print "nsec is ", nsec, "\n"
+    #        try:
+    #            self.IcPaSock.connect((self.IcePAPhost, self.IcePAPport))
+    #            #print "reconnected!"
+    #            nsec=257
+    #            self.connected=1
+    #        except:
+    #            if nsec<=128:
+    #                #print "sleeping for ", nsec, "seconds"
+    #                time.sleep(nsec)
+    #            nsec<<=1
+    #            #print "nsec after left shift is ", nsec, "\n"
+    #    if nsec<>257:
+    #        #print "you've got a new socket that is not yet connected\ntry connecting it later"
+    #        self.connected=0
