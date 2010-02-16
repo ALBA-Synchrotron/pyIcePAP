@@ -71,16 +71,15 @@ def main():
             
             startmark = 0xa5aa555a
             maskedchksum = chksum & 0xffffffff
-            self.ice.sendData(struct.pack('L',startmark))
-            self.ice.sendData(struct.pack('L',nworddata))
-            self.ice.sendData(struct.pack('L',maskedchksum))
+            # BUGFIX FOR 64-BIT MACHINES
+            self.ice.sendData(struct.pack('L',startmark)[:4])
+            self.ice.sendData(struct.pack('L',nworddata)[:4])
+            self.ice.sendData(struct.pack('L',maskedchksum)[:4])
             
-            #self.ice.sendData(data.tostring())
-            for i in range(len(data)):
-                self.ice.sendData(struct.pack('H',data[i]))
+            self.ice.sendData(data.tostring())
             time.sleep(7)
             print "Remember Icepap system is in MODE PROG"
-            return self.ice.sendWriteReadCommand("?MODE")
+            print self.ice.sendWriteReadCommand("?MODE")
         except Exception,e:
             print "!<- Some exception occurred: ",e
             return e
