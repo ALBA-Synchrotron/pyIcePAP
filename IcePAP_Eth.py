@@ -22,7 +22,7 @@ class ReconnectThread(Thread):
         
 class EthIcePAP(IcePAP):
 
-    def __init__(self,host,port,timeout=3,log_path=None):
+    def __init__(self,host,port=5000,timeout=3,log_path=None):
         IcePAP.__init__(self,host,port,timeout,log_path)
         self.connected = 0
         self.DEBUG = False
@@ -212,13 +212,13 @@ class EthIcePAP(IcePAP):
             self.connected = 1
             if self.DEBUG:
                 print "Connected to %s with DEBUG"%self.IcePAPhost
-        except socket.error, msg:
-            iex = IcePAPException(IcePAPException.TIMEOUT, "Error connecting to the Icepap",msg)
-            #raise iex
-            if self.DEBUG:
-                print "Socket error while trying to connect to %s"%self.IcePAPhost
-        except:
-            iex = IcePAPException(IcePAPException.ERROR, "Error creating log file")
+        #except socket.error, msg:
+        #    iex = IcePAPException(IcePAPException.TIMEOUT, "Error connecting to the Icepap",msg)
+        #    #raise iex
+        #    if self.DEBUG:
+        #        print "Socket error while trying to connect to %s"%self.IcePAPhost
+        except Exception,e:
+            iex = IcePAPException(IcePAPException.ERROR, "Error trying to connect",e)
             #raise iex
             if self.DEBUG:
                 print "Some exception while trying to connect to %s"%self.IcePAPhost
