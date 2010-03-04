@@ -20,7 +20,77 @@ class IcepapRegisters:
     AXIS, INDEXER, EXTERR, SHFTENC, TGTENC, ENCIN, INPOS, ABSENC = "AXIS", "INDEXER", "EXTERR", "SHFTENC", "TGTENC", "ENCIN", "INPOS", "ABSENC"
     PositionRegisters = [AXIS, INDEXER, EXTERR, SHFTENC, TGTENC, ENCIN, INPOS, ABSENC]
         
+
+    """
+    Table from Icepap User Manual - Section 'Board Status Register'
+    ---------------------------------------------------------------
+    0 PRESENT      : 1 = driver present
+    1 ALIVE        : 1 = board responsive
+    2-3 MODE       : 0 = OPER
+                     1 = PROG
+                     2 = TEST
+                     3 = FAIL
+    4-6 DISABLE    : 0 = enable
+                     1 = axis not active
+                     2 = hardware alarm
+                     3 = remote rack disable input signal
+                     4 = local rack disable switch
+                     5 = remote axis disable input signal
+                     6 = local axis disable switch
+                     7 = software disable
+    7-8 INDEXER    : 0 = internal indexer
+                     1 = in-system indexer
+                     2 = external indexer
+                     3 = n/a
+    9 READY        : 1 = ready to move
+    10 MOVING      : 1 = axis moving
+    11 SETTLING    : 1 = closed loop in settling phase
+    12 FOLLOWERR   : 1 = follow error
+    13 HDWERR      : 1 = hardware error condition
+    14 SFTERR      : 1 = software error condition
+    15-17 STOPCODE : 0 = end of movement
+                     1 = Stop
+                     2 = Abort
+                     3 = Limit+ reached
+                     4 = Limit- reached
+                     5 = Followerr
+                     6 = Disable
+                     7 = HDwerror
+    18 LIMIT+      : current value of the limit+ signal
+    19 LIMIT-      : current value of the limit- signal
+    20 HOMEDONE    : 1 = Home switch reached (only in homing modes)
+    21 5VPOWER     : 1 = Aux power supply on
+    22 VERSERR     : 1 = inconsistency in firmware versions
+    23             : n/a
+    24-31 INFO     : In PROG mode: programming phase
+                     In OPER mode: master indexer
+    """
 class IcepapStatus:
+    status_meaning = {'mode': {0:'OPER',
+                               1:'PROG',
+                               2:'TEST',
+                               3:'FAIL'},
+                      'disable': {0:'Enable',
+                                  1:'Axis not active',
+                                  2:'Hardware alarm',
+                                  3:'Remote rack disable input signal',
+                                  4:'Local rack disable switch',
+                                  5:'Remote axis disable input signal',
+                                  6:'Local axis disable switch',
+                                  7:'Software disable'},
+                      'indexer': {0:'Internal indexer',
+                                  1:'In-system indexer',
+                                  2:'External indexer',
+                                  3:'N/A'},
+                      'stpcode': {0:'End of movement',
+                                  1:'Stop',
+                                  2:'Abort',
+                                  3:'Limit+ reached',
+                                  4:'Limit- reached',
+                                  5:'Followerr',
+                                  6:'Disable',
+                                  7:'Hdwerror'}}
+
     @staticmethod
     def isPresent(register):
         val = register >> 0
@@ -42,6 +112,11 @@ class IcepapStatus:
         val = val & 7
         return val
     @staticmethod
+    def getIndexer(register):
+        val = register >> 7
+        val = val & 3
+        return val
+    @staticmethod
     def isReady(register):
         val = register >> 9
         val = val & 1
@@ -50,6 +125,31 @@ class IcepapStatus:
     def isMoving(register):
         val = register >> 10
         val = val & 1
+        return val
+    @staticmethod
+    def isSettling(register):
+        val = register >> 11
+        val = val & 1
+        return val
+    @staticmethod
+    def isFollowErr(register):
+        val = register >> 12
+        val = val & 1
+        return val
+    @staticmethod
+    def isHdwErr(register):
+        val = register >> 13
+        val = val & 1
+        return val
+    @staticmethod
+    def isSftErr(register):
+        val = register >> 14
+        val = val & 1
+        return val
+    @staticmethod
+    def getStopCode(register):
+        val = register >> 15
+        val = val & 7
         return val
     @staticmethod
     def getLimitPositive(register):
@@ -65,5 +165,25 @@ class IcepapStatus:
     def inHome(register):
         val = register >> 20
         val = val & 1
+        return val
+    @staticmethod
+    def is5VPower(register):
+        val = register >> 21
+        val = val & 1
+        return val
+    @staticmethod
+    def isVersErr(register):
+        val = register >> 22
+        val = val & 1
+        return val
+    @staticmethod
+    def isFreeBit(register):
+        val = register >> 23
+        val = val & 1
+        return val
+    @staticmethod
+    def getInfo(register):
+        val = register >> 24
+        val = val & 255
         return val
 
