@@ -4,8 +4,9 @@ import sys
 import re
 from threading import Lock
 import time, datetime
-import icepapdef
 import operator
+
+from icepapdef import IcepapStatus
 
 class CStatus:
     Disconnected, Connected, Error = range(3)
@@ -90,7 +91,7 @@ class IcePAP:
         command = "%d:MODE %s" % (addr, mode)
         self.sendWriteCommand(command)
 
-    def getStatusFromMaster(self, addr):
+    def getStatusFromBoard(self, addr):
         command = "%d:?STATUS" % addr
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
@@ -98,15 +99,15 @@ class IcePAP:
     def getStatus(self, addr):
         command = "?FSTATUS %d" % addr
         ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
+        return self.parseResponse('?FSTATUS', ans)
     
     def getMultipleStatus(self, axis_list):
         axis = ""
         for addr in axis_list:
             axis = axis + str(addr) + " " 
-        command = "?STATUS %s" % axis
+        command = "?FSTATUS %s" % axis
         ans = self.sendWriteReadCommand(command)
-        ans = self.parseResponse("?FSTATUS", ans)
+        ans = self.parseResponse('?FSTATUS', ans)
         ans = ans.split()
         status_values = []
         i = 0
@@ -115,12 +116,6 @@ class IcePAP:
             i = i + 1
         return status_values     
 
-
-        
-        command = "%d:?STATUS" % addr
-        ans = self.sendWriteReadCommand(command)
-        return self.parseResponse(command, ans)
-    
     def startConfig(self, addr):
         iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'start_config'", "use 'setConfig'")
         raise iex
@@ -232,10 +227,30 @@ class IcePAP:
         command = "%d:AUXPS %s" % (addr, value)
         self.sendWriteCommand(command)
         
-    def getPosition(self, addr, pos_sel = "AXIS"):
+    def getPositionFromBoard(self, addr, pos_sel = "AXIS"):
         command = "%d:?POS %s" % (addr, pos_sel)
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse("%d:?POS" % addr, ans)
+    
+    def getPosition(self, addr):
+        command = "?FPOS %d" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse('?FPOS', ans)
+    
+    def getMultiplePosition(self, axis_list):
+        axis = ""
+        for addr in axis_list:
+            axis = axis + str(addr) + " " 
+        command = "?FPOS %s" % axis
+        ans = self.sendWriteReadCommand(command)
+        ans = self.parseResponse('?FPOS', ans)
+        ans = ans.split()
+        position_values = []
+        i = 0
+        for addr in axis_list:
+            position_values.append((addr, ans[i]))
+            i = i + 1
+        return position_values     
                 
     def setPosition(self, addr, pos_val, pos_sel = "AXIS"):
         command = "%d:POS %s %d" % (addr, pos_sel, pos_val)
@@ -317,7 +332,7 @@ class IcePAP:
         self.sendWriteCommand(command)
 
     def syncEncoders(self, addr):
-        command = "%d:ESYNC"
+        command = "%d:ESYNC" % addr
         self.sendWriteCommand(command)
 
     # ------------- Input/Output commands ------------------------
@@ -379,11 +394,11 @@ class IcePAP:
     def resetSystem(self):
         self.sendWriteCommand("RESET")
 
-    def getMultiplePositions(self, axis_list, pos_sel = "AXIS"):
+    def getMultiplePositions(self, axis_list):
         axis = ""
         for addr in axis_list:
             axis = axis + str(addr) + " " 
-        command = "?POS %s %s" % (pos_sel, axis)
+        command = "F?POS %s" % axis
         ans = self.sendWriteReadCommand(command)
         ans = self.parseResponse("?POS", ans)
         ans = ans.split()
@@ -561,13 +576,12 @@ class IcePAP:
             ans = ans.replace(command, "")
             ans = ans.lstrip()
             return ans
-        elif ans.find(command_first_word) != -1:
+        elif ans.find(command_first_word) != -1 and ans.find('ERROR') == -1:
             # I'M IN ONE OF MULTIAXIS COMMANDS LIKE ?FSTATUS
             ans = ans.replace(command_first_word, '')
             ans = ans.lstrip()
             return ans
         else:
-            print ans + " " + command
             iex = IcePAPException(IcePAPException.CMD, ans)
             raise iex
 
@@ -699,69 +713,50 @@ class IcePAP:
         return self.getMeas(addr, "VCC")
 
 
-
-
     def decodeStatus(self, status):
-        status = int(status,16)
-        status_dict = {}
-        status_dict['present'] = icepapdef.IcepapStatus.isPresent(status)
-        status_dict['alive'] = icepapdef.IcepapStatus.isAlive(status)
-        status_dict['mode'] = icepapdef.IcepapStatus.getMode(status)
-        status_dict['disable'] = icepapdef.IcepapStatus.isDisabled(status)
-
-        status_dict['indexer'] = icepapdef.IcepapStatus.getIndexer(status)
-
-        status_dict['ready'] = icepapdef.IcepapStatus.isReady(status)
-        status_dict['moving'] = icepapdef.IcepapStatus.isMoving(status)
-        status_dict['settling'] = icepapdef.IcepapStatus.isSettling(status)
-
-        status_dict['followerr'] = icepapdef.IcepapStatus.isFollowErr(status)
-        status_dict['hdwerr'] = icepapdef.IcepapStatus.isHdwErr(status)
-        status_dict['sfterr'] = icepapdef.IcepapStatus.isSftErr(status)
-
-        status_dict['stpcode'] = icepapdef.IcepapStatus.getStopCode(status)
-        status_dict['limp'] = icepapdef.IcepapStatus.getLimitPositive(status)
-        status_dict['limn'] = icepapdef.IcepapStatus.getLimitNegative(status)
-        status_dict['homedone'] = icepapdef.IcepapStatus.inHome(status)
-
-        status_dict['vpower'] = icepapdef.IcepapStatus.is5VPower(status)
-        status_dict['verserr'] = icepapdef.IcepapStatus.isVersErr(status)
-
-        status_dict['info'] = icepapdef.IcepapStatus.getInfo(status)
-
-        return status_dict
-
-    def getStatusDescription(self, key, value):
-        if key in ['present', 'alive', 'ready', 'moving', 'settling',
-                   'followerr', 'hdwerr', 'sfterr', 'limp', 'limn', 'homedone',
-                   'vpower', 'verserr']:
-            if value == 1:
-                return 'Yes'
-            elif value == 0:
-                return 'No'
+        if not isinstance(status, int):
+            if isinstance(status, str):
+                status = int(status, 16)
             else:
-                return '???'
-        elif key == 'info':
-            return str(value)+' => in PROG, prog phase; in OPER, master index'
-        else:
-            # case of specific code
-            # mode, disable, indexer, stpcode
-            return icepapdef.IcepapStatus.status_meaning[key][value]
+                return None
 
-    
-    ###def serialScan():
-    ###    available = []
-    ###    for i in range(256):
-    ###        try:
-    ###            s = serial.Serial(i)
-    ###            #available.append( (i, s.portstr))
-    ###            available.append(s.portstr)
-    ###            s.close()   #explicit close 'cause of delayed GC in java
-    ###        except serial.SerialException:
-    ###            pass
-    ###    return available
-    ###
-    ###serialScan = staticmethod(serialScan)
-    
-
-    
+        status_dict = {}
+        for key in IcepapStatus.status_keys:
+            value = None
+            if key == 'present':
+                value = IcepapStatus.isPresent(status)
+            elif key == 'alive':
+                value = IcepapStatus.isAlive(status)
+            elif key == 'mode':
+                value = IcepapStatus.getMode(status)
+            elif key == 'disable':
+                value = IcepapStatus.isDisabled(status)
+            elif key == 'indexer':
+                value = IcepapStatus.getIndexer(status)
+            elif key == 'ready':
+                value = IcepapStatus.isReady(status)
+            elif key == 'moving':
+                value = IcepapStatus.isMoving(status)
+            elif key == 'settling':
+                value = IcepapStatus.isSettling(status)
+            elif key == 'outofwin':
+                value = IcepapStatus.isOutOfWin(status)
+            elif key == 'warning':
+                value = IcepapStatus.isWarning(status)
+            elif key == 'stopcode':
+                value = IcepapStatus.getStopCode(status)
+            elif key == 'lim+':
+                value = IcepapStatus.getLimitPositive(status)
+            elif key == 'lim-':
+                value = IcepapStatus.getLimitNegative(status)
+            elif key == 'home':
+                value = IcepapStatus.inHome(status)
+            elif key == '5vpower':
+                value = IcepapStatus.is5VPower(status)
+            elif key == 'verserr':
+                value = IcepapStatus.isVersErr(status)
+            elif key == 'info':
+                value = IcepapStatus.getInfo(status)
+            meaning = IcepapStatus.status_meaning[key].get(value, 'Info field => in OPER, master index; in PROG, prog phase')
+            status_dict[key] = (value, meaning)
+        return status_dict
