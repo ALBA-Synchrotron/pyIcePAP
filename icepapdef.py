@@ -45,20 +45,27 @@ class IcepapRegisters:
     9 READY        : 1 = ready to move
     10 MOVING      : 1 = axis moving
     11 SETTLING    : 1 = closed loop in settling phase
-    12 FOLLOWERR   : 1 = follow error
-    13 HDWERR      : 1 = hardware error condition
-    14 SFTERR      : 1 = software error condition
-    15-17 STOPCODE : 0 = end of movement
+    12 OUTOFWIN    : 1 = axis out of settling window
+    13 WARNING     : 1 = warning condition
+    14-17 STOPCODE : 0 = end of movement
                      1 = Stop
                      2 = Abort
                      3 = Limit+ reached
                      4 = Limit- reached
-                     5 = Followerr
-                     6 = Disable
-                     7 = HDwerror
+                     5 = Settling timeout
+                     6 = Axis disabled
+                     7 = n/a
+                     8 = Internal failure
+                     9 = Motor failure
+                    10 = Power overload
+                    11 = Driver overheating
+                    12 = Close loop error
+                    13 = Control encoder error
+                    14 = n/a
+                    15 = External alarm
     18 LIMIT+      : current value of the limit+ signal
     19 LIMIT-      : current value of the limit- signal
-    20 HOMEDONE    : 1 = Home switch reached (only in homing modes)
+    20 HOME        : 1 = Home switch reached (only in homing modes)
     21 5VPOWER     : 1 = Aux power supply on
     22 VERSERR     : 1 = inconsistency in firmware versions
     23             : n/a
@@ -66,7 +73,12 @@ class IcepapRegisters:
                      In OPER mode: master indexer
     """
 class IcepapStatus:
-    status_meaning = {'mode': {0:'OPER',
+    status_keys = ['present', 'alive', 'mode', 'disable', 'indexer', 'ready', 'moving', 'settling',
+                   'outofwin', 'warning', 'stopcode', 'lim+', 'lim-', 'home', '5vpower', 'verserr', 'info']
+    
+    status_meaning = {'present': {0:'No', 1:'Yes'},
+                      'alive': {0:'No', 1:'Yes'},
+                      'mode': {0:'OPER',
                                1:'PROG',
                                2:'TEST',
                                3:'FAIL'},
@@ -82,14 +94,33 @@ class IcepapStatus:
                                   1:'In-system indexer',
                                   2:'External indexer',
                                   3:'N/A'},
-                      'stpcode': {0:'End of movement',
-                                  1:'Stop',
-                                  2:'Abort',
-                                  3:'Limit+ reached',
-                                  4:'Limit- reached',
-                                  5:'Followerr',
-                                  6:'Disable',
-                                  7:'Hdwerror'}}
+                      'ready': {0:'No', 1:'Yes'},
+                      'moving': {0:'No', 1:'Yes'},
+                      'settling': {0:'No', 1:'Yes'},
+                      'outofwin': {0:'No', 1:'Yes'},
+                      'warning': {0:'No', 1:'Yes'},
+                      'stopcode': {0:'End of movement',
+                                   1:'Stop',
+                                   2:'Abort',
+                                   3:'Limit+ reached',
+                                   4:'Limit- reached',
+                                   5:'Settling timeout',
+                                   6:'Axis disabled',
+                                   7:'N/A',
+                                   8:'Internal failure',
+                                   9:'Motor failure',
+                                   10:'Power overload',
+                                   11:'Driver overheating',
+                                   12:'Close loop error',
+                                   13:'Control encoder error',
+                                   14:'N/A',
+                                   15:'External alarm'},
+                      'lim+': {0:'No', 1:'Yes'},
+                      'lim-': {0:'No', 1:'Yes'},
+                      'home': {0:'No', 1:'Yes'},
+                      '5vpower': {0:'No', 1:'Yes'},
+                      'verserr': {0:'No', 1:'Yes'},
+                      'info': {}}
 
     @staticmethod
     def isPresent(register):
@@ -132,24 +163,19 @@ class IcepapStatus:
         val = val & 1
         return val
     @staticmethod
-    def isFollowErr(register):
+    def isOutOfWin(register):
         val = register >> 12
         val = val & 1
         return val
     @staticmethod
-    def isHdwErr(register):
+    def isWarning(register):
         val = register >> 13
         val = val & 1
         return val
     @staticmethod
-    def isSftErr(register):
-        val = register >> 14
-        val = val & 1
-        return val
-    @staticmethod
     def getStopCode(register):
-        val = register >> 15
-        val = val & 7
+        val = register >> 14
+        val = val & 15
         return val
     @staticmethod
     def getLimitPositive(register):
