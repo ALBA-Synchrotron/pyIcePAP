@@ -712,6 +712,11 @@ class IcePAP:
     def getTVCC(self, addr):
         return self.getMeas(addr, "VCC")
 
+    # GCUNI MORE INFO REGARDING THE STATUS REGISTER
+    # XX/03/2010
+    def getDecodedStatus(self, addr):
+        status = self.getStatus(addr)
+        return self.decodeStatus(status)
 
     def decodeStatus(self, status):
         if not isinstance(status, int):
@@ -760,3 +765,76 @@ class IcePAP:
             meaning = IcepapStatus.status_meaning[key].get(value, 'Info field => in OPER, master index; in PROG, prog phase')
             status_dict[key] = (value, meaning)
         return status_dict
+
+    # JLIDON - DEBUG INTERNALS
+    # 23/04/2010
+
+    def serr(self, addr):
+        command = '%d:?SERR' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+
+    def memory(self, addr):
+        command = '%d:?MEMORY' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+
+    def warning(self, addr):
+        command = '%d:?WARNING' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+
+    def alarm(self, addr):
+        command = '%d:?ALARM' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+
+    def isg_settingsflags(self, addr):
+        command = '%d:?ISG ?SETTINGSFLAGS' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse('%d:?ISG'%addr, ans)
+
+    def isg_dumpinternals(self, addr):
+        command = '%d:?ISG ?DUMPINTERNALS' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse('%d:?ISG'%addr, ans)
+
+    def isg_dumpfpgareg(self, addr):
+        command = '%d:?ISG ?DUMPFPGAREG' % (addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse('%d:?ISG'%addr, ans)
+
+    def debug_internals(self, addr):
+        sysstat = self.getSysStatus()
+        template = '=== ICEPAP INTERNALS %d@%s ===\n' % (addr, self.IcePAPhost)
+        template += 'System Status: %s\n' % sysstat
+        for rack in self.getRacksAlive():
+            rack_status = self.getRackStatus(rack)
+            template += 'Rack Status %d: %s\n' % (rack, rack_status)
+        mode = self.getMode(addr)
+        template += 'Driver Mode %d: %s\n' % (addr, mode)
+        addr_status = self.getStatusFromBoard(addr)
+        template += 'Driver Status %d: %s\n' % (addr, addr_status)
+        status_dict = self.decodeStatus(addr_status)
+        template += 'Decoded Status: --------------------------\n'
+        for key in IcepapStatus.status_keys:
+            template += '%s: %s\n' %(key, status_dict[key])
+        isg_powerinfo = self.isg_powerinfo(addr)
+        template += 'Power Info: ------------------------------\n%s\n' % isg_powerinfo
+        serr = self.serr(addr)
+        template += 'System Errors: ---------------------------\n%s\n' % serr
+        memory = self.memory(addr)
+        template += 'Memory: ----------------------------------\n%s\n' % memory
+        warning = self.warning(addr)
+        template += 'Warning: ---------------------------------\n%s\n' % warning
+        alarm = self.alarm(addr)
+        template += 'Alarm: -----------------------------------\n%s\n' % alarm
+        isg_settingsflags = self.isg_settingsflags(addr)
+        template += 'Settings Flags: --------------------------\n%s\n' % isg_settingsflags
+        isg_dumpinternals = self.isg_dumpinternals(addr)
+        template += 'Dump Internals: --------------------------\n%s\n' % isg_dumpinternals
+        isg_dumpfpgareg = self.isg_dumpfpgareg(addr)
+        template += 'Dump FPGA reg: ---------------------------\n%s\n' % isg_dumpfpgareg
+        template += ' =============================='
+
+        return template
