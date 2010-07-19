@@ -613,7 +613,7 @@ class IcePAP:
         rackMask = int(self.getSysStatus(),16)
         for rack in range(16):
             if (rackMask & (1<<rack)) != 0:
-                racks.append(rack*10)
+                racks.append(rack)
         return racks
 
     # GET DRIVERS ALIVE
@@ -806,11 +806,16 @@ class IcePAP:
 
     def debug_internals(self, addr):
         sysstat = self.getSysStatus()
-        template = '=== ICEPAP INTERNALS %d@%s ===\n' % (addr, self.IcePAPhost)
+        now = datetime.datetime.now().strftime('%Y/%m/%d_%H:%M:%S')
+        template = '=== ICEPAP INTERNALS %d@%s %s ===\n' % (addr, self.IcePAPhost, now)
         template += 'System Status: %s\n' % sysstat
         for rack in self.getRacksAlive():
             rack_status = self.getRackStatus(rack)
             template += 'Rack Status %d: %s\n' % (rack, rack_status)
+        m_version = str(self.getVersionInfoDict(0))
+        template += 'Master Firmware Version: %s\n' % m_version
+        d_version = str(self.getVersionInfoDict(addr))
+        template += 'Driver Firmware Version: %s\n' % d_version
         mode = self.getMode(addr)
         template += 'Driver Mode %d: %s\n' % (addr, mode)
         addr_status = self.getStatusFromBoard(addr)
@@ -838,3 +843,19 @@ class IcePAP:
         template += ' =============================='
 
         return template
+
+
+    # GCUNI - BL13
+    # 17/07/2010
+    # Detect if a motor is connected.
+    # Put power, and measure the current 10 times
+    # add it up and check that it is zero
+    def motor_connected(self, addr):
+        power_state = self.getPower(addr)
+        self.enable(addr)
+        sum_i = 0
+        for i in range(100):
+            sum_i += float(self.getMeas(addr, 'I'))
+        # Restore power state
+        self.setPower(addr, power_state)
+        return (sum_i > 1)
