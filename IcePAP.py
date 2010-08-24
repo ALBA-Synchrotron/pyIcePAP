@@ -97,6 +97,11 @@ class IcePAP:
         return self.parseResponse(command, ans)
     
     def getStatus(self, addr):
+        command = "?_FSTATUS %d" % addr
+        ans = self.sendWriteReadCommand(command)
+        if not 'ERROR' in ans:
+            return self.parseResponse('?_FSTATUS', ans)
+        # OLD MCPUs do not support ?_FSTATUS
         command = "?FSTATUS %d" % addr
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse('?FSTATUS', ans)
@@ -116,6 +121,11 @@ class IcePAP:
             i = i + 1
         return status_values     
 
+    def getVStatus(self, addr):
+        command = "%d:?VSTATUS" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+    
     def startConfig(self, addr):
         iex = IcePAPException(IcePAPException.ERROR,"Deprecated function 'start_config'", "use 'setConfig'")
         raise iex
@@ -233,6 +243,11 @@ class IcePAP:
         return self.parseResponse("%d:?POS" % addr, ans)
     
     def getPosition(self, addr):
+        command = "?_FPOS %d" % addr
+        ans = self.sendWriteReadCommand(command)
+        if not 'ERROR' in ans:
+            return self.parseResponse('?_FPOS', ans)
+        # OLD MCPUs do not support ?_FPOS
         command = "?FPOS %d" % addr
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse('?FPOS', ans)
@@ -610,7 +625,11 @@ class IcePAP:
     # GET RACKS ALIVE
     def getRacksAlive(self):
         racks = []
-        rackMask = int(self.getSysStatus(),16)
+        rackMask = 0
+        try:
+            rackMask = int(self.getSysStatus(),16)
+        except:
+            pass
         for rack in range(16):
             if (rackMask & (1<<rack)) != 0:
                 racks.append(rack)
@@ -619,7 +638,11 @@ class IcePAP:
     # GET DRIVERS ALIVE
     def getDriversAlive(self):
         drivers = []
-        rackMask = int(self.getSysStatus(),16)
+        rackMask = 0
+        try:
+            rackMask = int(self.getSysStatus(),16)
+        except:
+            pass
         for rack in range(16):
             if (rackMask & (1<<rack)) != 0:
                 rackStatus = self.getRackStatus(rack)
