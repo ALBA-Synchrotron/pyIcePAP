@@ -74,7 +74,7 @@ class IcepapRegisters:
     """
 class IcepapStatus:
     status_keys = ['present', 'alive', 'mode', 'disable', 'indexer', 'ready', 'moving', 'settling',
-                   'outofwin', 'warning', 'stopcode', 'lim+', 'lim-', 'home', '5vpower', 'verserr', 'info']
+                   'outofwin', 'warning', 'stopcode', 'lim+', 'lim-', 'home', '5vpower', 'verserr', 'poweron', 'info']
     
     status_meaning = {'present': {0:'No', 1:'Yes'},
                       'alive': {0:'No', 1:'Yes'},
@@ -120,6 +120,7 @@ class IcepapStatus:
                       'home': {0:'No', 1:'Yes'},
                       '5vpower': {0:'No', 1:'Yes'},
                       'verserr': {0:'No', 1:'Yes'},
+                      'poweron': {0:'No', 1:'Yes'},
                       'info': {}}
 
     @staticmethod
@@ -203,7 +204,7 @@ class IcepapStatus:
         val = val & 1
         return val
     @staticmethod
-    def isFreeBit(register):
+    def isPowerOn(register):
         val = register >> 23
         val = val & 1
         return val
