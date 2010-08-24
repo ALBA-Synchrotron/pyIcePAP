@@ -1,6 +1,6 @@
 
 class IcepapMode:
-    CONFIG, OPER = "CONFIG", "OPER"
+    CONFIG, OPER, PROG = "CONFIG", "OPER", "PROG"
 
 class IcepapAnswers:
     ON, OFF = "ON", "OFF"
