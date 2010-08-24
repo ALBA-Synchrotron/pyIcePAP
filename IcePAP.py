@@ -783,6 +783,8 @@ class IcePAP:
                 value = IcepapStatus.is5VPower(status)
             elif key == 'verserr':
                 value = IcepapStatus.isVersErr(status)
+            elif key == 'poweron':
+                value = IcepapStatus.isPowerOn(status)
             elif key == 'info':
                 value = IcepapStatus.getInfo(status)
             meaning = IcepapStatus.status_meaning[key].get(value, 'Info field => in OPER, master index; in PROG, prog phase')
@@ -844,9 +846,12 @@ class IcePAP:
         addr_status = self.getStatusFromBoard(addr)
         template += 'Driver Status %d: %s\n' % (addr, addr_status)
         status_dict = self.decodeStatus(addr_status)
-        template += 'Decoded Status: --------------------------\n'
-        for key in IcepapStatus.status_keys:
-            template += '%s: %s\n' %(key, status_dict[key])
+        template += 'VStatus: ---------------------------------\n'
+        vstatus = self.getVStatus(addr)
+        template += vstatus
+        #template += 'Decoded Status: --------------------------\n'
+        #for key in IcepapStatus.status_keys:
+        #    template += '%s: %s\n' %(key, status_dict[key])
         isg_powerinfo = self.isg_powerinfo(addr)
         template += 'Power Info: ------------------------------\n%s\n' % isg_powerinfo
         serr = self.serr(addr)
