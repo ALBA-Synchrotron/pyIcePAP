@@ -217,6 +217,11 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse("%d:?ID" % addr, ans)
     
+    def getTime(self, addr):
+        command = "%d:?TIME" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+
     # ------------ Power and Motion control Commands ------------------------------      
 
     def getPower(self, addr):
@@ -843,12 +848,14 @@ class IcePAP:
         template += 'Driver Firmware Version: %s\n' % d_version
         mode = self.getMode(addr)
         template += 'Driver Mode %d: %s\n' % (addr, mode)
+        d_time = self.getTime(addr)
+        template += 'Driver Time %d: %s\n' % (addr, d_time)
         addr_status = self.getStatusFromBoard(addr)
         template += 'Driver Status %d: %s\n' % (addr, addr_status)
-        status_dict = self.decodeStatus(addr_status)
         template += 'VStatus: ---------------------------------\n'
         vstatus = self.getVStatus(addr)
         template += vstatus
+        #status_dict = self.decodeStatus(addr_status)
         #template += 'Decoded Status: --------------------------\n'
         #for key in IcepapStatus.status_keys:
         #    template += '%s: %s\n' %(key, status_dict[key])
