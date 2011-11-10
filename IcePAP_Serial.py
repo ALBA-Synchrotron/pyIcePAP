@@ -1,5 +1,6 @@
 from IcePAP import *
-from serial import Serial
+try: from serial import Serial
+except: pass
 import time
 import icepapdef
 
