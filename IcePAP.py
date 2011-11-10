@@ -1,5 +1,7 @@
 # PyIcepap for Icepap firmware version 1.16
-import serial
+try: import serial
+except: pass
+
 import sys
 import re
 from threading import Lock
@@ -204,9 +206,17 @@ class IcePAP:
         # THIS COULD HAPPEN WHEN RECEIVED FROM FACTORY
         try:
             ans = self.sendWriteReadCommand(command)
-            return self.parseResponse(command, ans)
+            #return self.parseResponse(command, ans)
+
+            # Requested by the ESRF
+            # http://wikiserv.esrf.fr/esl/index.php/IcePAP_pending
+            # issue 020
+            parsed_ans = self.parseResponse(command, ans)
+            if parsed_ans.count('ERROR') > 0:
+                parsed_ans = ''
+            return parsed_ans
         except:
-            return "NOT_PRINTABLE_CHARACTERS_FOUND"
+            return "NAME_WITH_NON-PRINTABLE_CHARS"
     
     def setName(self, addr, name):
         command = "%d:NAME %s" % (addr, name)
@@ -836,8 +846,9 @@ class IcePAP:
 
     def debug_internals(self, addr):
         sysstat = self.getSysStatus()
+        name = self.getName(addr)
         now = datetime.datetime.now().strftime('%Y/%m/%d_%H:%M:%S')
-        template = '=== ICEPAP INTERNALS %d@%s %s ===\n' % (addr, self.IcePAPhost, now)
+        template = '=== ICEPAP INTERNALS %d@%s (%s) time: %s ===\n' % (addr, self.IcePAPhost, name, now)
         template += 'System Status: %s\n' % sysstat
         for rack in self.getRacksAlive():
             rack_status = self.getRackStatus(rack)
