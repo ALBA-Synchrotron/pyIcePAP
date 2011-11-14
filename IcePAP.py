@@ -267,6 +267,21 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse('?FPOS', ans)
     
+    def getMultiplePositionFromBoard(self, axis_list):
+        axis = ""
+        for addr in axis_list:
+            axis = axis + str(addr) + " " 
+        command = "?POS %s" % axis
+        ans = self.sendWriteReadCommand(command)
+        ans = self.parseResponse('?POS', ans)
+        ans = ans.split()
+        position_values = []
+        i = 0
+        for addr in axis_list:
+            position_values.append((addr, ans[i]))
+            i = i + 1
+        return position_values
+                
     def getMultiplePosition(self, axis_list):
         axis = ""
         for addr in axis_list:
