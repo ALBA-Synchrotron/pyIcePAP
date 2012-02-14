@@ -133,6 +133,45 @@ def main():
 #        wr $d:?enc $reg
 #        print('--------------------------------------------------')
                 
+    def getPositionRegisters(self,parameter_s='',name="getPositionRegisters"):
+        info = {}
+        for d in self.ice.getDriversAlive():
+            info[d] = {}
+            info[d]['indexer'] = self.ice.getIndexer(d)
+            info[d]['possrc'] = self.ice.getCfgParameter(d, 'POSSRC')
+            info[d]['tgtenc'] = self.ice.getCfgParameter(d, 'TGTENC')
+            for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','MOTOR','TGTENC','SHFTENC']:
+                info[d]['POS_'+reg] = self.ice.getPositionFromBoard(d, reg)
+                info[d]['ENC_'+reg] = self.ice.getEncoder(d, reg)
+        return info
+    ip.expose_magic("getPositionRegisters", getPositionRegisters)
+        
+    def setPositionRegisters(self,parameter_s='',name="setPositionRegisters"):
+        info = dict(parameter_s)
+        print parameter_s
+        print info
+        for d in info.keys():
+            indexer = info[d]['indexer']
+            if indexer != self.ice.getIndexer(d):
+                print 'SHOULD RESTORE INDEXER'
+            possrc = info[d]['possrc']
+            if possrc != self.ice.getCfgParameter(d, 'POSSRC'):
+                print 'SHOULD RESTORE POSSRC'
+            tgtenc = info[d]['tgtenc']
+            if tgtenc != self.ice.getCfgParameter(d, 'TGTENC'):
+                print 'SHOULD RESTORE TGTENC'
+            for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','MOTOR','TGTENC','SHFTENC']:
+                pos_reg = info[d]['POS_'+reg]
+                if posreg != self.ice.getPositionFromBoard(d, reg):
+                    print 'SHOULD RESTORE POS_'+reg
+                enc_reg = info[d]['ENC_'+reg]
+                if enc_reg != self.ice.getEncoder(d, reg):
+                    print 'SHOULD RESTORE ENC_'+reg
+            
+        return info
+    ip.expose_magic("setPositionRegisters", setPositionRegisters)
+	
+        
 
 # NOTE: %wr can be called by: _ip.magic('wr ...') or ipmagic('wr ...')
 
