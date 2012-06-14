@@ -6,6 +6,11 @@ from pyIcePAP import *
 ice = None
 def main():
     ip = IPython.ipapi.get()
+
+    def __init__(self,parameter_s='',name="init"):
+        self.ice = None
+    ip.expose_magic("__init__",__init__)
+
     def connect(self,parameter_s='',name="connect"):
         split = parameter_s.split()
         host = split[0]
@@ -22,6 +27,8 @@ def main():
     ip.expose_magic("disconnect",disconnect)
 
     def w(self,parameter_s='',name="w"):
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
         command = parameter_s.upper()
         command = command.replace("\\","")
         print "-> "+command
@@ -33,6 +40,8 @@ def main():
     ip.expose_magic("w",w)
 
     def wro(self,parameter_s='',name="wro"):
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
         command = parameter_s.upper()
         command = command.replace("\\","")
         print "-> "+command
@@ -50,6 +59,8 @@ def main():
 
 
     def sendfw(self,parameter_s='',name="sendfw"):
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
         try:
             filename = parameter_s
             f = file(filename,'rb')
@@ -87,6 +98,8 @@ def main():
 
 
     def listversions(self,parameter_s='',name="listversions"):
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
         versions_dict = {}
         ver_cmd = "VER"
         if parameter_s != '':
@@ -132,9 +145,12 @@ def main():
 #        wr $d:?pos $reg
 #        wr $d:?enc $reg
 #        print('--------------------------------------------------')
-                
+
+
     def getPositionRegisters(self,parameter_s='',name="getPositionRegisters"):
         info = {}
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
         for d in self.ice.getDriversAlive():
             info[d] = {}
             info[d]['indexer'] = self.ice.getIndexer(d)
@@ -145,33 +161,145 @@ def main():
                 info[d]['ENC_'+reg] = self.ice.getEncoder(d, reg)
         return info
     ip.expose_magic("getPositionRegisters", getPositionRegisters)
-        
-    def setPositionRegisters(self,parameter_s='',name="setPositionRegisters"):
-        info = dict(parameter_s)
-        print parameter_s
-        print info
-        for d in info.keys():
-            indexer = info[d]['indexer']
-            if indexer != self.ice.getIndexer(d):
-                print 'SHOULD RESTORE INDEXER'
-            possrc = info[d]['possrc']
-            if possrc != self.ice.getCfgParameter(d, 'POSSRC'):
-                print 'SHOULD RESTORE POSSRC'
-            tgtenc = info[d]['tgtenc']
-            if tgtenc != self.ice.getCfgParameter(d, 'TGTENC'):
-                print 'SHOULD RESTORE TGTENC'
-            for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','MOTOR','TGTENC','SHFTENC']:
-                pos_reg = info[d]['POS_'+reg]
-                if posreg != self.ice.getPositionFromBoard(d, reg):
-                    print 'SHOULD RESTORE POS_'+reg
-                enc_reg = info[d]['ENC_'+reg]
-                if enc_reg != self.ice.getEncoder(d, reg):
-                    print 'SHOULD RESTORE ENC_'+reg
-            
+
+
+    def savePositionRegisters(self,parameter_s='',name="savePositionRegisters"):
+        """Saves all the position registers in a file
+           Syntax:
+              savePositionRegisters <file_name>
+           Parameters:
+              file_name : file in which to store the info
+        """
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
+        try:
+            filename = parameter_s
+            f = file(filename,'w')
+            import pickle
+            info = ip.magic('getPositionRegisters')
+            pickle.dump(info, f)
+            f.close()
+        except IOError, e:
+            msg = 'Unable to write to file \'%s\': %s' % (filename,str(e))
+            return msg
+        except Exception,e:
+            print "!<- Some exception occurred: ", e
+            return e
         return info
+    ip.expose_magic("savePositionRegisters",savePositionRegisters)
+
+
+    def openPositionRegisters(self,parameter_s='',name="openPositionRegisters"):
+        """Recovers all the position registers from a file
+           Syntax:
+              openPositionRegisters <file_name>
+           Parameters:
+              file_name : file from which to recover the info
+        """
+        try:
+            filename = parameter_s
+            f = file(filename,'r')
+            import pickle
+            info = ip.magic('getPositionRegisters')
+            info = pickle.load(f)
+            f.close()
+        except IOError, e:
+            msg = 'Unable to write to file \'%s\': %s' % (filename,str(e))
+            return msg
+        except Exception,e:
+            print "!<- Some exception occurred: ", e
+            return e
+        return info
+    ip.expose_magic("openPositionRegisters",openPositionRegisters)
+
+
+    def comparePositionRegisters(self,parameter_s='',name="comparePositionRegisters"):
+        """Compares all the position registers from a file with the current hardware values
+           Syntax:
+              comparePositionRegisters <file_name>
+           Parameters:
+              file_name : file from which to recover the info to be compared with the current values
+        """
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
+        try:
+            filename = parameter_s
+            info_hw = ip.magic('getPositionRegisters')
+            info_file  = ip.magic('openPositionRegisters %s' % filename)
+            if type(info_hw) != dict or type(info_file) != dict:
+                return "Error getting either hardware or file positions"
+            diff = set(info_hw.keys()) - set(info_file.keys())
+            if diff != set():
+                return "Info in the hardware and in the file don't have the same number of axes"
+            #from now on we know both have the same number of axes
+            diffs = {}
+            for axis in info_hw.keys():
+                for param in info_hw[axis].keys():
+                    hw_value, file_value = info_hw[axis][param], info_file[axis][param]
+                    if hw_value != file_value:
+                        msg = "Axis %d param %s: %s %s" % (axis, param, hw_value, file_value)
+                        try:
+                            diffs[axis]
+                        except KeyError:
+                            diffs[axis] = {}
+                        diffs[axis][param] = [hw_value, file_value]
+                        print msg
+        except Exception,e:
+            print "!<- Some exception occurred: ", e
+            return e
+        return diffs
+    ip.expose_magic("comparePositionRegisters",comparePositionRegisters)
+
+
+    def setPositionRegisters(self,parameter_s='',name="setPositionRegisters"):
+        """Write into the hardware all the position registers from a file
+           Syntax:
+              setPositionRegisters <file_name>
+           Parameters:
+              file_name : file from which to recover the info to be loaded into the harware
+        """
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
+        filename = parameter_s
+        info = ip.magic('openPositionRegisters %s' % filename)
+        if type(info) != dict:
+            msg = 'Unable to load info from file \'%s\'' % filename
+            return msg
+        try:
+            for axis in info.keys():
+                indexer = info[axis]['indexer']
+                if indexer != self.ice.getIndexer(axis):
+                    print 'SHOULD RESTORE INDEXER'
+                possrc = info[axis]['possrc']
+                if possrc != self.ice.getCfgParameter(axis, 'POSSRC'):
+                    print 'SHOULD RESTORE POSSRC'
+                tgtenc = info[axis]['tgtenc']
+                if tgtenc != self.ice.getCfgParameter(axis, 'TGTENC'):
+                    print 'SHOULD RESTORE TGTENC'
+                #for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','MOTOR','TGTENC','SHFTENC']:
+                for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','TGTENC','SHFTENC']:
+                    pos_reg = info[axis]['POS_'+reg]
+                    if pos_reg != self.ice.getPositionFromBoard(axis, reg):
+                        print 'Axis %d POS_%s: %s' % (axis, reg, pos_reg)
+                        try:
+                            self.ice.setPosition(axis, int(pos_reg), reg)
+                        except Exception,e:
+                            print 'ERROR WITH THIS REGISTER',e
+                    enc_reg = info[axis]['ENC_'+reg]
+                    if enc_reg != self.ice.getEncoder(axis, reg):
+                        print 'Axis %d ENC_%s: %s' % (axis, reg, enc_reg)
+                        try:
+                            self.ice.setEncoder(axis, int(enc_reg), reg)
+                        except Exception,e:
+                            print 'ERROR WITH THIS REGISTER',e
+        except Exception,e:
+            print "!<- Some exception occurred: ", e
+            return e
+
+        return "Values correctly updated"
     ip.expose_magic("setPositionRegisters", setPositionRegisters)
-	
-        
+
+    ip.magic('__init__')
 
 # NOTE: %wr can be called by: _ip.magic('wr ...') or ipmagic('wr ...')
 
