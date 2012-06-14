@@ -534,6 +534,13 @@ class IcePAP:
         command = "MOVE %s " % values
         self.sendWriteCommand(command)
     
+    def moveMultipleGrouped(self, val_list):
+        values = ""
+        for addr, value in val_list:
+            values = values + str(addr) + " " + str(value) + " "
+        command = "MOVE GROUP %s " % values
+        self.sendWriteCommand(command)
+    
     def rmoveMultiple(self, val_list):
         values = ""
         for addr, value in val_list:
