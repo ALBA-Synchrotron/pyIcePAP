@@ -5,19 +5,21 @@ import time
 import icepapdef
 from IcePAP import *
 from threading import Thread
+import weakref
 
 class ReconnectThread(Thread):
     def __init__(self,icepap,sleeptime):
         Thread.__init__(self)
-        self.icepap = icepap
+        self.icepap_wref = weakref.ref(icepap)
         self.sleeptime = sleeptime
+        self.shouldStop = False
 
     def run(self):
-        while True:
-            if not self.icepap.connected:
-                if self.icepap.DEBUG:
+        while not self.shouldStop:
+            if not self.icepap_wref().connected:
+                if self.icepap_wref().DEBUG:
                     print "Reconnect Thread: Trying to reconnect"
-                self.icepap.try_to_connect()
+                self.icepap_wref().try_to_connect()
             time.sleep(self.sleeptime)
         
 class EthIcePAP(IcePAP):
@@ -29,6 +31,9 @@ class EthIcePAP(IcePAP):
         self.reconnect_thread = ReconnectThread(self,self.timeout/10.0)
         self.reconnect_thread.setDaemon(True)
         self.reconnect_thread.start()
+
+    def __del__(self):
+        self.reconnect_thread.shouldStop = True
 
     def connect(self):
         total_sleep = 0
@@ -248,3 +253,4 @@ class EthIcePAP(IcePAP):
     #    if nsec<>257:
     #        #print "you've got a new socket that is not yet connected\ntry connecting it later"
     #        self.connected=0
+
