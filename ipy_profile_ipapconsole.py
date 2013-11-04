@@ -229,11 +229,13 @@ def main():
             if type(info_hw) != dict or type(info_file) != dict:
                 return "Error getting either hardware or file positions"
             diff = set(info_hw.keys()) - set(info_file.keys())
-            if diff != set():
-                return "Info in the hardware and in the file don't have the same number of axes"
-            #from now on we know both have the same number of axes
             diffs = {}
             for axis in info_hw.keys():
+                try:
+                    info_file[axis]
+                except KeyError:
+                    print 'Info about axis %d is not present in the file. Continuing...' % axis
+                    continue
                 for param in info_hw[axis].keys():
                     hw_value, file_value = info_hw[axis][param], info_file[axis][param]
                     if hw_value != file_value:
