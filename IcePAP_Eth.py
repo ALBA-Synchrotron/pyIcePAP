@@ -91,6 +91,7 @@ class EthIcePAP(IcePAP):
                 ################################################
 
             self.lock.release()
+            data=data.rstrip("\n\r")
             message = message + "\t\t[ " + data + " ]"
             self.writeLog(message)
             if self.DEBUG:
