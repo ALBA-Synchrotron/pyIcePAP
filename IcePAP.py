@@ -5,10 +5,15 @@ except: pass
 import sys
 import re
 from threading import Lock
+import array
+import struct
+import numpy
 import time, datetime
 import operator
 
 from icepapdef import IcepapStatus
+from icepapdef import IcepapInfo
+from icepapdef import IcepapRegisters
 
 class CStatus:
     Disconnected, Connected, Error = range(3)
@@ -414,6 +419,62 @@ class IcePAP:
     def setInfo(self, addr, info, src, polarity="NORMAL"):
         command = "%d:%s %s %s" % (addr, info, src, polarity)
         self.sendWriteCommand(command)
+
+
+    # ------------- NEW FEATURES WITH VERSION 2.x ------------------
+    def sendListDat(self, addr, position_list):
+        l = position_list
+        lushorts = struct.unpack('%dH' % (len(l) * 2), struct.pack('%df' % len(l), *l))
+
+        cmd = "%d:*LISTDAT FLOAT" % addr
+        self.sendWriteCommand(cmd, prepend_ack=False)
+
+        startmark = 0xa5aa555a
+        nworddata = (len(lushorts))
+        checksum = sum(lushorts)
+        maskedchksum = checksum & 0xffffffff
+
+        self.sendData(struct.pack('L',startmark)[:4])
+        self.sendData(struct.pack('L',nworddata)[:4])
+        self.sendData(struct.pack('L',maskedchksum)[:4])
+
+        data = array.array('H', lushorts)
+        self.sendData(data.tostring())
+        
+    def sendEcamDat(self, addr, source='AXIS', signal='PULSE', position_list=[0,1,2,3,4,5,6,7,8,9]):
+        signal = signal.upper()
+        if signal not in IcepapInfo.EcamSignals:
+            iex = IcePAPException(IcePAPException.ERROR, "Error sending ECAMDAT LIST",
+                                  "Signal not in %s" % str(IcepapInfo.EcamSignals))
+            raise iex
+        
+        source = source.upper()
+        if source not in IcepapRegisters.EcamSourceRegisters:
+            iex = IcePAPException(IcePAPException.ERROR, "Error sending ECAMDAT LIST",
+                                  "Source (%s) not in %s" % (source, str(IcepapRegisters.EcamSourceRegisters)))
+            raise iex
+
+        l = position_list
+        lushorts = struct.unpack('%dH' % (len(l) * 2), struct.pack('%df' % len(l), *l))
+
+        cmd = "%d:*ECAMDAT %s FLOAT" % (addr, source)
+        self.sendWriteCommand(cmd, prepend_ack=False)
+
+        startmark = 0xa5aa555a
+        nworddata = (len(lushorts))
+        checksum = sum(lushorts)
+        maskedchksum = checksum & 0xffffffff
+
+        self.sendData(struct.pack('L',startmark)[:4])
+        self.sendData(struct.pack('L',nworddata)[:4])
+        self.sendData(struct.pack('L',maskedchksum)[:4])
+
+        data = array.array('H', lushorts)
+        self.sendData(data.tostring())
+
+        cmd = '%d:ECAM %s' % (addr, signal)
+        self.sendWriteCommand(cmd)
+        
         
     # ------------- Help and error commands ------------------------
     def blink(self, addr, secs):
@@ -642,6 +703,27 @@ class IcePAP:
     ############################################################################################
 
     # ------------- library utilities ------------------------
+
+    def sendFirmware(self, filename):
+        f = file(filename,'rb')
+        data = f.read()
+        data = array.array('H',data)
+        f.close()
+        nworddata = (len(data))
+        chksum = sum(data)
+
+        cmd = "*PROG SAVE"
+        self.sendWriteCommand(cmd)
+        
+        startmark = 0xa5aa555a
+        maskedchksum = chksum & 0xffffffff
+        # BUGFIX FOR 64-BIT MACHINES
+        self.sendData(struct.pack('L',startmark)[:4])
+        self.sendData(struct.pack('L',nworddata)[:4])
+        self.sendData(struct.pack('L',maskedchksum)[:4])
+        
+        self.sendData(data.tostring())
+
     
     # GET PROGRAMMING PROGRESS STATUS
     def getProgressStatus(self):
@@ -657,6 +739,8 @@ class IcePAP:
         if ans.count("ACTIVE") > 0:
             p = int(ans.split(" ")[1].split(".")[0])
             return p
+        if ans.count("DONE") > 0:
+            return 'DONE'
         return None
         
     # GET RACKS ALIVE
