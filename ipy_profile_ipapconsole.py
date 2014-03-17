@@ -3,7 +3,6 @@ import array
 import IPython
 from pyIcePAP import *
 
-ice = None
 def main():
     ip = IPython.ipapi.get()
 
@@ -19,6 +18,8 @@ def main():
             port = split[1]
         self.ice = EthIcePAP(host,port)
         self.ice.connect()
+        # EXPOSE VARIABLE TO USER
+        ip.to_user_ns({'ice': self.ice})
     ip.expose_magic("connect",connect)
 
     def disconnect(self,parameter_s='',name="disconnect"):
@@ -63,13 +64,6 @@ def main():
             return 'No connection to any icepap. Use \'connect\''
         try:
             filename = parameter_s
-            f = file(filename,'rb')
-            data = f.read()
-            data = array.array('H',data)
-            f.close()
-            nworddata = (len(data))
-            chksum = sum(data)
-            print "File size: %d bytes, cheksum %d (%s)" % (len(data),chksum,hex(chksum))
 
             print "Setting MODE PROG"
             cmd = "#MODE PROG"
@@ -77,17 +71,8 @@ def main():
             print answer
         
             print "Transferring firmware"
-            cmd = "*PROG SAVE"
-            self.ice.sendWriteCommand(cmd)
-            
-            startmark = 0xa5aa555a
-            maskedchksum = chksum & 0xffffffff
-            # BUGFIX FOR 64-BIT MACHINES
-            self.ice.sendData(struct.pack('L',startmark)[:4])
-            self.ice.sendData(struct.pack('L',nworddata)[:4])
-            self.ice.sendData(struct.pack('L',maskedchksum)[:4])
-            
-            self.ice.sendData(data.tostring())
+            self.ice.sendFirmware(filename)
+
             time.sleep(7)
             print "Remember Icepap system is in MODE PROG"
             print self.ice.sendWriteReadCommand("?MODE")
@@ -95,6 +80,68 @@ def main():
             print "!<- Some exception occurred: ",e
             return e
     ip.expose_magic("sendfw",sendfw)
+
+    def prog(self,parameter_s='',name="prog"):
+        if self.ice == None:
+            return 'No connection to any icepap. Use \'connect\''
+        try:
+            print "Setting MODE PROG"
+            cmd = "#MODE PROG"
+            answer = self.ice.sendWriteReadCommand(cmd)
+            print answer
+        
+            if parameter_s == '':
+                parameter_s = 'ALL FORCE'
+            cmd = "#PROG " + parameter_s.upper()
+            print "\nProgramming with: " + cmd
+            answer = self.ice.sendWriteReadCommand(cmd)
+            print answer
+            
+            print
+            shouldwait = True
+            while shouldwait:
+                p = self.ice.getProgressStatus()
+                if p == 'DONE':
+                    shouldwait = False
+                elif isinstance(p, int):
+                    print 'Programming [%d%%]           \r' % p,
+                    sys.stdout.flush()
+                    time.sleep(.2)
+            
+            print "\nSetting MODE OPER"
+            cmd = "#MODE OPER"
+            answer = self.ice.sendWriteReadCommand(cmd)
+            print answer
+
+            if parameter_s.upper().count('ALL') > 0:
+                print '\nWait while rebooting... (25-30) secs'
+                self.ice.sendWriteCommand('REBOOT')
+
+                # WE SHOULD WAIT UNTIL CONNECTION IS LOST
+                secs = 0
+                for i in range(10):
+                    time.sleep(1)
+                    secs += 1
+                    print 'Waiting until icepap system is rebooted. %d secs      \r' % secs ,
+                    sys.stdout.flush()
+                self.ice.disconnect()
+
+                # WE SHOULD WAIT UNTIL ICEPAP IS RECONNECTED
+                while not self.ice.connected:
+                    time.sleep(1)
+                    secs += 1
+                    print 'Waiting until icepap system is rebooted. %d secs      \r' % secs ,
+                    sys.stdout.flush()
+
+            print '\nDone!'
+            cmd = '0:?VER INFO'
+            answer = self.ice.sendWriteReadCommand(cmd)
+            print answer
+            
+        except Exception,e:
+            print "!<- Some exception occurred: ",e
+            return e
+    ip.expose_magic("prog",prog)
 
 
     def listversions(self,parameter_s='',name="listversions"):
