@@ -203,7 +203,8 @@ def main():
             info[d]['indexer'] = self.ice.getIndexer(d)
             info[d]['possrc'] = self.ice.getCfgParameter(d, 'POSSRC')
             info[d]['tgtenc'] = self.ice.getCfgParameter(d, 'TGTENC')
-            for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','MOTOR','TGTENC','SHFTENC']:
+            #for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','MOTOR','TGTENC','SHFTENC']:
+            for reg in ['AXIS','INDEXER','ENCIN','INPOS','ABSENC','TGTENC','SHFTENC']:
                 info[d]['POS_'+reg] = self.ice.getPositionFromBoard(d, reg)
                 info[d]['ENC_'+reg] = self.ice.getEncoder(d, reg)
         return info
