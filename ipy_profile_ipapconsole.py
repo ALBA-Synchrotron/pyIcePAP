@@ -67,13 +67,13 @@ def main():
 
             print "Setting MODE PROG"
             cmd = "#MODE PROG"
-            answer = self.ice.sendWriteReadCommand(cmd)
-            print answer
+            ans = self.ice.sendWriteReadCommand(cmd)
+            print ans
         
             print "Transferring firmware"
             self.ice.sendFirmware(filename)
 
-            time.sleep(7)
+            time.sleep(5)
             print "Remember Icepap system is in MODE PROG"
             print self.ice.sendWriteReadCommand("?MODE")
         except Exception,e:
@@ -87,15 +87,15 @@ def main():
         try:
             print "Setting MODE PROG"
             cmd = "#MODE PROG"
-            answer = self.ice.sendWriteReadCommand(cmd)
-            print answer
+            ans = self.ice.sendWriteReadCommand(cmd)
+            print ans
         
             if parameter_s == '':
                 parameter_s = 'ALL FORCE'
             cmd = "#PROG " + parameter_s.upper()
             print "\nProgramming with: " + cmd
-            answer = self.ice.sendWriteReadCommand(cmd)
-            print answer
+            ans = self.ice.sendWriteReadCommand(cmd)
+            print ans
             
             print
             shouldwait = True
@@ -110,8 +110,8 @@ def main():
             
             print "\nSetting MODE OPER"
             cmd = "#MODE OPER"
-            answer = self.ice.sendWriteReadCommand(cmd)
-            print answer
+            ans = self.ice.sendWriteReadCommand(cmd)
+            print ans
 
             if parameter_s.upper().count('ALL') > 0:
                 print '\nWait while rebooting... (25-30) secs'
@@ -135,8 +135,8 @@ def main():
 
             print '\nDone!'
             cmd = '0:?VER INFO'
-            answer = self.ice.sendWriteReadCommand(cmd)
-            print answer
+            ans = self.ice.sendWriteReadCommand(cmd)
+            print ans
             
         except Exception,e:
             print "!<- Some exception occurred: ",e
