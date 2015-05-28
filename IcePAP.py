@@ -104,10 +104,13 @@ class IcePAP:
         return self.parseResponse(command, ans)
     
     def getStatus(self, addr):
-        command = "?_FSTATUS %d" % addr
-        ans = self.sendWriteReadCommand(command)
-        if not 'ERROR' in ans:
-            return self.parseResponse('?_FSTATUS', ans)
+	    # 20140409 - BUG WITH ?_FSTATUS
+	    # NOT CLEAR WHY TO USE _FSTATUS AND ALSO
+	    # IT HAD A BUG IN PCBL2901 REPORTING DIFFERENT STATUS CODES
+        #command = "?_FSTATUS %d" % addr
+        #ans = self.sendWriteReadCommand(command)
+        #if not 'ERROR' in ans:
+        #    return self.parseResponse('?_FSTATUS', ans)
         # OLD MCPUs do not support ?_FSTATUS
         command = "?FSTATUS %d" % addr
         ans = self.sendWriteReadCommand(command)
@@ -255,6 +258,15 @@ class IcePAP:
     
     def setAuxPS(self, addr, value):
         command = "%d:AUXPS %s" % (addr, value)
+        self.sendWriteCommand(command)
+        
+    def getCSWITCH(self, addr):
+        command = "%d:?CSWITCH" % addr
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans)
+    
+    def setCSWITCH(self, addr, value):
+        command = "%d:CSWITCH %s" % (addr, value)
         self.sendWriteCommand(command)
         
     def getPositionFromBoard(self, addr, pos_sel = "AXIS"):
@@ -704,7 +716,7 @@ class IcePAP:
 
     # ------------- library utilities ------------------------
 
-    def sendFirmware(self, filename):
+    def sendFirmware(self, filename, save=True):
         f = file(filename,'rb')
         data = f.read()
         data = array.array('H',data)
@@ -712,7 +724,9 @@ class IcePAP:
         nworddata = (len(data))
         chksum = sum(data)
 
-        cmd = "*PROG SAVE"
+        cmd = "*PROG"
+        if save:
+            cmd += ' SAVE'
         self.sendWriteCommand(cmd)
         
         startmark = 0xa5aa555a
