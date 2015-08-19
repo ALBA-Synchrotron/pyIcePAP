@@ -454,8 +454,8 @@ class IcePAP:
         self.sendData(data.tostring())
 
     def sendEcamDatIntervals(self, addr, start_pos, end_pos, intervals, source='AXIS'):
-        cmd = '%d:ECAMDAT %s %d %d %d' 
-                % (addr, source, start_pos, end_pos, intervals)
+        cmd = ('%d:ECAMDAT %s %d %d %d' 
+                % (addr, source, start_pos, end_pos, intervals))
         self.iPAP.sendWriteCommand(cmd)
         
     def sendEcamDat(self, addr, source='AXIS', signal='PULSE', position_list=[0,1,2,3,4,5,6,7,8,9]):
