@@ -453,6 +453,14 @@ class IcePAP:
         data = array.array('H', lushorts)
         self.sendData(data.tostring())
 
+    def getEcamDatIntervals(self, addr):
+        cmd = ('%d:?ECAMDAT' % addr)
+        ans = self.sendWriteReadCommand(cmd)
+        ans = self.parseResponse(cmd+' AXIS ',ans).split()
+        start_pos, end_pos, intervals = map(int, ans)
+        return start_pos, end_pos, intervals
+        
+        
     def sendEcamDatIntervals(self, addr, start_pos, end_pos, intervals, source='AXIS'):
         cmd = ('%d:ECAMDAT %s %d %d %d' 
                 % (addr, source, start_pos, end_pos, intervals))
