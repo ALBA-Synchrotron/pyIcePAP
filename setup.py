@@ -1,25 +1,25 @@
 # setup.py
-from distutils.core import setup
-import sys
+from setuptools import setup
+from setuptools import find_packages
+
+# The version is updated automatically with bumpversion
+# Do not update manually
+__version = '1.22.0-alpha' 
 
 #windows installer:
 # python setup.py bdist_wininst
 
 # patch distutils if it can't cope with the "classifiers" or
 # "download_url" keywords
-if sys.version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
 
 setup(
     name="pyIcePAP",
     description="Python IcePAP Extension",
-    version="1.0",
+    version=__version,
     author="Guifre Cuni",
-    author_email="gcuni@cells.es",
+    author_email="guifre.cuni@cells.es",
     url="",
-    packages=['pyIcePAP'],
+    packages=find_packages(),
     license="Python",
     long_description="Python IcePAP Extension for Win32, Linux, BSD, Jython",
     classifiers = [
