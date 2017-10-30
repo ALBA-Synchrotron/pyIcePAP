@@ -462,6 +462,7 @@ class IcePAP:
         
         
     def sendEcamDatIntervals(self, addr, start_pos, end_pos, intervals, source='AXIS'):
+        # NOTE TODO, FIRWARE MAY STILL HAVE A BUG AND DOES NOT ALLOW MORE THAN 8192 POINTS
         cmd = ('%d:ECAMDAT %s %d %d %d' 
                 % (addr, source, start_pos, end_pos, intervals))
         self.sendWriteCommand(cmd)
@@ -497,10 +498,12 @@ class IcePAP:
         data = array.array('H', lushorts)
         self.sendData(data.tostring())
 
+        # 2017/Oct/27
+        # TODO for long tables, sometimes we get:
+        # N:ECAM ERROR Not initialised ECAM data
         cmd = '%d:ECAM %s' % (addr, signal)
         self.sendWriteCommand(cmd)
-        
-        
+
     # ------------- Help and error commands ------------------------
     def blink(self, addr, secs):
         command = "%d:BLINK %d" % (addr,secs)
