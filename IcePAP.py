@@ -462,6 +462,7 @@ class IcePAP:
         
         
     def sendEcamDatIntervals(self, addr, start_pos, end_pos, intervals, source='AXIS'):
+        # NOTE TODO, FIRWARE MAY STILL HAVE A BUG AND DOES NOT ALLOW MORE THAN 8192 POINTS
         cmd = ('%d:ECAMDAT %s %d %d %d' 
                 % (addr, source, start_pos, end_pos, intervals))
         self.sendWriteCommand(cmd)
