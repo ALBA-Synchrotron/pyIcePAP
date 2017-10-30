@@ -60,8 +60,8 @@ class EthIcePAP(IcePAP):
                 ################################################
                 # WORKAROUND
                 ################################################
-                # AS IT IS SAID IN http://www.amk.ca/python/howto/sockets/
-                # SECTION "3 Using a Socket"
+                # AS IT IS SAID IN https://docs.python.org/3/howto/sockets.html
+                # SECTION "Using a Socket"
                 #
                 # A protocol like HTTP uses a socket for only one
                 # transfer. The client sends a request, the reads a
