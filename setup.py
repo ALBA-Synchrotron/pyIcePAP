@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-__version = '1.22.2-alpha' 
+__version = '1.22.2' 
 
 #windows installer:
 # python setup.py bdist_wininst
