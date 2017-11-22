@@ -12,6 +12,9 @@ __version = '1.23.0-alpha'
 # patch distutils if it can't cope with the "classifiers" or
 # "download_url" keywords
 
+# ipython profile magic commands implementation
+package_list = ['*ipy']
+
 setup(
     name="pyIcePAP",
     description="Python IcePAP Extension",
@@ -20,6 +23,8 @@ setup(
     author_email="guifre.cuni@cells.es",
     url="",
     packages=find_packages(),
+    package_data={'': package_list},
+    include_package_data=True,
     license="Python",
     long_description="Python IcePAP Extension for Win32, Linux, BSD, Jython",
     classifiers = [
