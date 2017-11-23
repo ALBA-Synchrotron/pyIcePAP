@@ -1,7 +1,7 @@
 How to define an python profile based on pyIcePAP module
 --------------------------------------------------------
 
-Following these staep you will create an ipython profile for easy access to an IncePAP system.
+Following these steps you will create an ipython profile for easy access to an IncePAP system.
 The profile exposes several monitor and configuration functions.
 
 1. Create a default ipython profile name ipapconsole (for instance):
