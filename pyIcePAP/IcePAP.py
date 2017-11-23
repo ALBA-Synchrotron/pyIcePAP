@@ -470,10 +470,16 @@ class IcePAP:
         ans = self.parseResponse(cmd+' AXIS ',ans).split()
         start_pos, end_pos, intervals = map(int, ans)
         return start_pos, end_pos, intervals
-        
-        
+
+    # Protections to ecamdat configuration methods:
+    # 1) The ecamdat list of points MUST be a sorted ascending list!
+    # 2) Firmware may still have a bug and does not allow more than 8192 points
+
     def sendEcamDatIntervals(self, addr, start_pos, end_pos, intervals, source='AXIS'):
-        # NOTE TODO, FIRWARE MAY STILL HAVE A BUG AND DOES NOT ALLOW MORE THAN 8192 POINTS
+        # Ensure that the points define an interval in ascending order
+        if start_pos > end_pos:
+            start_pos, end_pos = end_pos, start_pos
+
         cmd = ('%d:ECAMDAT %s %d %d %d' 
                 % (addr, source, start_pos, end_pos, intervals))
         self.sendWriteCommand(cmd)
@@ -491,6 +497,9 @@ class IcePAP:
                                   "Source (%s) not in %s" % (source, str(IcepapRegisters.EcamSourceRegisters)))
             raise iex
 
+        # Sort the given list of points in ascending order
+        # (<list>.sort() slightly more efficient:
+        position_list.sort()
         l = position_list
         lushorts = struct.unpack('%dH' % (len(l) * 2), struct.pack('%df' % len(l), *l))
 
@@ -514,6 +523,57 @@ class IcePAP:
         # N:ECAM ERROR Not initialised ECAM data
         cmd = '%d:ECAM %s' % (addr, signal)
         self.sendWriteCommand(cmd)
+
+    def getEcamDat(self, addr):
+        """
+        Request ECAMDAT complete configuration.
+        Retunrs a list of float values.
+        If no configuration is found, returns an empty list.
+
+        :param addr: icepap board address
+        :return: list
+        """
+        cmd = '%d:?ECAMDAT 0' % addr
+        try:
+            ans = self.sendWriteReadCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error getting ECAMDAT LIST",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+        # Two possible answer expected:
+        # Nothing configured:   '1:?ECAMDAT 0'
+        # Something configured: '1:?ECAMDAT $\r\n  0/9 : 0 .... 00 : 9\r\n$'
+        if ans[-1] == '0':
+            return []
+        elif ans[-1] == '$':
+            # Split str in lines and removes first and last ones.
+            raw_pos_list = ans.split('\r\n')[1:-1]
+            # Parse each line and return a list of position values (float)
+            pos_list = [float(x.split(':')[-1].strip()) for x in raw_pos_list]
+            return pos_list
+        else:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error parsing ECAMDAT LIST",
+                                  "Invalid end mark in answer.")
+            raise iex
+
+    def clearEcamDat(self, addr):
+        """
+        Clear the Ecam Data configuration
+
+        :param addr: icepap borad address
+        :return: None
+        """
+        # Clear Ecam data table
+        cmd = '%d:ECAMDAT CLEAR' % addr
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error clearing ECAMDAT LIST",
+                                  "CLEAR command failed.\n\%s" % str(e))
+            raise iex
 
     # ------------- Help and error commands ------------------------
     def blink(self, addr, secs):
