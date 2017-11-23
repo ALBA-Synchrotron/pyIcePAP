@@ -470,10 +470,16 @@ class IcePAP:
         ans = self.parseResponse(cmd+' AXIS ',ans).split()
         start_pos, end_pos, intervals = map(int, ans)
         return start_pos, end_pos, intervals
-        
-        
+
+    # Protections to ecamdat configuration methods:
+    # 1) The ecamdat list of points MUST be a sorted ascending list!
+    # 2) Firmware may still have a bug and does not allow more than 8192 points
+
     def sendEcamDatIntervals(self, addr, start_pos, end_pos, intervals, source='AXIS'):
-        # NOTE TODO, FIRWARE MAY STILL HAVE A BUG AND DOES NOT ALLOW MORE THAN 8192 POINTS
+        # Ensure that the points define an interval in ascending order
+        if start_pos > end_pos:
+            start_pos, end_pos = end_pos, start_pos
+
         cmd = ('%d:ECAMDAT %s %d %d %d' 
                 % (addr, source, start_pos, end_pos, intervals))
         self.sendWriteCommand(cmd)
@@ -491,6 +497,9 @@ class IcePAP:
                                   "Source (%s) not in %s" % (source, str(IcepapRegisters.EcamSourceRegisters)))
             raise iex
 
+        # Sort the given list of points in ascending order
+        # (<list>.sort() slightly more efficient:
+        position_list.sort()
         l = position_list
         lushorts = struct.unpack('%dH' % (len(l) * 2), struct.pack('%df' % len(l), *l))
 
