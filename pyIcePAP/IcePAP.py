@@ -511,8 +511,58 @@ class IcePAP:
 
         cmd = '%d:ECAM %s' % (addr, signal)
         self.sendWriteCommand(cmd)
-        
-        
+
+    def getEcamDat(self, addr):
+        """
+        Request ECAMDAT complete configuration.
+        Retunrs a list of float values.
+        If no configuration is found, returns an empty list.
+
+        :param addr: icepap board address
+        :return: list
+        """
+        cmd = '%d:?ECAMDAT 0' % addr
+        try:
+            ans = self.sendWriteReadCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error getting ECAMDAT LIST",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+        # Two possible answer expected:
+        # Nothing configured:   '1:?ECAMDAT 0'
+        # Something configured: '1:?ECAMDAT $\r\n  0/9 : 0 .... 00 : 9\r\n$'
+        if ans[-1] == '0':
+            return []
+        elif ans[-1] == '$':
+            # Split str in lines and removes first and last ones.
+            raw_pos_list = ans.split('\r\n')[1:-1]
+            # Parse each line and return a list of position values (float)
+            pos_list = [float(x.split(':')[-1].strip()) for x in raw_pos_list]
+            return pos_list
+        else:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error parsing ECAMDAT LIST",
+                                  "Invalid end mark in answer.")
+            raise iex
+
+    def clearEcamDat(self, addr):
+        """
+        Clear the Ecam Data configuration
+
+        :param addr: icepap borad address
+        :return: None
+        """
+        # Clear Ecam data table
+        cmd = '%d:ECAMDAT CLEAR' % addr
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error clearing ECAMDAT LIST",
+                                  "CLEAR command failed.\n\%s" % str(e))
+            raise iex
+
     # ------------- Help and error commands ------------------------
     def blink(self, addr, secs):
         command = "%d:BLINK %d" % (addr,secs)
