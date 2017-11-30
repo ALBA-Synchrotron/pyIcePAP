@@ -648,6 +648,67 @@ class IcePAP:
                                       "Remove failed.\n\%s" % str(e))
             raise iex
 
+    def setSyncRes(self, addr, steps, turns=1):
+        """
+        Set the axis resolution for synchronized movements (tracking)
+
+        icepap user manual, page 136.
+
+        :param addr: icepap board address
+        :param steps: number of steps
+        :param turns: number of turns
+        :return: None
+        """
+        cmd = '%d:SYNCRES %d %d' % (addr, steps, turns)
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error setting SYNCRES configuration",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+
+    def getSyncRes(self, addr):
+        """
+        Get the specific resoluton for tracking movements for a given axis.
+        The DEFAULT values correspond to the general resolution configuration.
+
+        icepap user manual, page 136.
+
+        :param addr: icepap board address
+        :return: [steps, turns] or 'DEFAULT'
+        """
+        cmd = '%d:?SYNCRES ' % addr
+        try:
+            ans = self.sendWriteReadCommand(cmd)
+            ans = self.parseResponse(cmd, ans)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error getting SYNCRES configuration",
+                                  "W/R command failed.\n\%s" % str(e))
+            raise iex
+        if ans != 'DEFAULT':
+            ans = [float(x) for x in ans.split()]
+        return ans
+
+    def clearSyncRes(self, addr):
+        """
+        Return the specific resolution to DEFAULT values.
+
+        icepap user manual, page 136.
+
+        :param addr: icepap board address
+        :return: None
+        """
+        cmd = '%d:SYNCRES DEFAULT' % addr
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error setting SYNCRES configuration",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+
     ################################# SYSTEM COMMANDS ###########################################
 
     def getSysStatus(self):
