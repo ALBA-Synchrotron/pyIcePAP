@@ -26,6 +26,9 @@ from icepapdef import IcepapStatus
 from icepapdef import IcepapInfo
 from icepapdef import IcepapRegisters
 
+MAX_SUBSET_SIZE = 200
+
+
 class CStatus:
     Disconnected, Connected, Error = range(3)
             
@@ -527,10 +530,37 @@ class IcePAP:
         Retunrs a list of float values.
         If no configuration is found, returns an empty list.
 
+        icepap user manual, page 65.
+
         :param addr: icepap board address
         :return: list
         """
-        cmd = '%d:?ECAMDAT 0' % addr
+        # Get the number of values (intervals + 1) in the table
+        start_pos, end_pos, intervals = self.getEcamDatIntervals(addr)
+
+        nvalues = intervals + 1
+        values =[]
+        count = 0
+        while count < nvalues:
+            ans = self._getEcamDat(addr, MAX_SUBSET_SIZE, count)
+            values += self._EcamDat_str2list(ans)
+            count += MAX_SUBSET_SIZE
+        # print len(values)
+        # print values
+        return values
+
+    def _getEcamDat(self, addr, nvalues, offset):
+        """
+        Generic function following the Icepap API.
+
+        icepap user manual, page 65.
+
+        :param addr: Board id
+        :param nvalues: Number of values to recover
+        :param offset: Index of the first value
+        :return: List of nvalues from offset
+        """
+        cmd = '%d:?ECAMDAT %d %d' % (addr, nvalues, offset)
         try:
             ans = self.sendWriteReadCommand(cmd)
         except Exception as e:
@@ -538,6 +568,17 @@ class IcePAP:
                                       "Error getting ECAMDAT LIST",
                                       "W/R command failed.\n\%s" % str(e))
             raise iex
+        return ans
+
+    def _EcamDat_str2list(self, ans):
+        """
+        Returns the parsed list of values in EcamDat
+
+        icepap user manual, page 65.
+
+        :param ans: raw return from _getEcamDat method
+        :return: List of float values
+        """
         # Two possible answer expected:
         # Nothing configured:   '1:?ECAMDAT 0'
         # Something configured: '1:?ECAMDAT $\r\n  0/9 : 0 .... 00 : 9\r\n$'
@@ -559,7 +600,9 @@ class IcePAP:
         """
         Clear the Ecam Data configuration
 
-        :param addr: icepap borad address
+        icepap user manual, page 65.
+
+        :param addr: icepap board address
         :return: None
         """
         # Clear Ecam data table
