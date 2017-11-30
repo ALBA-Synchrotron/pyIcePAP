@@ -580,6 +580,74 @@ class IcePAP:
         command = "%d:BLINK %d" % (addr,secs)
         self.sendWriteCommand(command)
 
+    # ------------- Tracking commands ------------------------
+    def setPmux(self, source, dest='', reg=[]):
+        """
+        Configures a position signal multiplexer configuration.
+
+        icepap user manual, page 107.
+
+        :param source: Source signal
+        :param dest: Target node
+        :param reg: [HARD, POS or AUX]
+        :return: None
+        """
+        valid_sources = ['B', 'C', 'E']
+
+        if source[0] not in valid_sources:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Invalid node type as source.")
+            raise iex
+
+        cmd = 'PMUX %s %s %s' % ("".join(reg), source, dest)
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error exporting signal to multiplexer",
+                                  "PMUX command failed.\n\%s" % str(e))
+            raise iex
+
+    def getPmux(self):
+        """
+        Returns a list of the current signals sources used as axis indexers.
+
+        icepap user manual, page 107.
+
+        :return: list of multiplexer configurations.
+        """
+        cmd = '?PMUX'
+        try:
+            ans = self.sendWriteReadCommand(cmd)
+            ans = self.parseResponse(cmd, ans)
+            ans = ans.replace("PMUX", "").split("\r\n")[1:-1]
+            ans = [x.strip() for x in ans]
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error getting PMUX configuration",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+        return ans
+
+    def clearPmux(self, reg=[]):
+        """
+        Clear the multiplexer configuration. You can pass a destination with
+        an optional signal or just the signals to remove.
+
+        icepap user manual, page 107.
+
+        :param reg: node to remove
+        :return: None
+        """
+        cmd = 'PMUX REMOVE %s' % "".join(reg)
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error removing PMUX configuration",
+                                      "Remove failed.\n\%s" % str(e))
+            raise iex
+
     ################################# SYSTEM COMMANDS ###########################################
 
     def getSysStatus(self):
