@@ -706,6 +706,26 @@ class IcePAP:
                                       "W/R command failed.\n\%s" % str(e))
             raise iex
 
+    def setTrack(self, addr, signal, mode='FULL'):
+        """
+        Start position tracking mode for a given icepap board.
+
+        icepap user manual, page 139.
+
+        :param addr: icepap board address
+        :param signal: Source signal to track [SYNC, ENCIN, INPOS, ABSENC]
+        :param mode: [SIMPLE, SMART, FULL]
+        :return: None
+        """
+        cmd = '%d:TRACK %s %s' % (addr, signal, mode)
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error setting TRACKING mode",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+
     ################################# SYSTEM COMMANDS ###########################################
 
     def getSysStatus(self):
