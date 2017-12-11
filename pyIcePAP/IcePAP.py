@@ -46,8 +46,7 @@ class IcePAPException(Exception):
     def __repr__(self):
         return self.__str__()
 
-
-class IcePAP:    
+class IcePAP:
     
     def __init__(self, host, port, timeout = 3, log_path = None):
         #print "IcePAP object created"
@@ -601,7 +600,7 @@ class IcePAP:
 
     def clearEcamDat(self, addr):
         """
-        Clear the Ecam Data configuration
+        Clear the Ecam Dat configuration
 
         icepap user manual, page 65.
 
