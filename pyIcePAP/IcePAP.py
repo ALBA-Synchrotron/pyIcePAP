@@ -25,6 +25,7 @@ import operator
 from icepapdef import IcepapStatus
 from icepapdef import IcepapInfo
 from icepapdef import IcepapRegisters
+from icepapdef import IcepapTrackMode
 
 MAX_SUBSET_SIZE = 200
 
@@ -767,15 +768,16 @@ class IcePAP:
                                       "W/R command failed.\n\%s" % str(e))
             raise iex
 
-    def setTrack(self, addr, signal, mode='FULL'):
+    def setTrack(self, addr, signal, mode=IcepapTrackMode.FULL):
         """
         Start position tracking mode for a given icepap board.
 
         icepap user manual, page 139.
 
         :param addr: icepap board address
-        :param signal: Source signal to track [SYNC, ENCIN, INPOS, ABSENC]
-        :param mode: [SIMPLE, SMART, FULL]
+        :param signal: Source signal to track:
+                       IcepapRegister.[SYNC, ENCIN, INPOS, ABSENC]
+        :param mode: IcepapTrackMode.[SIMPLE, SMART, FULL]
         :return: None
         """
         cmd = '%d:TRACK %s %s' % (addr, signal, mode)
