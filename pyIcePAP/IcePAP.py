@@ -620,25 +620,42 @@ class IcePAP:
         self.sendWriteCommand(command)
 
     # ------------- Tracking commands ------------------------
-    def setPmux(self, source, dest='', reg=[]):
+    def _checkNode(self, node):
+        valid_starts_values = ('B', 'C', 'E')
+        node = node.upper()
+        if node != '' and not node.startswith(valid_starts_values):
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  'Error exporting signal to multiplexer',
+                                  'Invalid node type.')
+            raise iex
+
+    def setPmux(self, source, dest='', pos=True, aux=True, hard=False):
         """
         Configures a position signal multiplexer configuration.
 
         icepap user manual, page 107.
 
-        :param source: Source signal
+        :param source: Source node
         :param dest: Target node
-        :param reg: [HARD, POS or AUX]
+        :param pos: Connect the Position signals
+        :param aux: Connect the Auxiliary signals
+        :param hard: Enabling/Disabling hard flag connection.
         :return: None
         """
-        valid_sources = ['B', 'C', 'E']
 
-        if source[0] not in valid_sources:
-            iex = IcePAPException(IcePAPException.ERROR,
-                                  "Invalid node type as source.")
-            raise iex
+        self._checkNode(source)
+        self._checkNode(dest)
 
-        cmd = 'PMUX %s %s %s' % ("".join(reg), source, dest)
+        cmd = 'PMUX '
+        if hard:
+            cmd += 'HARD '
+        if pos:
+            cmd += 'POS '
+        if aux:
+            cmd += 'AUX '
+
+        cmd += source + ' ' + dest
+
         try:
             self.sendWriteCommand(cmd)
         except Exception as e:
@@ -668,7 +685,7 @@ class IcePAP:
             raise iex
         return ans
 
-    def clearPmux(self, reg=[]):
+    def clearPmux(self, dest=''):
         """
         Clear the multiplexer configuration. You can pass a destination with
         an optional signal or just the signals to remove.
@@ -678,7 +695,9 @@ class IcePAP:
         :param reg: node to remove
         :return: None
         """
-        cmd = 'PMUX REMOVE %s' % "".join(reg)
+        self._checkNode(dest)
+        cmd = 'PMUX REMOVE {0}'.format(dest)
+
         try:
             self.sendWriteCommand(cmd)
         except Exception as e:
