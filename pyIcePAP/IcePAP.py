@@ -25,8 +25,10 @@ import operator
 from icepapdef import IcepapStatus
 from icepapdef import IcepapInfo
 from icepapdef import IcepapRegisters
+from icepapdef import IcepapTrackMode
 
 MAX_SUBSET_SIZE = 200
+
 
 class CStatus:
     Disconnected, Connected, Error = range(3)
@@ -531,6 +533,8 @@ class IcePAP:
         Retunrs a list of float values.
         If no configuration is found, returns an empty list.
 
+        icepap user manual, page 65.
+
         :param addr: icepap board address
         :return: list
         """
@@ -552,6 +556,8 @@ class IcePAP:
         """
         Generic function following the Icepap API.
 
+        icepap user manual, page 65.
+
         :param addr: Board id
         :param nvalues: Number of values to recover
         :param offset: Index of the first value
@@ -569,7 +575,9 @@ class IcePAP:
 
     def _EcamDat_str2list(self, ans):
         """
-         returns the parsed list of values in EcamDat
+        Returns the parsed list of values in EcamDat
+
+        icepap user manual, page 65.
 
         :param ans: raw return from _getEcamDat method
         :return: List of float values
@@ -595,7 +603,9 @@ class IcePAP:
         """
         Clear the Ecam Dat configuration
 
-        :param addr: icepap borad address
+        icepap user manual, page 65.
+
+        :param addr: icepap board address
         :return: None
         """
         # Clear Ecam data table
@@ -612,6 +622,175 @@ class IcePAP:
     def blink(self, addr, secs):
         command = "%d:BLINK %d" % (addr,secs)
         self.sendWriteCommand(command)
+
+    # ------------- Tracking commands ------------------------
+    def _checkNode(self, node):
+        valid_starts_values = ('B', 'C', 'E')
+        node = node.upper()
+        if node != '' and not node.startswith(valid_starts_values):
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  'Error exporting signal to multiplexer',
+                                  'Invalid node type.')
+            raise iex
+
+    def setPmux(self, source, dest='', pos=True, aux=True, hard=False):
+        """
+        Configures a position signal multiplexer configuration.
+
+        icepap user manual, page 107.
+
+        :param source: Source node
+        :param dest: Target node
+        :param pos: Connect the Position signals
+        :param aux: Connect the Auxiliary signals
+        :param hard: Enabling/Disabling hard flag connection.
+        :return: None
+        """
+
+        self._checkNode(source)
+        self._checkNode(dest)
+
+        cmd = 'PMUX '
+        if hard:
+            cmd += 'HARD '
+        if pos:
+            cmd += 'POS '
+        if aux:
+            cmd += 'AUX '
+
+        cmd += source + ' ' + dest
+
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error exporting signal to multiplexer",
+                                  "PMUX command failed.\n\%s" % str(e))
+            raise iex
+
+    def getPmux(self):
+        """
+        Returns a list of the current signals sources used as axis indexers.
+
+        icepap user manual, page 107.
+
+        :return: list of multiplexer configurations.
+        """
+        cmd = '?PMUX'
+        try:
+            ans = self.sendWriteReadCommand(cmd)
+            ans = self.parseResponse(cmd, ans)
+            ans = ans.replace("PMUX", "").split("\r\n")[1:-1]
+            ans = [x.strip() for x in ans]
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error getting PMUX configuration",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+        return ans
+
+    def clearPmux(self, dest=''):
+        """
+        Clear the multiplexer configuration. You can pass a destination with
+        an optional signal or just the signals to remove.
+
+        icepap user manual, page 107.
+
+        :param reg: node to remove
+        :return: None
+        """
+        self._checkNode(dest)
+        cmd = 'PMUX REMOVE {0}'.format(dest)
+
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error removing PMUX configuration",
+                                      "Remove failed.\n\%s" % str(e))
+            raise iex
+
+    def setSyncRes(self, addr, steps, turns=1):
+        """
+        Set the axis resolution for synchronized movements (tracking)
+
+        icepap user manual, page 136.
+
+        :param addr: icepap board address
+        :param steps: number of steps
+        :param turns: number of turns
+        :return: None
+        """
+        cmd = '%d:SYNCRES %d %d' % (addr, steps, turns)
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error setting SYNCRES configuration",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+
+    def getSyncRes(self, addr):
+        """
+        Get the specific resoluton for tracking movements for a given axis.
+        The DEFAULT values correspond to the general resolution configuration.
+
+        icepap user manual, page 136.
+
+        :param addr: icepap board address
+        :return: [steps, turns] or 'DEFAULT'
+        """
+        cmd = '%d:?SYNCRES ' % addr
+        try:
+            ans = self.sendWriteReadCommand(cmd)
+            ans = self.parseResponse(cmd, ans)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                  "Error getting SYNCRES configuration",
+                                  "W/R command failed.\n\%s" % str(e))
+            raise iex
+        if ans != 'DEFAULT':
+            ans = [float(x) for x in ans.split()]
+        return ans
+
+    def clearSyncRes(self, addr):
+        """
+        Return the specific resolution to DEFAULT values.
+
+        icepap user manual, page 136.
+
+        :param addr: icepap board address
+        :return: None
+        """
+        cmd = '%d:SYNCRES DEFAULT' % addr
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error setting SYNCRES configuration",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
+
+    def setTrack(self, addr, signal, mode=IcepapTrackMode.FULL):
+        """
+        Start position tracking mode for a given icepap board.
+
+        icepap user manual, page 139.
+
+        :param addr: icepap board address
+        :param signal: Source signal to track:
+                       IcepapRegister.[SYNC, ENCIN, INPOS, ABSENC]
+        :param mode: IcepapTrackMode.[SIMPLE, SMART, FULL]
+        :return: None
+        """
+        cmd = '%d:TRACK %s %s' % (addr, signal, mode)
+        try:
+            self.sendWriteCommand(cmd)
+        except Exception as e:
+            iex = IcePAPException(IcePAPException.ERROR,
+                                      "Error setting TRACKING mode",
+                                      "W/R command failed.\n\%s" % str(e))
+            raise iex
 
     ################################# SYSTEM COMMANDS ###########################################
 

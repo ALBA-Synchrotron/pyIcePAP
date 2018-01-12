@@ -16,6 +16,14 @@ class IcepapMode:
 class IcepapAnswers:
     ON, OFF = "ON", "OFF"
 
+
+class IcepapTrackMode:
+    """
+    Track modes. icepap user manual, page 139
+    """
+    SIMPLE, SMART, FULL = 'SIMPLE', 'SMART', 'FULL'
+
+
 class IcepapInfo:
     INFOA, INFOB, INFOC = "INFOA", "INFOB", "INFOC"
     LOW, HIGH, LIMP, LIMN, HOME, ENCAUX, ECAM = "LOW", "HIGH", "LIM+", "LIM-", "HOME", "ENCAUX", "ECAM"
