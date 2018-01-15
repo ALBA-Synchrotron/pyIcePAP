@@ -8,6 +8,7 @@
 # See LICENSE.txt for more info.
 # ------------------------------------------------------------------------------
 
+__all__ = ["ReconnectThread", "EthIcePAP"]
 
 import socket
 import struct
