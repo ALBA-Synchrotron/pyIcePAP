@@ -11,6 +11,7 @@
 __all__ = ["IcepapInfo", "IcepapRegisters", "IcepapStatus",
            "IcepapTrackMode", "IcepapAnswers", "IcepapMode"]
 
+
 class IcepapMode:
     CONFIG, OPER, PROG = "CONFIG", "OPER", "PROG"
 
