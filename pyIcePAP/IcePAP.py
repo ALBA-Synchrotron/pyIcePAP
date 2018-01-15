@@ -674,6 +674,37 @@ class IcePAP:
                                   "CLEAR command failed.\n\%s" % str(e))
             raise iex
 
+    def setEcamConfig(self, addr, enabled=True,
+                      mode=IcepapInfo.PULSE):
+        """
+        Method to configure the Ecam
+        Icepap User Manual pag. 64
+
+        :param addr: Axis number
+        :param enabled: Flag to turn on/off the ecam output
+        :param mode: Type of output signal [PULSE, LOW, HIGH]
+        :return:
+        """
+        cmd = '{0}:ECAM '.format(addr)
+        if enabled:
+            cmd += '{0}'.format(mode)
+        else:
+            cmd += 'OFF '
+
+        self.sendWriteCommand(cmd)
+
+    def getEcamConfig(self, addr):
+        """
+        Method to read the Ecam configuration.
+        Icepap User Manual pag. 64
+        :param addr: Axis number
+        :return: [state, mode, current_level]
+        """
+        cmd = '{0}:?ECAM'.format(addr)
+        ans = self.sendWriteReadCommand(cmd)
+        config = self.parseResponse(cmd, ans).split()
+        return config
+
     def getSyncAux(self, addr):
         """
         Method to read the auxiliary synchronization line.
