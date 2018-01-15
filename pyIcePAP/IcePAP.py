@@ -8,6 +8,7 @@
 # See LICENSE.txt for more info.
 # -----------------------------------------------------------------------------
 
+__all__ = ["MAX_SUBSET_SIZE", "CStatus", "IcePAPException", "IcePAP"]
 
 # PyIcepap for Icepap firmware version 1.16
 # try:
