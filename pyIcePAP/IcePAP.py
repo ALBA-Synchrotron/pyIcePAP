@@ -677,6 +677,32 @@ class IcePAP:
                                   "CLEAR command failed.\n\%s" % str(e))
             raise iex
 
+    def getSyncAux(self, addr):
+        """
+        Method to read the auxiliary synchronization line.
+        Icepap User Manual pag. 133
+
+        :param addr: Axis number
+        :return: [signal, polarity]
+
+        """
+        command = "{0}:?SYNCAUX".format(addr)
+        ans = self.sendWriteReadCommand(command)
+        return self.parseResponse(command, ans).split()
+
+    def setSyncAux(self, addr, src, polarity="NORMAL"):
+        """
+        Method to set the auxiliary synchronization line
+        Icepap User Manual pag. 133
+
+        :param addr: Axis number
+        :param src: Source signal used.
+        :param polarity: Polarity of the output signal.
+        :return:
+        """
+        command = "{0}:SYNCAUX {1} {2}".format(addr, src, polarity)
+        self.sendWriteCommand(command)
+
     # ------------- Help and error commands ------------------------
     def blink(self, addr, secs):
         command = "%d:BLINK %d" % (addr, secs)
