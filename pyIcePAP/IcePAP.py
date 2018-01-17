@@ -494,9 +494,9 @@ class IcePAP:
 
     # ------------- NEW FEATURES WITH VERSION 2.x ------------------
     def sendListDat(self, addr, position_list):
-        l = position_list
-        lushorts = struct.unpack('%dH' % (len(l) * 2),
-                                 struct.pack('%df' % len(l), *l))
+        lpos = position_list
+        lushorts = struct.unpack('%dH' % (len(lpos) * 2),
+                                 struct.pack('%df' % len(lpos), *lpos))
 
         cmd = "%d:*LISTDAT FLOAT" % addr
         self.sendWriteCommand(cmd, prepend_ack=False)
@@ -561,9 +561,9 @@ class IcePAP:
         # Sort the given list of points in ascending order
         # (<list>.sort() slightly more efficient:
         position_list.sort()
-        l = position_list
-        lushorts = struct.unpack('%dH' % (len(l) * 2),
-                                 struct.pack('%df' % len(l), *l))
+        lpos = position_list
+        lushorts = struct.unpack('%dH' % (len(lpos) * 2),
+                                 struct.pack('%df' % len(lpos), *lpos))
 
         cmd = "%d:*ECAMDAT %s FLOAT" % (addr, source)
         self.sendWriteCommand(cmd, prepend_ack=False)
@@ -1232,19 +1232,19 @@ class IcePAP:
         return self.getMeas(addr, "VM")
 
     def setTSD(self, addr, pos_val):
-        self.setDC(addr, dc_val, "DCSD")
+        self.setDC(addr, pos_val, "DCSD")
 
     def getTVA(self, addr):
         return self.getMeas(addr, "IA")
 
     def setTVA(self, addr, pos_val):
-        self.setDC(addr, dc_val, "DCA")
+        self.setDC(addr, pos_val, "DCA")
 
     def getTVB(self, addr):
         return self.getMeas(addr, "IB")
 
     def setTVB(self, addr, pos_val, pos_sel="dcb"):
-        self.setDC(addr, dc_val, "DCB")
+        self.setDC(addr, pos_val, "DCB")
 
     def getTVCC(self, addr):
         return self.getMeas(addr, "VCC")
