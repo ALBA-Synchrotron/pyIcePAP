@@ -113,6 +113,14 @@ class IcePAP:
     def disconnect(self):
         pass
 
+    def sendBinaryBlock(self, ushort_data=[]):
+        """
+        Method to send a binary data to the IcePAP
+        :param ushort_data: Data converted to a unsigned short list
+        :return:
+        """
+        raise NotImplemented('You must implement this method')
+
     # ################################ BOARD COMMANDS #########################
 
     # ------------ Board Configuration and Identifaction Commands ------------
