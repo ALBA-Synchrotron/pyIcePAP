@@ -16,20 +16,14 @@ __all__ = ["MAX_SUBSET_SIZE", "CStatus", "IcePAPException", "IcePAP"]
 # except BaseException:
 #     pass
 
-# import sys
 import re
 from threading import Lock
 import array
 import struct
-# import numpy
-# import time
 import datetime
-# import operator
 
-from icepapdef import IcepapStatus
-from icepapdef import IcepapInfo
-from icepapdef import IcepapRegisters
-from icepapdef import IcepapTrackMode
+from icepapdef import IcepapStatus, IcepapInfo, IcepapRegisters, \
+    IcepapTrackMode
 
 MAX_SUBSET_SIZE = 200
 
@@ -58,7 +52,6 @@ class IcePAPException(Exception):
 class IcePAP:
 
     def __init__(self, host, port, timeout=3, log_path=None):
-        # print "IcePAP object created"
         self.IcePAPhost = host
         self.IcePAPport = int(port)
         self.Status = CStatus.Disconnected
