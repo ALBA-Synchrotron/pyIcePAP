@@ -19,6 +19,7 @@ import sys
 from IcePAP import CStatus, IcePAPException, IcePAP
 from threading import Thread
 import weakref
+import array
 
 
 class ReconnectThread(Thread):
@@ -250,6 +251,21 @@ class EthIcePAP(IcePAP):
                 IcePAPException.ERROR,
                 "Error disconnecting the Icepap")
             raise iex
+
+    def sendBinaryBlock(self, ushort_data):
+        # Prepare Metadata header
+
+        startmark = 0xa5aa555a
+        nworddata = len(ushort_data)
+        checksum = sum(ushort_data)
+        maskedchksum = checksum & 0xffffffff
+
+        self.sendData(struct.pack('L', startmark)[:4])
+        self.sendData(struct.pack('L', nworddata)[:4])
+        self.sendData(struct.pack('L', maskedchksum)[:4])
+
+        data = array.array('H', ushort_data)
+        self.sendData(data.tostring())
 
     def try_to_connect(self):
         self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
