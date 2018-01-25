@@ -501,18 +501,7 @@ class IcePAP:
 
         cmd = "%d:*LISTDAT FLOAT" % addr
         self.sendWriteCommand(cmd, prepend_ack=False)
-
-        startmark = 0xa5aa555a
-        nworddata = (len(lushorts))
-        checksum = sum(lushorts)
-        maskedchksum = checksum & 0xffffffff
-
-        self.sendData(struct.pack('L', startmark)[:4])
-        self.sendData(struct.pack('L', nworddata)[:4])
-        self.sendData(struct.pack('L', maskedchksum)[:4])
-
-        data = array.array('H', lushorts)
-        self.sendData(data.tostring())
+        self.sendBinaryBlock(ushort_data=lushorts)
 
     def getEcamDatIntervals(self, addr):
         cmd = ('%d:?ECAMDAT' % addr)
@@ -569,17 +558,7 @@ class IcePAP:
         cmd = "%d:*ECAMDAT %s FLOAT" % (addr, source)
         self.sendWriteCommand(cmd, prepend_ack=False)
 
-        startmark = 0xa5aa555a
-        nworddata = (len(lushorts))
-        checksum = sum(lushorts)
-        maskedchksum = checksum & 0xffffffff
-
-        self.sendData(struct.pack('L', startmark)[:4])
-        self.sendData(struct.pack('L', nworddata)[:4])
-        self.sendData(struct.pack('L', maskedchksum)[:4])
-
-        data = array.array('H', lushorts)
-        self.sendData(data.tostring())
+        self.sendBinaryBlock(ushort_data=lushorts)
 
         cmd = '%d:ECAM %s' % (addr, signal)
         self.sendWriteCommand(cmd)
@@ -1126,26 +1105,16 @@ class IcePAP:
     # ------------- library utilities ------------------------
 
     def sendFirmware(self, filename, save=True):
-        f = file(filename, 'rb')
-        data = f.read()
+        with open(filename, 'rb') as f:
+            data = f.read()
         data = array.array('H', data)
-        f.close()
-        nworddata = (len(data))
-        chksum = sum(data)
 
         cmd = "*PROG"
         if save:
             cmd += ' SAVE'
+
         self.sendWriteCommand(cmd)
-
-        startmark = 0xa5aa555a
-        maskedchksum = chksum & 0xffffffff
-        # BUGFIX FOR 64-BIT MACHINES
-        self.sendData(struct.pack('L', startmark)[:4])
-        self.sendData(struct.pack('L', nworddata)[:4])
-        self.sendData(struct.pack('L', maskedchksum)[:4])
-
-        self.sendData(data.tostring())
+        self.sendBinaryBlock(ushort_data=data)
 
     # GET PROGRAMMING PROGRESS STATUS
     def getProgressStatus(self):
