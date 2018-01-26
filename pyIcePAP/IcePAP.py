@@ -904,7 +904,7 @@ class IcePAP:
         data = vdata()
         data.append(parameter, ADDRUNSET, PARAMETER)
         data.append(position, addr, POSITION)
-        if slope != None:
+        if slope is not None:
             data.append(slope, addr, SLOPE)
 
         bin_data = data.bin()
@@ -1014,9 +1014,7 @@ class IcePAP:
         ans = self.sendWriteReadCommand(cmd)
         return float(self.parseResponse(cmd, ans))
 
-
     # ################################ SYSTEM COMMANDS ########################
-
     def getSysStatus(self):
         command = "?SYSSTAT"
         ans = self.sendWriteReadCommand(command)
