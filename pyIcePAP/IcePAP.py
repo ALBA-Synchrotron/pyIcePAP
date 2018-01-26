@@ -21,6 +21,7 @@ from threading import Lock
 import array
 import struct
 import datetime
+from vdatalib import vdata, ADDRUNSET, PARAMETER, POSITION, SLOPE
 
 from icepapdef import IcepapStatus, IcepapInfo, IcepapRegisters, \
     IcepapTrackMode
@@ -887,6 +888,132 @@ class IcePAP:
                                   "Error setting TRACKING mode",
                                   "W/R command failed.\n\%s" % str(e))
             raise iex
+
+    def setParDat(self, addr, parameter, position, slope=None, mode='SPLINE'):
+        """
+        Method to set the parametric trajectory data
+        IcePAP user manual pag. 100
+
+        :param addr: axis number
+        :param parameter: parameter table
+        :param position: position table
+        :param slope: slope table
+        :param mode: parametric mode [Linear, Spline, Cyclic]'
+        :return:
+        """
+        data = vdata()
+        data.append(parameter, ADDRUNSET, PARAMETER)
+        data.append(position, addr, POSITION)
+        if slope != None:
+            data.append(slope, addr, SLOPE)
+
+        bin_data = data.bin()
+        lushorts = struct.unpack('%dH' % (bin_data.size/2),
+                                 struct.pack('%db' % len(bin_data),
+                                             *bin_data.flatten()))
+
+        self.clearParDat(addr)
+
+        cmd = '{0}:*PARDAT {1}'.format(addr, mode)
+        self.sendWriteCommand(cmd, prepend_ack=False)
+        self.sendBinaryBlock(ushort_data=lushorts)
+
+    def clearParDat(self, addr):
+        """
+        Method to clean the current parameter tables
+        IcePAP user manual pag. 100
+
+        :param addr: axis
+        :return:
+        """
+        cmd = '%d:PARDAT CLEAR' % addr
+        self.sendWriteCommand(cmd)
+
+    def setParVel(self, addr, value):
+        """
+        Set the parameter velocity.
+        IcePAP user manual pag. 104
+        :param addr: axis number
+        :param value: parameter velocity in units per second
+        :return:
+        """
+        # NOTE: SOMETIMES PARVEL 10 RETURNS EXCEPTION:
+        # xx:PARVEL ERROR Out of range parameter(s)
+        # AND IS AVOIDED BY SETTING IT FIRST TO 0 !!!
+
+        values = [0, value]
+        cmd = '{0}:PARVEL {1}'
+        for v in values:
+            self.sendWriteCommand(cmd.format(addr, v))
+
+    def getParVel(self, addr, vel_type='NOMINAL'):
+        """
+        Get the parameter velocity.
+        IcePAP user manual pag. 104
+
+        :param addr: axis number
+        :param value: parameter velocity in units per second
+        :param vel_type: [Nominal, Min, Max, Current]
+        :return: velocity
+        """
+        cmd = '{0}:?PARVEL'.format(addr)
+        ans = self.sendWriteReadCommand(cmd)
+        return float(self.parseResponse(cmd, ans))
+
+    def setParAcct(self, addr, value):
+        """
+        Set the parameter acceleration time
+        IcePAP user manual pag. 99
+
+        :param addr: axis number
+        :param value: parameter acceleration time in seconds
+        :return:
+        """
+        cmd = '{0}:PARACCT {1}'.format(addr, value)
+        self.sendWriteCommand(cmd)
+
+    def getParAcct(self, addr, acc_type='NOMINAL'):
+        """
+        Get the parameter velocity.
+        IcePAP user manual pag. 99
+
+        :param addr: axis number
+        :param value: parameter velocity in units per second
+        :param acc_type: [Nominal, Param, Default]
+        :return: acceleration time
+        """
+        cmd = '{0}:?PARACCT'.format(addr)
+        ans = self.sendWriteReadCommand(cmd)
+        return float(self.parseResponse(cmd, ans))
+
+    def startMovePar(self, position, axes=[]):
+        cmd = 'MOVEP {0} {1}'.format(position, ' '.join(map(str, axes)))
+        self.sendWriteCommand(cmd)
+
+    def movePar(self, position, axes=[]):
+        cmd = 'PMOVE {0} {1}'.format(position, ' '.join(map(str, axes)))
+        self.sendWriteCommand(cmd)
+
+    def getParVal(self, addr, value):
+        """
+        Get the axis position value for a parametric trajectory value
+        :param addr: axis number
+        :return: axis position
+        """
+        cmd = '{0}:?PARVAL {1}'.format(addr, value)
+        ans = self.sendWriteReadCommand(cmd)
+        return float(self.parseResponse('{0}:?PARVAL'.format(addr), ans))
+
+    def getParPos(self, addr):
+        """
+        Get the parameter position from the axis current position
+        :param addr: axis number
+        :return: parameter positon
+        """
+        cmd = '{0}:?PARPOS'.format(addr)
+        ans = self.sendWriteReadCommand(cmd)
+        return float(self.parseResponse(cmd, ans))
+
 
     # ################################ SYSTEM COMMANDS ########################
 
