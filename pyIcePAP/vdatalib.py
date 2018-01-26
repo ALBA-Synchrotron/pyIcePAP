@@ -217,9 +217,8 @@ class vdata(object):
 
             # extract header information
             (signature, version, header_sz, full_sz, data_len, data_type,
-                compression, flags, firstval
-            ) = struct.unpack_from(self.__header_format,
-                                   bytes(self._bytearray[idx:]))
+             compression, flags, firstval) = struct.unpack_from(
+                self.__header_format, bytes(self._bytearray[idx:]))
 
             # minimum check
             if signature != self.__signature:
