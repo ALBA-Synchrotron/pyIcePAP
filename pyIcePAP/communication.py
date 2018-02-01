@@ -188,6 +188,8 @@ class SocketCom(object):
         self._lock = Lock()
         self._connect_thread = Thread(target=self._try_to_connect)
         self._connect_thread.start()
+        while self._connect_thread.isAlive():
+            time.sleep(0.02)
 
     @comm_error_handler
     def send_cmd(self, cmd):
@@ -227,13 +229,13 @@ class SocketCom(object):
             self._socket.setsockopt(SOL_SOCKET, SO_LINGER, NOLINGER)
             try:
                 self._socket.connect((self._host, self._port))
-                self.connected = True
+                self._connected = True
                 break
             except Exception:
                 time.sleep(sleep_time)
 
     def _send_data(self, raw_data, wait_answer=True, size=8192):
-        if not self.connected:
+        if not self._connected:
             self._connect_thread.start()
             raise RuntimeError('Connection error: No connection with the '
                                'Icepap sytem')
