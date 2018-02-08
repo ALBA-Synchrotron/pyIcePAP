@@ -922,7 +922,7 @@ class IcePAPAxis(object):
         self.send_cmd(cmd)
 
     @property
-    def parametric_position(self):
+    def parameter_position(self):
         """
         Get the position on parametric units
         IcePAP user manual pag. 103
@@ -931,7 +931,7 @@ class IcePAPAxis(object):
         return float(self.send_cmd('?PARPOS')[0])
 
     @property
-    def parametric_velocity(self):
+    def parameter_velocity(self):
         """
         Get the parametric axis velocity
         IcePAP user manual pag. 104
@@ -939,19 +939,24 @@ class IcePAPAxis(object):
         """
         return float(self.send_cmd('?PARVEL')[0])
 
-    @parametric_velocity.setter
-    def parametric_velocity(self, value):
+    @parameter_velocity.setter
+    def parameter_velocity(self, value):
         """
         Set the parametric axis velocity
         IcePAP user manual pag. 104
         :param value: float
         :return: None
         """
-        cmd = 'PARVEL {0}'.format(value)
-        self.send_cmd(cmd)
+        # NOTE: SOMETIMES PARVEL 10 RETURNS EXCEPTION:
+        # xx:PARVEL ERROR Out of range parameter(s)
+        # AND IS AVOIDED BY SETTING IT FIRST TO 0 !!!
+        values = [0, value]
+        for v in values:
+            cmd = 'PARVEL {0}'.format(v)
+            self.send_cmd(cmd)
 
     @property
-    def parametric_acceleration(self):
+    def parameter_acceleration(self):
         """
         Get the parametric acceleration time.
         IcePAP user manual pag. 99
@@ -959,8 +964,8 @@ class IcePAPAxis(object):
         """
         return float(self.send_cmd('PARACCT')[0])
 
-    @parametric_acceleration.setter
-    def parametric_acceleration(self, value):
+    @parameter_acceleration.setter
+    def parameter_acceleration(self, value):
         """
         Set the parametric acceleration time.
         IcePAP user manual pag. 99
@@ -1133,9 +1138,9 @@ class IcePAPAxis(object):
         cmd = 'SYNCAUX {0} {1}'.format(*cfg)
         self.send_cmd(cmd)
 
-    # ------------------------------------------------------------------------
-    #                       Commands
-    # ------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+#                       Commands
+# ------------------------------------------------------------------------
 
     def send_cmd(self, cmd):
         """
@@ -1602,3 +1607,12 @@ class IcePAPAxis(object):
                 lslope.append(slope)
 
         return lparam, lpos, lslope
+
+    def get_parameter(self, parameter):
+        """
+        Get the motor position for a parameter value.
+        :param parameter: float
+        :return: float
+        """
+        cmd = '?PARVAL {0}'.format(parameter)
+        return float(self.send_cmd(cmd)[0])
