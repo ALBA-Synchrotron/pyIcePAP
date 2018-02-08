@@ -16,6 +16,7 @@ from threading import Thread, Lock
 import struct
 import time
 import array
+from future import *
 
 _imported_serial = False
 try:
@@ -77,19 +78,23 @@ class IcePAPCommunication(object):
                  example: 1:move 100 -> None
                           1:?Pos -> 100
         """
-
         cmd = cmd.upper().strip()
-
         flg_read_cmd = '?' in cmd
+        flg_ecamdat_cmd = '*ECAMDAT' in cmd
+        flg_listdat_cmd = '*LISTDAT' in cmd
+        flg_pardat_cmd = '*PARDAT' in cmd
         use_ack = False
         # The acknowledge character does not have effect on read command.
         # There is a bug on some commands PROG, *PROG, RESET(3.17 does not
         # have problem) and command start by ":"
-        if not flg_read_cmd or cmd.startswith(('PROG', '*PROG', 'RESET', ':')):
-            cmd = '#{0}\r\n'.format(cmd)
-            use_ack = True
+        bad_cmds = ('PROG', '*PROG', 'RESET', ':')
+
+        if flg_read_cmd or cmd.startswith(bad_cmds) or flg_ecamdat_cmd or \
+                flg_listdat_cmd or flg_pardat_cmd:
+            cmd = '{0}\r'.format(cmd)
         else:
-            cmd = '{0}\r\n'.format(cmd)
+            cmd = '#{0}\r'.format(cmd)
+            use_ack = True
 
         ans = self._comm.send_cmd(cmd)
         msg = 'Error sending command {0}, icepap answered {1}'
@@ -100,7 +105,9 @@ class IcePAPCommunication(object):
             else:
                 result = None
         else:
-            if '$' in ans:
+            if ans is None:
+                result = ans
+            elif '$' in ans:
                 # Multi lines
                 lines = ans.split('\n')[1:-2]
                 result = [line[:-1] for line in lines]  # remove CR
@@ -186,10 +193,9 @@ class SocketCom(object):
         self._timeout = timeout
         self._connected = False
         self._lock = Lock()
-        self._connect_thread = Thread(target=self._try_to_connect)
-        self._connect_thread.start()
-        while self._connect_thread.isAlive():
-            time.sleep(0.02)
+        self._connect_thread = None
+        self._start_thread()
+        self._connect_thread.join()
 
     @comm_error_handler
     def send_cmd(self, cmd):
@@ -210,9 +216,15 @@ class SocketCom(object):
         str_nworddata = struct.pack('L', nworddata)[:4]
         str_maskedchksum = struct.pack('L', maskedchksum)[:4]
         str_data = data.tostring()
-        str_bin = '{0}{1}{2}{3}'.format(str_startmark, str_nworddata,
-                                        str_maskedchksum, str_data)
+        str_bin = '{0}{1}{2}{3}\r'.format(str_startmark, str_nworddata,
+                                          str_maskedchksum, str_data)
         self._send_data(str_bin, wait_answer=False)
+
+    def _start_thread(self):
+        print('Start thread %r ' % self._connect_thread)
+
+        self._connect_thread = Thread(target=self._try_to_connect)
+        self._connect_thread.start()
 
     def _try_to_connect(self):
         self._connected = False
@@ -236,13 +248,28 @@ class SocketCom(object):
 
     def _send_data(self, raw_data, wait_answer=True, size=8192):
         if not self._connected:
-            self._connect_thread.start()
+            self._start_thread()
             raise RuntimeError('Connection error: No connection with the '
                                'Icepap sytem')
 
         try:
             with self._lock:
-                self._socket.sendall(raw_data)
+                # TODO: use python logging
+                print('\tRAW_DATA to send: %r' % raw_data)
+                raw_data_size = len(raw_data)
+                if raw_data_size > size:
+                    # TODO: use python logging
+                    print('Send multitimes')
+                    n = int(raw_data_size / size)
+                    start = 0
+                    for i in range(n):
+                        end = (i+1) * size
+                        self._socket.sendall(raw_data[start:end])
+                        start = end
+                    if int(raw_data_size % size) > 0:
+                        self._socket.sendall(raw_data[start:])
+                else:
+                    self._socket.sendall(raw_data)
                 if wait_answer:
                     answer = self._socket.recv(size)
                     if answer.count("$") > 0:
@@ -278,8 +305,10 @@ class SocketCom(object):
                         # FOUND
                         while answer.count('$') < 2:
                             answer = answer + self._socket.recv(size)
+                    # TODO: use python loggin
+                    print('\tRAW_DATA read: %r' % answer)
                     return answer
         except Exception as e:
-            self._connect_thread.start()
+            self._start_thread()
             raise RuntimeError('Communication error: Error sending command to '
                                'the IcePAP ({0})'.format(e))
