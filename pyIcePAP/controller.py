@@ -112,7 +112,7 @@ class IcePAPController(dict):
         """
         return self._comm.send_cmd(cmd)
 
-    def move(self, axes_pos, group=True, strict=True):
+    def move(self, axes_pos, group=True, strict=False):
         """
         Start absolute movement for axes motor. The method allows alias.
         :param axes_pos: [[str/int,int]]
@@ -126,7 +126,7 @@ class IcePAPController(dict):
                                         self._axespos2str(axes_pos))
         self.send_cmd(cmd)
 
-    def rmove(self, axes_pos, group=True, strict=True):
+    def rmove(self, axes_pos, group=True, strict=False):
         """
         Start relative movement for axes motor. The method allows alias.
         :param axes_pos: [[str/int,int]]
@@ -140,7 +140,7 @@ class IcePAPController(dict):
                                          self._axespos2str(axes_pos))
         self.send_cmd(cmd)
 
-    def movep(self, pos, axes, group=False, strict=False):
+    def movep(self, pos, axes, group=True, strict=False):
         """
         Start axes movement to parameter value
         :param pos: float
@@ -150,9 +150,9 @@ class IcePAPController(dict):
         :return: None
         """
         axes = self._alias2axis(axes)
-        cmd = 'MOVEP {0} {1} {2} {3}'.format(pos,
-                                             ['', 'GROUP'][group],
+        cmd = 'MOVEP {0} {1} {2} {3}'.format(['', 'GROUP'][group],
                                              ['', 'STRICT'][strict],
+                                             pos,
                                              ' '.join(map(str, axes)))
         self.send_cmd(cmd)
 
@@ -165,9 +165,10 @@ class IcePAPController(dict):
         :param strict: bool
         :return: None
         """
+        # TODO: the grou
         axes = self._alias2axis(axes)
-        cmd = 'PMOVE {0} {1} {2} {3}'.format(pos,
-                                             ['', 'GROUP'][group],
+        cmd = 'PMOVE {0} {1} {2} {3}'.format(['', 'GROUP'][group],
                                              ['', 'STRICT'][strict],
+                                             pos,
                                              ' '.join(map(str, axes)))
         self.send_cmd(cmd)
