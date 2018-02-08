@@ -94,11 +94,14 @@ class IcePAPAxis(object):
     @property
     def addr(self):
         """
-        Get the axis number.
+        Get the rack number and axis number.
         IcePAP user manual pag. 49
-        :return: int
+        :return: (int, int)
         """
-        return int(self.send_cmd('?ADDR')[0])
+        ans = self.send_cmd('?ADDR')[0].strip()
+        rack_nr = int(ans[0], 16)
+        axis_nr = int(ans[1], 16)
+        return rack_nr, axis_nr
 
     @property
     def active(self):
