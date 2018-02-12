@@ -302,7 +302,7 @@ class IcePAPAxis(object):
         return int(self.send_cmd('?POST')[0])
 
     @property
-    def power_on(self):
+    def power(self):
         """
         Get if the axis is ON
         IcePAP user manual pag. 111
@@ -311,8 +311,8 @@ class IcePAPAxis(object):
         """
         return self.send_cmd('?POWER')[0] == 'ON'
 
-    @power_on.setter
-    def power_on(self, value):
+    @power.setter
+    def power(self, value):
         """
         Set the power of the axis.
         IcePAP user manual pag. 111
@@ -324,7 +324,7 @@ class IcePAPAxis(object):
         self.send_cmd(cmd)
 
     @property
-    def aux_power_on(self):
+    def auxps(self):
         """
         Get if the auxiliary power supply is on
         IcePAP user manual pag. 52
@@ -332,8 +332,8 @@ class IcePAPAxis(object):
         """
         return self.send_cmd('?AUXPS')[0] == 'ON'
 
-    @aux_power_on.setter
-    def aux_power_on(self, value):
+    @auxps.setter
+    def auxps(self, value):
         """
         Set the auxiliary power supply of the axis.
         Icepap user manual pag. 52
@@ -345,7 +345,7 @@ class IcePAPAxis(object):
         self.send_cmd(cmd)
 
     @property
-    def power_supply_voltage(self):
+    def meas_vcc(self):
         """
         Measured value of the main power supply.
         IcePAP user manual pag. 89
@@ -354,7 +354,7 @@ class IcePAPAxis(object):
         return self.meas('VCC')
 
     @property
-    def motor_voltage(self):
+    def meas_vm(self):
         """
         Measured value of the motor voltage.
         IcePAP user manual pag. 89
@@ -363,7 +363,7 @@ class IcePAPAxis(object):
         return self.meas('VM')
 
     @property
-    def motor_current(self):
+    def meas_i(self):
         """
         Measured value of the motor current.
         IcePAP user manual pag. 89
@@ -372,7 +372,7 @@ class IcePAPAxis(object):
         return self.meas('I')
 
     @property
-    def phase_a_current(self):
+    def meas_ia(self):
         """
         Measured value of the phase a current.
         IcePAP user manual pag. 89
@@ -381,7 +381,7 @@ class IcePAPAxis(object):
         return self.meas('IA')
 
     @property
-    def phase_b_current(self):
+    def meas_ib(self):
         """
         Measured value of the phase b current.
         IcePAP user manual pag. 89
@@ -390,7 +390,7 @@ class IcePAPAxis(object):
         return self.meas('IB')
 
     @property
-    def phase_c_current(self):
+    def meas_ic(self):
         """
         Measured value of the phase c current.
         IcePAP user manual pag. 89
@@ -399,7 +399,7 @@ class IcePAPAxis(object):
         return self.meas('IC')
 
     @property
-    def motor_resistance(self):
+    def meas_r(self):
         """
         Measured value of the motor resistance.
         IcePAP user manual pag. 89
@@ -408,7 +408,7 @@ class IcePAPAxis(object):
         return self.meas('R')
 
     @property
-    def phase_a_resistance(self):
+    def meas_ra(self):
         """
         Measured value of the phase a resistance.
         IcePAP user manual pag. 89
@@ -417,7 +417,7 @@ class IcePAPAxis(object):
         return self.meas('RA')
 
     @property
-    def phase_b_resistance(self):
+    def meas_rb(self):
         """
         Measured value of the phase b resistance.
         IcePAP user manual pag. 89
@@ -426,7 +426,7 @@ class IcePAPAxis(object):
         return self.meas('RB')
 
     @property
-    def phase_c_resistance(self):
+    def meas_rc(self):
         """
         Measured value of the phase c resistance.
         IcePAP user manual pag. 89
@@ -435,7 +435,7 @@ class IcePAPAxis(object):
         return self.meas('RC')
 
     @property
-    def board_temperature(self):
+    def meas_t(self):
         """
         Measured value of the board temperature.
         IcePAP user manual pag. 89
@@ -444,7 +444,7 @@ class IcePAPAxis(object):
         return self.meas('T')
 
     @property
-    def ps_temperature(self):
+    def meas_rt(self):
         """
         Measured value of the power supply temperature.
         IcePAP user manual pag. 89
@@ -453,7 +453,7 @@ class IcePAPAxis(object):
         return self.meas('RT')
 
     @property
-    def position(self):
+    def pos(self):
         """
         Read the axis nominal position pointer
         IcePAP user manual pag. 108
@@ -461,8 +461,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('AXIS')
 
-    @position.setter
-    def position(self, value):
+    @pos.setter
+    def pos(self, value):
         """
         Set the axis nominal position value
         IcePAP user manual pag. 108
@@ -473,7 +473,7 @@ class IcePAPAxis(object):
         self.set_pos('AXIS', value)
 
     @property
-    def shftenc_pos(self):
+    def pos_shftenc(self):
         """
         Read the shftenc register.
         IcePAP user manual pag. 108
@@ -482,8 +482,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('SHFTENC')
 
-    @shftenc_pos.setter
-    def shftenc_pos(self, value):
+    @pos_shftenc.setter
+    def pos_shftenc(self, value):
         """
         Set the shftenc register
         IcePAP user manual pag. 108
@@ -494,7 +494,7 @@ class IcePAPAxis(object):
         self.set_pos('SFHTENC', value)
 
     @property
-    def tgtenc_pos(self):
+    def pos_tgtenc(self):
         """
         Read the tgtenc register.
         IcePAP user manual pag. 108
@@ -503,8 +503,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('TGTENC')
 
-    @tgtenc_pos.setter
-    def tgtenc_pos(self, value):
+    @pos_tgtenc.setter
+    def pos_tgtenc(self, value):
         """
         Set the tgtenc register
         IcePAP user manual pag. 108
@@ -515,7 +515,7 @@ class IcePAPAxis(object):
         self.set_pos('TGTENC', value)
 
     @property
-    def ctrlenc_pos(self):
+    def pos_ctrlenc(self):
         """
         Read the ctrlenc register.
         IcePAP user manual pag. 108
@@ -524,8 +524,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('CTRLENC')
 
-    @ctrlenc_pos.setter
-    def ctrlenc_pos(self, value):
+    @pos_ctrlenc.setter
+    def pos_ctrlenc(self, value):
         """
         Set the ctrlenc register
         IcePAP user manual pag. 108
@@ -536,7 +536,7 @@ class IcePAPAxis(object):
         self.set_pos('CTRLENC', value)
 
     @property
-    def encin_pos(self):
+    def pos_encin(self):
         """
         Read the encin register.
         IcePAP user manual pag. 108
@@ -545,8 +545,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('ENCIN')
 
-    @encin_pos.setter
-    def encin_pos(self, value):
+    @pos_encin.setter
+    def pos_encin(self, value):
         """
         Set the encin register
         IcePAP user manual pag. 108
@@ -557,7 +557,7 @@ class IcePAPAxis(object):
         self.set_pos('ENCIN', value)
 
     @property
-    def inpos_pos(self):
+    def pos_inpos(self):
         """
         Read the inpos register.
         IcePAP user manual pag. 108
@@ -566,8 +566,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('INPOS')
 
-    @inpos_pos.setter
-    def inpos_pos(self, value):
+    @pos_inpos.setter
+    def pos_inpos(self, value):
         """
         Set the inpos register
         IcePAP user manual pag. 108
@@ -578,7 +578,7 @@ class IcePAPAxis(object):
         self.set_pos('INPOS', value)
 
     @property
-    def absenc_pos(self):
+    def pos_absenc(self):
         """
         Read the absenc register.
         IcePAP user manual pag. 108
@@ -587,8 +587,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('ABSENC')
 
-    @absenc_pos.setter
-    def absenc_pos(self, value):
+    @pos_absenc.setter
+    def pos_absenc(self, value):
         """
         Set the absenc register
         IcePAP user manual pag. 108
@@ -599,7 +599,7 @@ class IcePAPAxis(object):
         self.set_pos('ABSENC', value)
 
     @property
-    def motor_pos(self):
+    def pos_motor(self):
         """
         Read the motor register.
         IcePAP user manual pag. 108
@@ -608,8 +608,8 @@ class IcePAPAxis(object):
         """
         return self.get_pos('MOTOR')
 
-    @motor_pos.setter
-    def motor_pos(self, value):
+    @pos_motor.setter
+    def pos_motor(self, value):
         """
         Set the motor register
         IcePAP user manual pag. 108
@@ -620,7 +620,7 @@ class IcePAPAxis(object):
         self.set_pos('MOTOR', value)
 
     @property
-    def encoder(self):
+    def enc(self):
         """
         Read the axis nominal position pointer
         IcePAP user manual pag. 108
@@ -628,8 +628,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('AXIS')
 
-    @encoder.setter
-    def encoder(self, value):
+    @enc.setter
+    def enc(self, value):
         """
         Set the axis nominal position value
         IcePAP user manual pag. 108
@@ -640,7 +640,7 @@ class IcePAPAxis(object):
         self.set_enc('AXIS', value)
 
     @property
-    def shftenc_enc(self):
+    def enc_shftenc(self):
         """
         Read the shftenc register.
         IcePAP user manual pag. 108
@@ -649,8 +649,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('SHFTENC')
 
-    @shftenc_enc.setter
-    def shftenc_enc(self, value):
+    @enc_shftenc.setter
+    def enc_shftenc(self, value):
         """
         Set the shftenc register
         IcePAP user manual pag. 108
@@ -661,7 +661,7 @@ class IcePAPAxis(object):
         self.set_enc('SFHTENC', value)
 
     @property
-    def tgtenc_enc(self):
+    def enc_tgtenc(self):
         """
         Read the tgtenc register.
         IcePAP user manual pag. 108
@@ -670,8 +670,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('TGTENC')
 
-    @tgtenc_enc.setter
-    def tgtenc_enc(self, value):
+    @enc_tgtenc.setter
+    def enc_tgtenc(self, value):
         """
         Set the tgtenc register
         IcePAP user manual pag. 108
@@ -682,7 +682,7 @@ class IcePAPAxis(object):
         self.set_enc('TGTENC', value)
 
     @property
-    def ctrlenc_enc(self):
+    def enc_ctrlenc(self):
         """
         Read the ctrlenc register.
         IcePAP user manual pag. 108
@@ -691,8 +691,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('CTRLENC')
 
-    @ctrlenc_enc.setter
-    def ctrlenc_enc(self, value):
+    @enc_ctrlenc.setter
+    def enc_ctrlenc(self, value):
         """
         Set the ctrlenc register
         IcePAP user manual pag. 108
@@ -703,7 +703,7 @@ class IcePAPAxis(object):
         self.set_enc('CTRLENC', value)
 
     @property
-    def encin_enc(self):
+    def enc_encin(self):
         """
         Read the encin register.
         IcePAP user manual pag. 108
@@ -712,8 +712,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('ENCIN')
 
-    @encin_enc.setter
-    def encin_enc(self, value):
+    @enc_encin.setter
+    def enc_encin(self, value):
         """
         Set the encin register
         IcePAP user manual pag. 108
@@ -724,7 +724,7 @@ class IcePAPAxis(object):
         self.set_enc('ENCIN', value)
 
     @property
-    def inpos_enc(self):
+    def enc_inpos(self):
         """
         Read the inpos register.
         IcePAP user manual pag. 108
@@ -733,8 +733,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('INPOS')
 
-    @inpos_enc.setter
-    def inpos_enc(self, value):
+    @enc_inpos.setter
+    def enc_inpos(self, value):
         """
         Set the inpos register
         IcePAP user manual pag. 108
@@ -745,7 +745,7 @@ class IcePAPAxis(object):
         self.set_enc('INPOS', value)
 
     @property
-    def absenc_enc(self):
+    def enc_absenc(self):
         """
         Read the absenc register.
         IcePAP user manual pag. 108
@@ -754,8 +754,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('ABSENC')
 
-    @absenc_enc.setter
-    def absenc_enc(self, value):
+    @enc_absenc.setter
+    def enc_absenc(self, value):
         """
         Set the absenc register
         IcePAP user manual pag. 108
@@ -766,7 +766,7 @@ class IcePAPAxis(object):
         self.set_enc('ABSENC', value)
 
     @property
-    def motor_enc(self):
+    def enc_motor(self):
         """
         Read the motor register.
         IcePAP user manual pag. 108
@@ -775,8 +775,8 @@ class IcePAPAxis(object):
         """
         return self.get_enc('MOTOR')
 
-    @motor_enc.setter
-    def motor_enc(self, value):
+    @enc_motor.setter
+    def enc_motor(self, value):
         """
         Set the motor register
         IcePAP user manual pag. 108
@@ -806,7 +806,7 @@ class IcePAPAxis(object):
         self.set_velocity(value)
 
     @property
-    def min_velocity(self):
+    def velocity_min(self):
         """
         Read the minimum velocity. See get_velocity method
 
@@ -815,7 +815,7 @@ class IcePAPAxis(object):
         return self.get_velocity(vtype='MIN')
 
     @property
-    def max_velocity(self):
+    def velocity_max(self):
         """
         Read the maximum velocity. See get_velocity method
 
@@ -824,7 +824,7 @@ class IcePAPAxis(object):
         return self.get_velocity(vtype='MAX')
 
     @property
-    def default_velocity(self):
+    def velocity_default(self):
         """
         Read the default velocity. See get_velocity method
 
@@ -833,7 +833,7 @@ class IcePAPAxis(object):
         return self.get_velocity(vtype='DEFAULT')
 
     @property
-    def current_velocity(self):
+    def velocity_current(self):
         """
         Read the default velocity. See get_velocity method
 
@@ -842,7 +842,7 @@ class IcePAPAxis(object):
         return self.get_velocity(vtype='CURRENT')
 
     @property
-    def acceleration(self):
+    def acctime(self):
         """
         Get the acceleration time. See get_acceleration method.
 
@@ -850,8 +850,8 @@ class IcePAPAxis(object):
         """
         return self.get_acceleration()
 
-    @acceleration.setter
-    def acceleration(self, value):
+    @acctime.setter
+    def acctime(self, value):
         """
         Set the acceleration time. See set_acceleration method.
 
@@ -861,7 +861,7 @@ class IcePAPAxis(object):
         self.set_acceleration(value)
 
     @property
-    def step_acceleration(self):
+    def acctime_step(self):
         """
         Get the acceleration in steps distances. See get_acceleration method.
         :return: float
@@ -869,7 +869,7 @@ class IcePAPAxis(object):
         return self.get_acceleration(atype='STEPS')
 
     @property
-    def default_acceleration(self):
+    def acctime_default(self):
         """
         Get the default acceleration time. See get_acceleration method.
         :return: float
@@ -877,7 +877,7 @@ class IcePAPAxis(object):
         return self.get_acceleration(atype='DEFAULT')
 
     @property
-    def pcloop_on(self):
+    def pcloop(self):
         """
         Read if the position close loop is enabled.
         IcePAP user manual pag. 105
@@ -885,8 +885,8 @@ class IcePAPAxis(object):
         """
         return self.send_cmd('?PCLOOP')[0] == 'ON'
 
-    @pcloop_on.setter
-    def pcloop_on(self, value):
+    @pcloop.setter
+    def pcloop(self, value):
         """
         Activate/Deactivate the position close loop
         IcePAP user manual pag. 105
@@ -925,7 +925,7 @@ class IcePAPAxis(object):
         self.send_cmd(cmd)
 
     @property
-    def parameter_position(self):
+    def parpos(self):
         """
         Get the position on parametric units
         IcePAP user manual pag. 103
@@ -934,7 +934,7 @@ class IcePAPAxis(object):
         return float(self.send_cmd('?PARPOS')[0])
 
     @property
-    def parameter_velocity(self):
+    def parvel(self):
         """
         Get the parametric axis velocity
         IcePAP user manual pag. 104
@@ -942,8 +942,8 @@ class IcePAPAxis(object):
         """
         return float(self.send_cmd('?PARVEL')[0])
 
-    @parameter_velocity.setter
-    def parameter_velocity(self, value):
+    @parvel.setter
+    def parvel(self, value):
         """
         Set the parametric axis velocity
         IcePAP user manual pag. 104
@@ -959,7 +959,7 @@ class IcePAPAxis(object):
             self.send_cmd(cmd)
 
     @property
-    def parameter_acceleration(self):
+    def paracct(self):
         """
         Get the parametric acceleration time.
         IcePAP user manual pag. 99
@@ -967,8 +967,8 @@ class IcePAPAxis(object):
         """
         return float(self.send_cmd('PARACCT')[0])
 
-    @parameter_acceleration.setter
-    def parameter_acceleration(self, value):
+    @paracct.setter
+    def paracct(self, value):
         """
         Set the parametric acceleration time.
         IcePAP user manual pag. 99
@@ -979,7 +979,7 @@ class IcePAPAxis(object):
         self.send_cmd(cmd)
 
     @property
-    def home_status(self):
+    def homestat(self):
         """
         Return the homing procedure status.
         IcePAP user manual pag. 79
@@ -1611,7 +1611,7 @@ class IcePAPAxis(object):
 
         return lparam, lpos, lslope
 
-    def get_parameter(self, parameter):
+    def get_parval(self, parameter):
         """
         Get the motor position for a parameter value.
         :param parameter: float
