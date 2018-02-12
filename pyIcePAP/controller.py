@@ -8,9 +8,9 @@
 # See LICENSE.txt for more info.
 # ------------------------------------------------------------------------------
 
-__all__ = ['IcePAPController']
+__all__ = ['IcePAPController', 'EthIcePAP']
 
-from .communication import IcePAPCommunication
+from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
 
 
@@ -172,3 +172,9 @@ class IcePAPController(dict):
                                              pos,
                                              ' '.join(map(str, axes)))
         self.send_cmd(cmd)
+
+
+class EthIcePAP(IcePAPController):
+    def __init__(self, host, port=5000):
+        IcePAPController.__init__(self, CommType.Socket, host, port)
+
