@@ -27,6 +27,10 @@ class IcePAPAxis(object):
         ref = weakref.ref(ctrl)
         self._ctrl = ref()
         self._axis_nr = axis_nr
+        rack_id = int(self._axis_nr / 10)
+        axis_id = int(self._axis_nr % 10)
+        self._str_id = '{0:x}{1:x}'.format(rack_id, axis_id)
+
         # if self._axis_nr != self.addr:
         #     msg = 'Initialization error: axis_nr {0} != adr {1}'.format(
         #         self._axis_nr, self.addr)
@@ -1151,9 +1155,7 @@ class IcePAPAxis(object):
         :param cmd: Command without axis number
         :return: [str]
         """
-        rack_id = int(self._axis_nr / 10)
-        axis_id = int(self._axis_nr % 10)
-        cmd = '{0:x}{1:x}:{2}'.format(rack_id, axis_id, cmd)
+        cmd = '{0}:{1}'.format(self._str_id, cmd)
         return self._ctrl.send_cmd(cmd)
 
     def get_cfginfo(self, parameter=''):
