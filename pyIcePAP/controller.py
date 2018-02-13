@@ -174,7 +174,7 @@ class IcePAPController(dict):
         self.send_cmd(cmd)
 
 
-class EthIcePAP(IcePAPController):
+class EthIcePAPController(IcePAPController):
     def __init__(self, host, port=5000):
         IcePAPController.__init__(self, CommType.Socket, host, port)
 
