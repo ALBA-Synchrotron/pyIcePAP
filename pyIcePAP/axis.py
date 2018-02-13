@@ -13,6 +13,7 @@
 
 import weakref
 import struct
+from future import *
 from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE
 
 
@@ -1621,3 +1622,12 @@ class IcePAPAxis(object):
         """
         cmd = '?PARVAL {0}'.format(parameter)
         return float(self.send_cmd(cmd)[0])
+
+    def print_commands(self):
+        """
+        Get the allows commands ?HELP
+        IcePAP user manual pag. 75
+        :return: None
+        """
+        ans = self.send_cmd('?HELP')
+        print('\n'.join(ans))
