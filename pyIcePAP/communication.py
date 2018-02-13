@@ -193,9 +193,15 @@ class SocketCom(object):
         self._timeout = timeout
         self._connected = False
         self._lock = Lock()
+        self._stop_thread = False
         self._connect_thread = None
         self._start_thread()
         self._connect_thread.join()
+
+    def __del__(self):
+        self._stop_thread = True
+        self._connect_thread.join()
+
 
     @comm_error_handler
     def send_cmd(self, cmd):
@@ -224,6 +230,7 @@ class SocketCom(object):
         print('Start thread %r ' % self._connect_thread)
 
         self._connect_thread = Thread(target=self._try_to_connect)
+        self._connect_thread.setDaemon(True)
         self._connect_thread.start()
 
     def _try_to_connect(self):
@@ -234,7 +241,7 @@ class SocketCom(object):
                 self._socket.close()
             except Exception:
                 pass
-        while True:
+        while not self._stop_thread:
             self._socket = socket(AF_INET, SOCK_STREAM)
             self._socket.settimeout(self._timeout)
             NOLINGER = struct.pack('ii', 1, 0)
