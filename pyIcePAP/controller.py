@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 # ------------------------------------------------------------------------------
 
-__all__ = ['IcePAPController', 'EthIcePAPController']
+__all__ = ['EthIcePAPController']
 
 from future import *
 from .communication import IcePAPCommunication, CommType
@@ -209,7 +209,6 @@ class IcePAPController(dict):
         :param strict: bool
         :return: None
         """
-
         cmd = 'PMOVE {0} {1} {2} {3}'.format(['', 'GROUP'][group],
                                              ['', 'STRICT'][strict],
                                              pos,
