@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 # -----------------------------------------------------------------------------
 
-# TODO: replace implicit imports by explicit using the __all__ = [...] structure
+# TODO: better use the __all__ = [...] structure
 from IcePAP_Eth import *
 from IcePAP_Serial import *
 from IcePAP import *

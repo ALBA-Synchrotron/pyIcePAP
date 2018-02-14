@@ -307,7 +307,7 @@ def deprecated(alt=None):
             if isfunction(f):
                 obj_type = 'method'
             elif isclass(f):
-               obj_type = 'class'
+                obj_type = 'class'
             else:
                 msg = "Decorated object is not a class nor a function."
                 raise RuntimeError(msg)

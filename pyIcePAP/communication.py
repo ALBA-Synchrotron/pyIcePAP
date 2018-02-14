@@ -202,7 +202,6 @@ class SocketCom(object):
         self._stop_thread = True
         self._connect_thread.join()
 
-
     @comm_error_handler
     def send_cmd(self, cmd):
         wait_answer = ('#' in cmd) or ('?' in cmd)

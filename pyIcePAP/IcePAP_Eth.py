@@ -18,9 +18,7 @@ from IcePAP import CStatus, IcePAPException, IcePAP
 from threading import Thread
 import weakref
 import array
-from future import *
 from icepapdef import deprecated
-
 
 
 class ReconnectThread(Thread):
