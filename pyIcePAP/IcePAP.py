@@ -145,7 +145,7 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
 
-    @deprecated("vstatus")
+    @deprecated("controller.get_fstatus")
     def getStatus(self, addr):
         # 20140409 - BUG WITH ?_FSTATUS
         # NOT CLEAR WHY TO USE _FSTATUS AND ALSO
@@ -159,7 +159,7 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse('?FSTATUS', ans)
 
-    @deprecated()
+    @deprecated("controller.get_fstatus")
     def getMultipleStatus(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -350,7 +350,7 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse("%d:?POS" % addr, ans)
 
-    @deprecated()
+    @deprecated("controller.get_fpos")
     def getPosition(self, addr):
         command = "?_FPOS %d" % addr
         ans = self.sendWriteReadCommand(command)
@@ -361,7 +361,7 @@ class IcePAP:
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse('?FPOS', ans)
 
-    @deprecated()
+    @deprecated("controller.get_pos")
     def getMultiplePositionFromBoard(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -377,7 +377,7 @@ class IcePAP:
             i = i + 1
         return position_values
 
-    @deprecated()
+    @deprecated("controller.get_fpos")
     def getMultiplePosition(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -534,7 +534,6 @@ class IcePAP:
         command = "%d:INDEXER %s" % (addr, src)
         self.sendWriteCommand(command)
 
-    @deprecated()
     def getInfoSource(self, addr, info):
         iex = IcePAPException(
             IcePAPException.ERROR,
@@ -542,13 +541,12 @@ class IcePAP:
             "use 'getInfo'")
         raise iex
 
-    @deprecated()
+    @deprecated("info<X>")
     def getInfo(self, addr, info):
         command = "%d:?%s" % (addr, info)
         ans = self.sendWriteReadCommand(command)
         return self.parseResponse(command, ans)
 
-    @deprecated()
     def setInfoSource(self, addr, info, src, polarity="NORMAL"):
         iex = IcePAPException(
             IcePAPException.ERROR,
@@ -556,7 +554,7 @@ class IcePAP:
             "use 'setInfo'")
         raise iex
 
-    @deprecated()
+    @deprecated("info<X>")
     def setInfo(self, addr, info, src, polarity="NORMAL"):
         command = "%d:%s %s %s" % (addr, info, src, polarity)
         self.sendWriteCommand(command)
@@ -661,7 +659,6 @@ class IcePAP:
         # print values
         return values
 
-    @deprecated()
     def _getEcamDat(self, addr, nvalues, offset):
         """
         Generic function following the Icepap API.
@@ -683,7 +680,6 @@ class IcePAP:
             raise iex
         return ans
 
-    @deprecated()
     def _EcamDat_str2list(self, ans):
         """
         Returns the parsed list of values in EcamDat
@@ -798,7 +794,6 @@ class IcePAP:
         self.sendWriteCommand(command)
 
     # ------------- Tracking commands ------------------------
-    @deprecated()
     def _checkNode(self, node):
         valid_starts_values = ('B', 'C', 'E')
         node = node.upper()
@@ -1117,15 +1112,15 @@ class IcePAP:
         ans = self.parseResponse("?SYSSTAT", ans)
         return ans.split()
 
-    @deprecated()
+    @deprecated("controller.ver")
     def getSystemVersion(self):
         return self.getVersion(0, "")
 
-    @deprecated()
+    @deprecated("controller.reset")
     def resetSystem(self):
         self.sendWriteCommand("RESET")
 
-    @deprecated()
+    @deprecated("controller.get_pos")
     def getMultiplePositions(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -1141,7 +1136,7 @@ class IcePAP:
             i = i + 1
         return pos_values
 
-    @deprecated()
+    @deprecated("controller.set_pos")
     def setMultiplePosition(self, pos_val_list, pos_sel="AXIS"):
         values = ""
         for addr, value in pos_val_list:
@@ -1149,7 +1144,7 @@ class IcePAP:
         command = "POS %s %s" % (pos_sel, values)
         self.sendWriteCommand(command)
 
-    @deprecated()
+    @deprecated("controller.get_enc")
     def getMultipleEncoder(self, axis_list, pos_sel="AXIS"):
         axis = ""
         for addr in axis_list:
@@ -1165,7 +1160,7 @@ class IcePAP:
             i = i + 1
         return pos_values
 
-    @deprecated()
+    @deprecated("controller.set_enc")
     def setMultipleEncoder(self, pos_val_list, pos_sel="AXIS"):
         values = ""
         for addr, value in pos_val_list:
@@ -1173,7 +1168,7 @@ class IcePAP:
         command = "ENC %s %s" % (pos_sel, values)
         self.sendWriteCommand(command)
 
-    @deprecated()
+    @deprecated("controller.get_velocity")
     def getMultipleSpeeds(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -1189,7 +1184,7 @@ class IcePAP:
             i = i + 1
         return values
 
-    @deprecated()
+    @deprecated("controller.set_velocity")
     def setMultipleSpeeds(self, val_list):
         values = ""
         for addr, value in val_list:
@@ -1197,7 +1192,7 @@ class IcePAP:
         command = "VELOCITY %s" % values
         self.sendWriteCommand(command)
 
-    @deprecated()
+    @deprecated("controller.get_acctime")
     def getMultipleAccelerations(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -1213,7 +1208,7 @@ class IcePAP:
             i = i + 1
         return values
 
-    @deprecated()
+    @deprecated("controller.set_acctime")
     def setMultipleAccelerations(self, val_list):
         values = ""
         for addr, value in val_list:
@@ -1245,7 +1240,7 @@ class IcePAP:
         command = "RMOVE %s " % values
         self.sendWriteCommand(command)
 
-    @deprecated()
+    @deprecated("controller.stop")
     def stopMultipleMotor(self, axis_list):
         axis = ""
         for addr in axis_list:
@@ -1253,7 +1248,7 @@ class IcePAP:
         command = "STOP %s" % axis
         self.sendWriteCommand(command)
 
-    @deprecated()
+    @deprecated("controller.abort")
     def abortMultipleMotor(self, axis_list):
         axis = ""
         for addr in axis_list:
