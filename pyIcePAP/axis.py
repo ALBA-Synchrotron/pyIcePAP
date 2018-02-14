@@ -970,7 +970,7 @@ class IcePAPAxis(object):
         IcePAP user manual pag. 99
         :return: float
         """
-        return float(self.send_cmd('PARACCT')[0])
+        return float(self.send_cmd('?PARACCT')[0])
 
     @paracct.setter
     def paracct(self, value):
