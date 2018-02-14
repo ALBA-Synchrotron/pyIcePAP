@@ -482,6 +482,48 @@ class IcePAPController(dict):
         cmd = 'CTRLRST {0}'.format(self._alias2axisstr(axes))
         self.send_cmd(cmd)
 
+    def clear_pmux(self, dest=''):
+        """
+        Clear the multiplexer configuration. You can pass a destination with
+        an optional signal or just the signals to remove.
+
+        IcePAP user manual, page 107.
+
+        :param reg: node to remove
+        :return: None
+        """
+        cmd = 'PMUX REMOVE {0}'.format(dest)
+        self.send_cmd(cmd)
+
+    def add_pmux(self, source, dest='', pos=True, aux=True, hard=False):
+        """
+        Configures a position signal multiplexer configuration.
+
+        IcePAP user manual, page 107.
+
+        :param source: Source node
+        :param dest: Target node
+        :param pos: Connect the Position signals
+        :param aux: Connect the Auxiliary signals
+        :param hard: Enabling/Disabling hard flag connection.
+        :return: None
+        """
+        cmd = 'PMUX {0} {1} {2} {3} {4}'.format(['', 'HARD'][hard],
+                                                ['', 'POS'][pos],
+                                                ['', 'AUX'][aux],
+                                                source,
+                                                dest)
+        self.send_cmd(cmd)
+
+    def get_pmux(self):
+        """
+        Returns a list of the current signals sources used as axis indexers.
+
+        IcePAP user manual, page 107.
+
+        :return: list of multiplexer configurations.
+        """
+        return self.send_cmd('?PMUX')
 
 class EthIcePAPController(IcePAPController):
     def __init__(self, host, port=5000):
