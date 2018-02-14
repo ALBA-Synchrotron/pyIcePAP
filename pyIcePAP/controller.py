@@ -8,6 +8,30 @@
 # See LICENSE.txt for more info.
 # ------------------------------------------------------------------------------
 
+# General additions
+# TODO: add logging
+# TODO: export non official commands as advance commands in new API
+
+# Changes to be supported from the old API
+# TODO: export getTime
+# TODO: export getSysStatus
+# TODO: export getRackStatus
+# TODO: export setDefaultConfig
+# TODO: export getCurrent
+# TODO: export readParameter
+# TODO: export writeParameter
+# TODO: export isExpertFlagSet
+# TODO: export setExpertFlag
+# TODO: export sendFirmware
+# TODO: export getProgressStatus
+# TODO: export getRacksAlive
+# TODO: export getDriversAlive
+# TODO: export getDecodedStatus
+# TODO: export decodeStatus
+# TODO: export serr
+# TODO: export memory
+
+
 __all__ = ['EthIcePAPController']
 
 from future import *
