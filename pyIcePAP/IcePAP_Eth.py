@@ -7,19 +7,20 @@
 # either version 3 of the License, or (at your option) any later version.
 # See LICENSE.txt for more info.
 # ------------------------------------------------------------------------------
-
 __all__ = ["ReconnectThread", "EthIcePAP"]
 
 import socket
 import struct
 import errno
 import time
-# import icepapdef
 import sys
 from IcePAP import CStatus, IcePAPException, IcePAP
 from threading import Thread
 import weakref
 import array
+from future import *
+from icepapdef import deprecated
+
 
 
 class ReconnectThread(Thread):
@@ -38,6 +39,7 @@ class ReconnectThread(Thread):
             time.sleep(self.sleeptime)
 
 
+@deprecated('EthIcePAPController')
 class EthIcePAP(IcePAP):
 
     def __init__(self, host, port=5000, timeout=3, log_path=None):
@@ -51,6 +53,7 @@ class EthIcePAP(IcePAP):
     def __del__(self):
         self.reconnect_thread.shouldStop = True
 
+    @deprecated()
     def connect(self):
         total_sleep = 0
         inc = self.timeout / 10.0
@@ -64,6 +67,7 @@ class EthIcePAP(IcePAP):
             "Connection error",
             "no connection with the Icepap sytem")
 
+    @deprecated('send_cmd')
     def sendWriteReadCommand(self, cmd, size=8192):
         if not self.connected:
             raise IcePAPException(
@@ -148,6 +152,7 @@ class EthIcePAP(IcePAP):
                     msg)
                 raise iex
 
+    @deprecated('send_cmd')
     def sendWriteCommand(self, cmd, prepend_ack=True):
         if not self.connected:
             raise IcePAPException(
@@ -211,6 +216,7 @@ class EthIcePAP(IcePAP):
                 msg)
             raise iex
 
+    @deprecated()
     def sendData(self, data):
         try:
             self.lock.acquire()
@@ -234,6 +240,7 @@ class EthIcePAP(IcePAP):
                 msg)
             raise iex
 
+    @deprecated()
     def disconnect(self):
         if self.DEBUG:
             print "disconnecting from icepap..."
@@ -252,6 +259,7 @@ class EthIcePAP(IcePAP):
                 "Error disconnecting the Icepap")
             raise iex
 
+    @deprecated()
     def sendBinaryBlock(self, ushort_data):
         # Prepare Metadata header
 
@@ -267,6 +275,7 @@ class EthIcePAP(IcePAP):
         data = array.array('H', ushort_data)
         self.sendData(data.tostring())
 
+    @deprecated()
     def try_to_connect(self):
         self.IcPaSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.IcPaSock.settimeout(self.timeout)
