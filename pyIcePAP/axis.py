@@ -1447,6 +1447,8 @@ class IcePAPAxis(object):
         :param vel:
         :return:
         """
+        cmd = 'CJOG {0}'.format(vel)
+        self.send_cmd(cmd)
 
     def track(self, signal, mode='FULL'):
         """
