@@ -18,7 +18,6 @@ try:
 except BaseException:
     pass
 import time
-# import icepapdef
 
 
 class SerialIcePAP(IcePAP):
