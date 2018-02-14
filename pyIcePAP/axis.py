@@ -1150,6 +1150,10 @@ class IcePAPAxis(object):
 #                       Commands
 # ------------------------------------------------------------------------
 
+    def blink(self, secs):
+        cmd = "BLINK %d" % secs
+        self.send_cmd(cmd)
+
     def send_cmd(self, cmd):
         """
         Wrapper to add the axis number
