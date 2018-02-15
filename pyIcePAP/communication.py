@@ -58,12 +58,12 @@ class IcePAPCommunication(object):
     Abstract class which provides a certain communication layer to the IcePAP
     motion controller.
     """
-    def __init__(self, comm_type, *args):
+    def __init__(self, comm_type, *args, **kwargs):
         if comm_type == CommType.Serial:
-            self._comm = SerialCom(*args)
+            self._comm = SerialCom(*args, **kwargs)
             self._comm_type = CommType.Serial
         elif comm_type == CommType.Socket:
-            self._comm = SocketCom(*args)
+            self._comm = SocketCom(*args, **kwargs)
             self._comm_type = CommType.Socket
         else:
             raise ValueError()

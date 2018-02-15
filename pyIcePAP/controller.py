@@ -43,9 +43,9 @@ class IcePAPController(dict):
     """
     """
 
-    def __init__(self, comm_type, *args):
+    def __init__(self, comm_type, *args, **kwargs):
         dict.__init__(self)
-        self._comm = IcePAPCommunication(comm_type, *args)
+        self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
         self._aliases = {}
         self._create_axes()
 
@@ -526,5 +526,6 @@ class IcePAPController(dict):
         return self.send_cmd('?PMUX')
 
 class EthIcePAPController(IcePAPController):
-    def __init__(self, host, port=5000):
-        IcePAPController.__init__(self, CommType.Socket, host, port)
+    def __init__(self, host, port=5000, timeout=3):
+        IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
+                                  timeout=timeout)
