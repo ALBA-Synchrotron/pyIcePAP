@@ -78,7 +78,7 @@ class IcePAPCommunication(object):
                  example: 1:move 100 -> None
                           1:?Pos -> 100
         """
-        cmd = cmd.upper().strip()
+        cmd.upper().strip()
         flg_read_cmd = '?' in cmd
         flg_ecamdat_cmd = '*ECAMDAT' in cmd
         flg_listdat_cmd = '*LISTDAT' in cmd
@@ -97,11 +97,10 @@ class IcePAPCommunication(object):
             use_ack = True
 
         ans = self._comm.send_cmd(cmd)
-        msg = 'Error sending command {0}, icepap answered {1}'
-
+        msg = 'Error sending command, IcePAP answered {0}'
         if use_ack:
             if 'OK' not in ans:
-                raise RuntimeError(msg.format(cmd, ans))
+                raise RuntimeError(msg.format(ans))
             else:
                 result = None
         else:
@@ -115,7 +114,7 @@ class IcePAPCommunication(object):
                 ans = ans.split('\r\n')[0]
                 result = ans.split()[1:]
                 if result[0] == 'ERROR':
-                    raise RuntimeError(msg.format(cmd, ans))
+                    raise RuntimeError(msg.format(ans))
 
         return result
 
