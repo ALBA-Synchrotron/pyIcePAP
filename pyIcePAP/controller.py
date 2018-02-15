@@ -525,6 +525,7 @@ class IcePAPController(dict):
         """
         return self.send_cmd('?PMUX')
 
+
 class EthIcePAPController(IcePAPController):
     def __init__(self, host, port=5000, timeout=3):
         IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
