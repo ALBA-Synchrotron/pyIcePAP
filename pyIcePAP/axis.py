@@ -15,6 +15,7 @@ import weakref
 import struct
 from future import *
 from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE
+from .utils import State
 
 
 class IcePAPAxis(object):
@@ -135,6 +136,14 @@ class IcePAPAxis(object):
         :return: int
         """
         return int(self.send_cmd('?STATUS')[0], 16)
+
+    @property
+    def state(self):
+        """
+        Read the axis status and return a util.State object
+        :return: State
+        """
+        return State(self.status)
 
     @property
     def vstatus(self):

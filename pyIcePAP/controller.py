@@ -37,6 +37,7 @@ __all__ = ['EthIcePAPController']
 from future import *
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
+from .utils import State
 
 
 class IcePAPController(dict):
@@ -188,7 +189,6 @@ class IcePAPController(dict):
         :param strict: bool
         :return: None
         """
-        print axes_pos
         cmd = 'MOVE {0} {1} {2}'.format(['', 'GROUP'][group],
                                         ['', 'STRICT'][strict],
                                         self._axesvalues2str(axes_pos))
@@ -281,6 +281,15 @@ class IcePAPController(dict):
         cmd = '?FSTATUS {0}'.format(self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
         return [int(i, 16) for i in ans]
+
+    def get_states(self, axes):
+        """
+        Fast read of the multiples status
+        :param axes: [str/int]
+        :return: [State]
+        """
+        fstatus = self.get_fstatus(axes)
+        return [State(i) for i in fstatus]
 
     def get_status(self, axes):
         """
