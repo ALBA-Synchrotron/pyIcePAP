@@ -139,7 +139,7 @@ class IcePAPAxis(object):
     @property
     def vstatus(self):
         """
-        Return the axis status as multilen verbose answer.
+        Return the axis status as multi-line verbose answer.
         IcePAP user manual pag. 146
         :return: [str]
         """
