@@ -525,6 +525,39 @@ class IcePAPController(dict):
         """
         return self.send_cmd('?PMUX')
 
+    def add_alias(self, alias, axis):
+        """
+        Set a alias for a axis. The axis can have more than one alias
+        :param alias: str
+        :param axis: int
+        :return: None
+        """
+        if alias in self._aliases:
+            self._aliases.pop(alias)
+        self._aliases[alias] = axis
+
+    def add_aliases(self, aliases):
+        """
+        Set alias for mutiple axes.
+        :param aliases: {str: int}
+        :return: None
+        """
+        for alias, axis in aliases.items():
+            self.add_alias(alias, axis)
+
+    def get_aliases(self):
+        """
+        Get the aliases of the system. One axis can have move than one alias.
+        :return: {int:[str]}
+        """
+        aliases = {}
+        for key, value in self._aliases.items():
+            if value in aliases:
+                aliases[value].append(key)
+            else:
+                aliases[value] = [key]
+        return aliases
+
 
 class EthIcePAPController(IcePAPController):
     def __init__(self, host, port=5000, timeout=3):
