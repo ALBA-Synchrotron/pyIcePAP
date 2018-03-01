@@ -471,7 +471,7 @@ class IcePAPAxis(object):
         """
         Read the axis nominal position pointer
         IcePAP user manual pag. 108
-        :return: int
+        :return: long
         """
         return self.get_pos('AXIS')
 
@@ -481,7 +481,7 @@ class IcePAPAxis(object):
         Set the axis nominal position value
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('AXIS', value)
@@ -492,7 +492,7 @@ class IcePAPAxis(object):
         Read the shftenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('SHFTENC')
 
@@ -502,7 +502,7 @@ class IcePAPAxis(object):
         Set the shftenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('SFHTENC', value)
@@ -513,7 +513,7 @@ class IcePAPAxis(object):
         Read the tgtenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('TGTENC')
 
@@ -523,7 +523,7 @@ class IcePAPAxis(object):
         Set the tgtenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('TGTENC', value)
@@ -534,7 +534,7 @@ class IcePAPAxis(object):
         Read the ctrlenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('CTRLENC')
 
@@ -544,7 +544,7 @@ class IcePAPAxis(object):
         Set the ctrlenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('CTRLENC', value)
@@ -555,7 +555,7 @@ class IcePAPAxis(object):
         Read the encin register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('ENCIN')
 
@@ -565,7 +565,7 @@ class IcePAPAxis(object):
         Set the encin register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('ENCIN', value)
@@ -576,7 +576,7 @@ class IcePAPAxis(object):
         Read the inpos register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('INPOS')
 
@@ -586,7 +586,7 @@ class IcePAPAxis(object):
         Set the inpos register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('INPOS', value)
@@ -597,7 +597,7 @@ class IcePAPAxis(object):
         Read the absenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('ABSENC')
 
@@ -607,7 +607,7 @@ class IcePAPAxis(object):
         Set the absenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('ABSENC', value)
@@ -618,7 +618,7 @@ class IcePAPAxis(object):
         Read the motor register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_pos('MOTOR')
 
@@ -628,7 +628,7 @@ class IcePAPAxis(object):
         Set the motor register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_pos('MOTOR', value)
@@ -638,7 +638,7 @@ class IcePAPAxis(object):
         """
         Read the axis nominal position pointer
         IcePAP user manual pag. 108
-        :return: int
+        :return: long
         """
         return self.get_enc('AXIS')
 
@@ -648,7 +648,7 @@ class IcePAPAxis(object):
         Set the axis nominal position value
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('AXIS', value)
@@ -659,7 +659,7 @@ class IcePAPAxis(object):
         Read the shftenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('SHFTENC')
 
@@ -669,7 +669,7 @@ class IcePAPAxis(object):
         Set the shftenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('SFHTENC', value)
@@ -680,7 +680,7 @@ class IcePAPAxis(object):
         Read the tgtenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('TGTENC')
 
@@ -690,7 +690,7 @@ class IcePAPAxis(object):
         Set the tgtenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('TGTENC', value)
@@ -701,7 +701,7 @@ class IcePAPAxis(object):
         Read the ctrlenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('CTRLENC')
 
@@ -711,7 +711,7 @@ class IcePAPAxis(object):
         Set the ctrlenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('CTRLENC', value)
@@ -722,7 +722,7 @@ class IcePAPAxis(object):
         Read the encin register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('ENCIN')
 
@@ -732,7 +732,7 @@ class IcePAPAxis(object):
         Set the encin register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('ENCIN', value)
@@ -743,7 +743,7 @@ class IcePAPAxis(object):
         Read the inpos register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('INPOS')
 
@@ -753,7 +753,7 @@ class IcePAPAxis(object):
         Set the inpos register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('INPOS', value)
@@ -764,7 +764,7 @@ class IcePAPAxis(object):
         Read the absenc register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('ABSENC')
 
@@ -774,7 +774,7 @@ class IcePAPAxis(object):
         Set the absenc register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('ABSENC', value)
@@ -785,7 +785,7 @@ class IcePAPAxis(object):
         Read the motor register.
         IcePAP user manual pag. 108
 
-        :return: int
+        :return: long
         """
         return self.get_enc('MOTOR')
 
@@ -795,7 +795,7 @@ class IcePAPAxis(object):
         Set the motor register
         IcePAP user manual pag. 108
 
-        :param value: int
+        :param value: long
         :return: None
         """
         self.set_enc('MOTOR', value)
@@ -1230,10 +1230,10 @@ class IcePAPAxis(object):
         IcePAP user manual pag. 108
 
         :param register: str
-        :return: float
+        :return: long
         """
         cmd = '?POS {0}'.format(register)
-        return int(self.send_cmd(cmd)[0])
+        return long(self.send_cmd(cmd)[0])
 
     def set_pos(self, register, value):
         """
@@ -1241,10 +1241,10 @@ class IcePAPAxis(object):
         IcePAP user manual pag. 108
 
         :param register: str
-        :param value: float
+        :param value: long
         :return: None
         """
-        cmd = 'POS {0} {1}'.format(register, value)
+        cmd = 'POS {0} {1}'.format(register, long(value))
         self.send_cmd(cmd)
 
     def get_enc(self, register):
@@ -1252,10 +1252,10 @@ class IcePAPAxis(object):
         Read the position register in encoder step
         IcePAP user manual pag. 68
         :param register: str
-        :return: float
+        :return: long
         """
         cmd = '?ENC {0}'.format(register)
-        return int(self.send_cmd(cmd)[0])
+        return long(self.send_cmd(cmd)[0])
 
     def set_enc(self, register, value):
         """
@@ -1263,10 +1263,10 @@ class IcePAPAxis(object):
         IcePAP user manual pag. 68
 
         :param register: str
-        :param value: float
+        :param value: long
         :return: None
         """
-        cmd = 'ENC {0} {1}'.format(register, value)
+        cmd = 'ENC {0} {1}'.format(register, long(value))
         self.send_cmd(cmd)
 
     def get_velocity(self, vtype='NOMINAL'):
@@ -1316,49 +1316,49 @@ class IcePAPAxis(object):
         Return the value latched on the position register.
         IcePAP user manual pag. 78
         :param register: str
-        :return: float
+        :return: long
         """
         cmd = '?HOMEPOS {0}'.format(register)
-        return float(self.send_cmd(cmd[0]))
+        return long(self.send_cmd(cmd[0]))
 
     def get_home_encoder(self, register='AXIS'):
         """
         Return the value latched on encoder register.
         IcePAP user manual pag. 77
         :param register: str
-        :return: float
+        :return: long
         """
         cmd = '?HOMEENC {0}'.format(register)
-        return float(self.send_cmd(cmd[0]))
+        return long(self.send_cmd(cmd[0]))
 
     def move(self, position):
         """
         Start absolute movement.
         IcePAP user manual pag 92
-        :param position: absolute position
+        :param position: long
         :return: None
         """
-        cmd = 'MOVE {0}'.format(position)
+        cmd = 'MOVE {0}'.format(long(position))
         self.send_cmd(cmd)
 
     def umove(self, position):
         """
         Start absolute updated movement.
         IcePAP user manual pag 140
-        :param position: absolute position
+        :param position: long
         :return: None
         """
-        cmd = 'UMOVE {0}'.format(position)
+        cmd = 'UMOVE {0}'.format(long(position))
         self.send_cmd(cmd)
 
     def rmove(self, position):
         """
         Start absolute relative movement.
         IcePAP user manual pag 140
-        :param position: absolute position
+        :param position: long
         :return: None
         """
-        cmd = 'RMOVE {0}'.format(position)
+        cmd = 'RMOVE {0}'.format(long(position))
         self.send_cmd(cmd)
 
     def esync(self):

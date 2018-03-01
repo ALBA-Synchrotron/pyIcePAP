@@ -109,15 +109,16 @@ class IcePAPController(dict):
             raise ValueError()
         return result
 
-    def _axesvalues2str(self, axes_values):
+    def _axesvalues2str(self, axes_values, cast_type=long):
         """
         Method to convert a list of tuples (axis, pos) to a string.
-        :param axes_values: [[str/int,int]]
+        :param axes_values: [[str/int, float/long]]
         :return: str
         """
         result = ''
         for axis, value in axes_values:
-            result += '{0} {1} '.format(self._alias2axisstr(axis), value)
+            result += '{0} {1} '.format(self._alias2axisstr(axis),
+                                        cast_type(value))
         return result
 
     @property
@@ -384,7 +385,7 @@ class IcePAPController(dict):
         """
         cmd = '?POS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return map(long, ans)
 
     def set_pos(self, axes_pos, register='AXIS'):
         """
@@ -405,7 +406,7 @@ class IcePAPController(dict):
         """
         cmd = '?ENC {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return map(long, ans)
 
     def set_enc(self, axes_pos, register='AXIS'):
         """
@@ -447,7 +448,8 @@ class IcePAPController(dict):
         :param axes_vel: [(str/int, float)]
         :return: None
         """
-        cmd = 'VELOCITY {0}'.format(self._axesvalues2str(axes_vel))
+        cmd = 'VELOCITY {0}'.format(self._axesvalues2str(axes_vel,
+                                                         cast_type=float))
         self.send_cmd(cmd)
 
     def get_acctime(self, axes, atype='NOMINAL'):
@@ -470,7 +472,8 @@ class IcePAPController(dict):
         :param axes_vel: [(str/int, float)]
         :return: None
         """
-        cmd = 'ACCTIME {0}'.format(self._axesvalues2str(axes_acc))
+        cmd = 'ACCTIME {0}'.format(self._axesvalues2str(axes_acc,
+                                                        cast_type=float))
         self.send_cmd(cmd)
 
     def esync(self, axes):
