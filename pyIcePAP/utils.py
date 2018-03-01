@@ -214,7 +214,7 @@ class State(object):
         val = val & 3
         return val
 
-    def get_index_str(self):
+    def get_indexer_str(self):
         """
         Get indexer string
         :return: str
