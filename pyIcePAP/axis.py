@@ -146,6 +146,183 @@ class IcePAPAxis(object):
         return State(self.status)
 
     @property
+    def state_present(self):
+        """
+        Check if the present flag is active
+        :return: bool
+        """
+        return self.state.is_present()
+
+    @property
+    def state_alive(self):
+        """
+        Check if the alive flag is active
+        :return: bool
+        """
+        return self.state.is_alive()
+
+    @property
+    def state_mode_code(self):
+        """
+        Return the current mode
+        :return: int
+        """
+        return self.state.get_mode_code()
+
+    @property
+    def state_mode_str(self):
+        """
+        Return the current mode
+        :return: str
+        """
+        return self.state.get_mode_str()
+
+    @property
+    def state_disabled(self):
+        """
+        Check if the disable flag is active
+        :return: bool
+        """
+        return self.state.is_disabled()
+
+    @property
+    def state_disable_code(self):
+        """
+        Return the disable code
+        :return: int
+        """
+        return self.state.get_disable_code()
+
+    @property
+    def state_disable_str(self):
+        """
+        Return the disable string
+        :return: str
+        """
+        return self.state.get_disable_str()
+
+    @property
+    def state_indexer_code(self):
+        """
+        Return the indexer code
+        :return: int
+        """
+        return self.state.get_indexer_code()
+
+    @property
+    def state_indexer_str(self):
+        """
+        Return the indexer string
+        :return: str
+        """
+        return self.state.get_disable_str()
+
+    @property
+    def state_moving(self):
+        """
+        Check is the moving flag is active
+        :return: bool
+        """
+        return self.state.is_moving()
+
+    @property
+    def state_settling(self):
+        """
+        Check if the settling flag is active
+        :return: bool
+        """
+        return self.state.is_settling()
+
+    @property
+    def state_outofwin(self):
+        """
+        Check if the outofwin flag is active
+        :return: bool
+        """
+        return self.state.is_outofwin()
+
+    @property
+    def state_warning(self):
+        """
+        Check if the warning flag is active
+        :return: bool
+        """
+        return self.state.is_warning()
+
+    @property
+    def state_stop_code(self):
+        """
+        Return the stop code
+        :return: int
+        """
+        return self.state.get_stop_code()
+
+    @property
+    def state_stop_str(self):
+        """
+        Return the stop string
+        :return: str
+        """
+        return self.state.get_stop_str()
+
+    @property
+    def state_limit_positive(self):
+        """
+        Check if the flag limit_positive is active
+        :return: bool
+        """
+        return self.state.is_limit_positive()
+
+    @property
+    def state_limit_negative(self):
+        """
+        Check if the flag limit_negative is active
+        :return: bool
+        """
+        return self.state.is_limit_negative()
+
+    @property
+    def state_inhome(self):
+        """
+        Chekc if the home flag is active
+        :return: bool
+        """
+        return self.state.is_inhome()
+
+    @property
+    def state_5vpower(self):
+        """
+        Check if the auxiliary power is On
+        :return: bool
+        """
+
+        return self.state.is_5vpower()
+
+    @property
+    def state_vererr(self):
+        """
+        Check if the vererr flag is active
+        :return: bool
+        """
+        return self.state.is_verserr()
+
+    @property
+    def state_poweron(self):
+        """
+        Check if the flag poweron is active
+        :return: bool
+        """
+        return self.state.is_poweron()
+
+    @property
+    def state_info_code(self):
+        """
+        Return the info code
+        :return: int
+        """
+        return self.state.get_info_code()
+
+    @property
     def vstatus(self):
         """
         Return the axis status as multi-line verbose answer.

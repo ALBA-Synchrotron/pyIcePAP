@@ -170,14 +170,18 @@ class State(object):
         val = val & 1
         return bool(val)
 
-    def get_mode(self):
+    def get_mode_code(self):
         """
         Return the current mode.
         :return: str
         """
         val = self._status_reg >> 2
         val = val & 3
-        return val, self.status_meaning['mode'][val]
+        return val
+    
+    def get_mode_str(self):
+        mode = self.get_mode_code()
+        return self.status_meaning['mode'][mode]
 
     def is_disabled(self):
         """
