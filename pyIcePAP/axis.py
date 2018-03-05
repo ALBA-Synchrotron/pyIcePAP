@@ -232,7 +232,7 @@ class IcePAPAxis(object):
         :return: bool
         """
         return self.state.is_ready()
-    
+
     @property
     def state_settling(self):
         """
@@ -335,9 +335,9 @@ class IcePAPAxis(object):
         """
         Return the axis status as multi-line verbose answer.
         IcePAP user manual pag. 146
-        :return: [str]
+        :return: str
         """
-        return self.send_cmd('?VSTATUS')
+        return '\n'.join(self.send_cmd('?VSTATUS'))
 
     @property
     def stopcode(self):
