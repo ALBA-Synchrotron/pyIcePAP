@@ -220,11 +220,19 @@ class IcePAPAxis(object):
     @property
     def state_moving(self):
         """
-        Check is the moving flag is active
+        Check if the moving flag is active
         :return: bool
         """
         return self.state.is_moving()
 
+    @property
+    def state_ready(self):
+        """
+        Check if the ready flag is active
+        :return: bool
+        """
+        return self.state.is_ready()
+    
     @property
     def state_settling(self):
         """
