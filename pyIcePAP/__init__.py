@@ -14,4 +14,5 @@ from IcePAP_Serial import *
 from IcePAP import *
 from icepapdef import *
 from .controller import EthIcePAPController
+from .programming import *
 from .fwversion import *

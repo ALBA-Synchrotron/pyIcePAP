@@ -22,8 +22,6 @@
 # TODO: export writeParameter
 # TODO: export isExpertFlagSet
 # TODO: export setExpertFlag
-# TODO: export sendFirmware
-# TODO: export getProgressStatus
 # TODO: export getRacksAlive
 # TODO: export getDriversAlive
 # TODO: export getDecodedStatus
@@ -34,6 +32,7 @@
 
 __all__ = ['EthIcePAPController']
 
+import time
 from future import *
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
@@ -43,6 +42,7 @@ from fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 class IcePAPController(dict):
     """
+    Base class for IcePAP motor controller.
     """
 
     def __init__(self, comm_type, *args, **kwargs):
@@ -151,6 +151,11 @@ class IcePAPController(dict):
         """
         ans = self.send_cmd('?VER SAVED')
         return FirmwareVersion(ans)
+
+    @property
+    def connected(self):
+        # TODO: make this method public
+        return self._comm._comm._connected
 
     @property
     def mode(self):
@@ -590,6 +595,68 @@ class IcePAPController(dict):
             else:
                 aliases[value] = [key]
         return aliases
+
+    def sprog(self, component=None, force=False, saving=False):
+        """
+        Firmware programming command. This command assumes that the firmware
+        code will be transferred as a binary data block.
+
+        IcePAP user manual, page 112.
+
+        :param component: { NONE | board adress | DRIVERS | CONTROLLERS| ALL }
+        :param force: Force overwrite regardless of being idential versions.
+        :param saving: Saves firmware into master board flash.
+        :return: None
+        """
+        force_str = ''
+        if component:
+            comp_str = str(component).upper()
+        else:
+            comp_str = 'NONE'
+        if force:
+            force_str = 'FORCE'
+        if not saving:
+            save_str = 'NOSAVE'
+        else:
+            save_str = 'SAVE'
+        cmd = '*PROG {} {} {}'.format(comp_str, force_str, save_str)
+        # print('Sending command:', cmd)
+        self.send_cmd(cmd)
+
+    def prog(self, component, force=False):
+        """
+        Firmware programming command. This command uses the firmware code
+        previously stored in the flash memory of the system master board.
+
+        IcePAP user manual, page 112.
+
+        :param component: { board adress | DRIVERS | CONTROLLERS| ALL }
+        :param force: Force overwrite regardless of being idential versions.
+        :return: None
+        """
+        force_str = ''
+        if force:
+            force_str = 'FORCE'
+        prog_str = 'PROG'
+
+        cmd = '{} {} {}'.format(prog_str, str(component).upper(), force_str)
+        # print('Sending command:', cmd)
+        self.send_cmd(cmd)
+        time.sleep(5)
+
+    def get_prog_status(self):
+        """
+        Request the state of the firmware programing operations.
+
+        IcePAP user manual, page 112.
+
+        :return: { OFF | ACTIVE <progress> | DONE | ERROR }
+        """
+        try:
+            ans = self.send_cmd('?PROG')
+        except RuntimeError:
+            ans = self.send_cmd('?_PROG')
+        return ans
 
 
 class EthIcePAPController(IcePAPController):
