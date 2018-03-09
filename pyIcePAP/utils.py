@@ -178,7 +178,7 @@ class State(object):
         val = self._status_reg >> 2
         val = val & 3
         return val
-    
+
     def get_mode_str(self):
         mode = self.get_mode_code()
         return self.status_meaning['mode'][mode]

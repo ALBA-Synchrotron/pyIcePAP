@@ -1182,7 +1182,7 @@ class IcePAPAxis(object):
         """
         Get the electronic cam mode.
         IcePAP user manual pag. 64
-        :return: str 
+        :return: str
         """
         return ' '.join(self.send_cmd('?ECAM'))
 

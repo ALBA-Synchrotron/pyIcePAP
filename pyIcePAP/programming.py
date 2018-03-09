@@ -47,7 +47,7 @@ def load_firmware(ice, filename):
 
     # Avoid timeout while ICEPAP is saving the file to master
     time.sleep(5)
-    #print('New firmware loaded to master')
+    # print('New firmware loaded to master')
 
 
 def _progress_bar(count, total, status=''):
