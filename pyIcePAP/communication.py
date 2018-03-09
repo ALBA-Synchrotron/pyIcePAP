@@ -26,7 +26,7 @@ except ImportError:
     Serial = object
 
 
-__all__ = ['CommType', 'IcePAPCommunication']
+__all__ = ['CommType', 'IcePAPCommunication', 'EthIcePAPCommunication']
 
 
 def comm_error_handler(f):
