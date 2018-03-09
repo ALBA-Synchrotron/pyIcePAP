@@ -1,0 +1,201 @@
+__all__ = ['ver122', 'ver1225', 'ver317', 'FirmwareVersion',
+           'SUPPORTED_VERSIONS']
+
+# TODO: Only versions supported @ ALBA Synchrotron
+ver122 = {'SYSTEM': {'VER': 1.22,
+                     'CONTROLLER': {'VER': 1.22,
+                                    'DSP': 2.84,
+                                    'FPGA': 0.03,
+                                    'MCPU0': 0.2,
+                                    'MCPU1': 0.2,
+                                    'MCPU2': 1.125,
+                                    # 'PCB': 0.07
+                                    },
+                     'DRIVER': {'VER': 1.22
+                                },
+                     },
+          }
+
+ver1225 = {'SYSTEM': {'VER': 1.225,
+                      'CONTROLLER': {'VER': 1.225,
+                                     'DSP': 2.85,
+                                     'FPGA': 0.03,
+                                     'MCPU0': 0.23,
+                                     'MCPU1': 0.23,
+                                     'MCPU2': 1.125,
+                                     # 'PCB': 0.07
+                                     },
+                      'DRIVER': {'VER': 1.225
+                                 },
+                      },
+           }
+
+ver317 = {'SYSTEM': {'VER': 3.17,
+                     'CONTROLLER': {'VER': 3.17,
+                                    'DSP': 3.67,
+                                    'FPGA': 1.0,
+                                    'MCPU0': 1.19,
+                                    'MCPU1': 1.19,
+                                    'MCPU2': 1.125,
+                                    # 'PCB': 1.0
+                                    },
+                     'DRIVER': {'VER': 3.17
+                                },
+                     },
+          }
+
+# TODO: mismatch between VER INFO and VER SAVED for 1.22 version.
+SUPPORTED_VERSIONS = {'1.22': ver122,
+                      '1.225': ver1225,
+                      '3.17': ver317
+                      }
+
+
+def key_error(fn):
+    def wrapped(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except KeyError:
+            return None
+    return wrapped
+
+
+# TODO: improve class to restrict info for component
+class FirmwareVersion(dict):
+    """
+    Class to manage the different version numbers corresponding to the
+    different components of an IcePAP system.
+    """
+    def __init__(self, data, is_axis=False):
+        super(FirmwareVersion, self).__init__()
+        self.is_axis = is_axis
+        for line in data:
+            v = line.split(':', 2)
+            length = len(line.split(line.lstrip())[0])
+            # print 'length = %s' % l
+            component = v[0].strip()
+            value = float(v[1].strip())
+            # print component, value
+            # manage date
+            when = ''
+            if len(v) > 2:
+                when = v[2].strip()
+            if length == 0:  # and component not in self.keys():
+                self[component] = dict()
+                self[component]['VER'] = (value, when)
+                component0 = component
+            elif length == 3:  # and component not in self['SYSTEM'].keys():
+                self[component0][component] = dict()
+                self[component0][component]['VER'] = (value, when)
+                component1 = component
+            elif length == 6:
+                self[component0][component1][component] = (value, when)
+
+    def __repr__(self):
+
+        msg = '{:<15s}:{:>5s}\n'.format('SYSTEM', str(self.system))
+        if not self.is_axis:
+            msg += '   {:<12s}:{:>5s}\n'.format('CONTROLLER', str(self.ctrl))
+            msg += '      {:<9s}:{:>5s}\n'.format('DSP', str(self.ctrl_dsp))
+            msg += '      {:<9s}:{:>5s}\n'.format('FPGA', str(self.ctrl_fpga))
+            msg += '      {:<9s}:{:>5s}\n'.format('MCPU0', str(self.ctrl_mcpu0))
+            msg += '      {:<9s}:{:>5s}\n'.format('MCPU1', str(self.ctrl_mcpu1))
+            msg += '      {:<9s}:{:>5s}\n'.format('MCPU2', str(self.ctrl_mcpu2))
+        msg += '   {:<12s}:{:>5s}\n'.format('DRIVER', str(self.driver))
+        if self.is_axis:
+            msg += '      {:<9s}:{:>5s}\n'.format('DSP', str(self.driver_dsp))
+            msg += '      {:<9s}:{:>5s}\n'.format('FPGA', str(self.driver_fpga))
+        return msg
+
+    def is_supported(self):
+        return self._is_valid_system() and \
+               self._is_valid_ctrl() and \
+               self._is_valid_driver()
+
+    def _is_valid_system(self):
+        # print('supported system', str(self['SYSTEM']['VER'][0]))
+        return str(self['SYSTEM']['VER'][0]) in SUPPORTED_VERSIONS.keys()
+
+    @key_error
+    def _is_valid_ctrl(self):
+        if self._is_valid_system():
+            _sys = str(self.system[0])
+            _ctrl_ver = SUPPORTED_VERSIONS[_sys]['SYSTEM']['CONTROLLER']['VER']
+            if self['SYSTEM']['CONTROLLER']['VER'][0] == _ctrl_ver:
+                d = self['SYSTEM']['CONTROLLER']
+                a = SUPPORTED_VERSIONS[_sys]['SYSTEM']['CONTROLLER']
+                _d = {x: d[x][0] for x in d if x in a}
+                # print('supported ctrl:', a)
+                # print('supported loaded:', _d)
+                return a == _d
+            else:
+                return False
+        else:
+            return False
+
+    @key_error
+    def _is_valid_driver(self):
+        if self._is_valid_system():
+            _sys = str(self.system[0])
+            _driver_ver = SUPPORTED_VERSIONS[_sys]['SYSTEM']['DRIVER']['VER']
+            if self['SYSTEM']['DRIVER']['VER'][0] == _driver_ver:
+                d = self['SYSTEM']['DRIVER']
+                a = SUPPORTED_VERSIONS[_sys]['SYSTEM']['DRIVER']
+                _d = {x: d[x][0] for x in d if x in a}
+                # print('supported driver:', a)
+                # print('supported loaded:', _d)
+                return a == _d
+            else:
+                return False
+        else:
+            return False
+
+    @property
+    @key_error
+    def system(self):
+        return self['SYSTEM']['VER']
+
+    @property
+    @key_error
+    def ctrl(self):
+        return self['SYSTEM']['CONTROLLER']['VER']
+
+    @property
+    @key_error
+    def ctrl_dsp(self):
+        return self['SYSTEM']['CONTROLLER']['DSP']
+
+    @property
+    @key_error
+    def ctrl_fpga(self):
+        return self['SYSTEM']['CONTROLLER']['FPGA']
+
+    @property
+    @key_error
+    def ctrl_mcpu0(self):
+        return self['SYSTEM']['CONTROLLER']['MCPU0']
+
+    @property
+    @key_error
+    def ctrl_mcpu1(self):
+        return self['SYSTEM']['CONTROLLER']['MCPU1']
+
+    @property
+    @key_error
+    def ctrl_mcpu2(self):
+        return self['SYSTEM']['CONTROLLER']['MCPU2']
+
+    @property
+    @key_error
+    def driver(self):
+        return self['SYSTEM']['DRIVER']['VER']
+
+    @property
+    @key_error
+    def driver_dsp(self):
+        return self['SYSTEM']['DRIVER']['DSP']
+
+    @property
+    @key_error
+    def driver_fpga(self):
+        return self['SYSTEM']['DRIVER']['FPGA']

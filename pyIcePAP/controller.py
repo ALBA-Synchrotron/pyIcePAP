@@ -38,6 +38,7 @@ from future import *
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
 from .utils import State
+from fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
 class IcePAPController(dict):
@@ -138,17 +139,18 @@ class IcePAPController(dict):
 
         :return: dict{module: (ver, date)}
         """
-        ans = self.send_cmd('?VER INFO')
-        result = {}
-        for line in ans:
-            v = line.split(':', 2)
-            module = v[0].strip()
-            value = float(v[1].strip())
-            when = ''
-            if len(v) > 2:
-                when = v[2].strip()
-            result[module] = (value, when)
-        return result
+        ans = self.send_cmd('0:?VER INFO')
+        return FirmwareVersion(ans)
+
+    @property
+    def ver_saved(self):
+        """
+        Returns the firmware version stored in the master flash memory.
+
+        :return: dict{}
+        """
+        ans = self.send_cmd('?VER SAVED')
+        return FirmwareVersion(ans)
 
     @property
     def mode(self):
@@ -302,6 +304,25 @@ class IcePAPController(dict):
         cmd = '?STATUS {0}'.format(self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
         return [int(i, 16) for i in ans]
+
+    # TODO: optionally compare against saved version.
+    def check_version(self):
+        """
+        Compares the current version installed with the supported
+        versions specified in the versions module.
+
+        :return: system version number, -1 if not consistent.
+        """
+        sys_ver = str(self.ver['SYSTEM']['VER'][0])
+        if sys_ver in SUPPORTED_VERSIONS.keys():
+            if self.ver.is_supported():
+                return self.ver['SYSTEM']['VER'][0]
+            else:
+                print('Modules versions are not consistent.')
+                return -1
+        else:
+            raise RuntimeError('Version %s not supported' %
+                               self.ver['SYSTEM']['VER'][0])
 
     def reboot(self):
         """

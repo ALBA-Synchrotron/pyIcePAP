@@ -16,6 +16,7 @@ import struct
 from future import *
 from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE
 from .utils import State
+from fwversion import FirmwareVersion
 
 
 class IcePAPAxis(object):
@@ -439,18 +440,7 @@ class IcePAPAxis(object):
         :return: dict{module: (ver, date)}
         """
         ans = self.send_cmd('?VER INFO')
-        result = {}
-        for line in ans:
-            if 'SYSTEM' in line or 'CONTROLLER' in line:
-                continue
-            v = line.split(':', 2)
-            module = v[0].strip()
-            value = float(v[1].strip())
-            when = ''
-            if len(v) > 2:
-                when = v[2].strip()
-            result[module] = (value, when)
-        return result
+        return FirmwareVersion(ans, True)
 
     @property
     def name(self):
