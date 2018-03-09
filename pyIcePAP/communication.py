@@ -319,3 +319,9 @@ class SocketCom(object):
             self._start_thread()
             raise RuntimeError('Communication error: Error sending command to '
                                'the IcePAP ({0})'.format(e))
+
+
+class EthIcePAPCommunication(IcePAPCommunication):
+    def __init__(self, host, port=5000, timeout=3):
+        IcePAPCommunication.__init__(self, CommType.Socket, host=host,
+                                     port=port, timeout=timeout)

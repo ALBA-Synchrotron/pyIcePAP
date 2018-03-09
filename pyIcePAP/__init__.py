@@ -13,6 +13,7 @@ from IcePAP_Eth import *
 from IcePAP_Serial import *
 from IcePAP import *
 from icepapdef import *
+from .communication import EthIcePAPCommunication
 from .controller import EthIcePAPController
 from .programming import *
 from .fwversion import *
