@@ -227,8 +227,7 @@ class SocketCom(object):
         self._send_data(str_bin, wait_answer=False)
 
     def _start_thread(self):
-        print('Start thread %r ' % self._connect_thread)
-
+        # print('Start thread %r ' % self._connect_thread)
         self._connect_thread = Thread(target=self._try_to_connect)
         self._connect_thread.setDaemon(True)
         self._connect_thread.start()
@@ -245,6 +244,7 @@ class SocketCom(object):
             self._socket = socket(AF_INET, SOCK_STREAM)
             self._socket.settimeout(self._timeout)
             NOLINGER = struct.pack('ii', 1, 0)
+            # TODO: protect EBADF [Errno 9] during reboot
             self._socket.setsockopt(SOL_SOCKET, SO_LINGER, NOLINGER)
             try:
                 self._socket.connect((self._host, self._port))
@@ -266,7 +266,7 @@ class SocketCom(object):
                 raw_data_size = len(raw_data)
                 if raw_data_size > size:
                     # TODO: use python logging
-                    print('Send multitimes')
+                    # print('Send multitimes')
                     n = int(raw_data_size / size)
                     start = 0
                     for i in range(n):
@@ -312,7 +312,7 @@ class SocketCom(object):
                         # FOUND
                         while answer.count('$') < 2:
                             answer = answer + self._socket.recv(size)
-                    # TODO: use python loggin
+                    # TODO: use python logging
                     print('\tRAW_DATA read: %r' % answer)
                     return answer
         except Exception as e:
