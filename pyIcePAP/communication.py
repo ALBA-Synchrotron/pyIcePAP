@@ -108,8 +108,10 @@ class IcePAPCommunication(object):
                 result = ans
             elif '$' in ans:
                 # Multi lines
-                lines = ans.split('\n')[1:-2]
-                result = [line[:-1] for line in lines]  # remove CR
+                ans = ans.split('$')[1]
+                lines = ans.split('\n')[1:-1]
+                # remove CR
+                result = [line.split('\r')[0] for line in lines]
             else:
                 ans = ans.split('\r\n')[0]
                 result = ans.split()[1:]
