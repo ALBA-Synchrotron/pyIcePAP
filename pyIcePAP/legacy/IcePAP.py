@@ -21,8 +21,7 @@ from threading import Lock
 import array
 import struct
 import datetime
-from future import *
-from vdatalib import vdata, ADDRUNSET, PARAMETER, POSITION, SLOPE
+from pyIcePAP.vdatalib import vdata, ADDRUNSET, PARAMETER, POSITION, SLOPE
 from icepapdef import IcepapStatus, IcepapInfo, IcepapRegisters, \
     IcepapTrackMode, deprecated
 
