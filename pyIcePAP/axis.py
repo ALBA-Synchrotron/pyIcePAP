@@ -1351,10 +1351,15 @@ class IcePAPAxis(object):
         """
         Get the configuration type for one or all parameters
         :param parameter: str (optional)
-        :return: [str]
+        :return: dict
         """
         cmd = '?CFGINFO {0}'.format(parameter)
-        return self.send_cmd(cmd)
+        ans = self.send_cmd(cmd)
+        cfg = {}
+        for line in ans:
+            key, value = line.split(' ', 1)
+            cfg[key] = value
+        return cfg
 
     def set_config(self, config=''):
         """
@@ -1371,10 +1376,15 @@ class IcePAPAxis(object):
         Get the current configuration for one or all parameters
         IcePAP user manual pag. 54
         :param parameter: str (optional)
-        :return: [str]
+        :return: dict
         """
         cmd = '?CFG {0}'.format(parameter)
-        return self.send_cmd(cmd)
+        ans = self.send_cmd(cmd)
+        cfg = {}
+        for line in ans:
+            key, value = line.split(' ', 1)
+            cfg[key] = value
+        return cfg
 
     def set_cfg(self, *args):
         """
