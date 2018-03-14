@@ -52,6 +52,7 @@ class Registers(object):
     AXIS, INDEXER, EXTERR = "AXIS", "INDEXER", "EXTERR"
     SHFTENC, TGTENC, ENCIN, = "SHFTENC", "TGTENC", "ENCIN"
     INPOS, ABSENC = "INPOS", "ABSENC"
+    MEASURE = 'MEASURE'
     PositionRegisters = [AXIS, INDEXER, EXTERR, SHFTENC, TGTENC, ENCIN,
                          INPOS, ABSENC]
 
