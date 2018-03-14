@@ -14,3 +14,4 @@ from .communication import EthIcePAPCommunication
 from .controller import EthIcePAPController
 from .programming import *
 from .fwversion import *
+from .utils import *
