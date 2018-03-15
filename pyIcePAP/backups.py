@@ -292,7 +292,7 @@ def main():
                            type=int, default=[])
     check_cmd.set_defaults(which='check')
     check_cmd.add_argument('-d', '--debug', action='store_true',
-                          help='Activate log level DEBUG')
+                           help='Activate log level DEBUG')
 
     args = parse.parse_args()
     if args.debug:
