@@ -95,16 +95,26 @@ class FirmwareVersion(dict):
 
         msg = '{:<15s}:{:>5s}\n'.format('SYSTEM', str(self.system))
         if not self.is_axis:
-            msg += '   {:<12s}:{:>5s}\n'.format('CONTROLLER', str(self.ctrl))
-            msg += '      {:<9s}:{:>5s}\n'.format('DSP', str(self.ctrl_dsp))
-            msg += '      {:<9s}:{:>5s}\n'.format('FPGA', str(self.ctrl_fpga))
-            msg += '      {:<9s}:{:>5s}\n'.format('MCPU0', str(self.ctrl_mcpu0))
-            msg += '      {:<9s}:{:>5s}\n'.format('MCPU1', str(self.ctrl_mcpu1))
-            msg += '      {:<9s}:{:>5s}\n'.format('MCPU2', str(self.ctrl_mcpu2))
-        msg += '   {:<12s}:{:>5s}\n'.format('DRIVER', str(self.driver))
+            level = '   '
+            sublevel = level * 2
+            msg += '{:}{:<12s}:{:>5s}\n'.format(level, 'CONTROLLER',
+                                                str(self.ctrl))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'DSP',
+                                               str(self.ctrl_dsp))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'FPGA',
+                                               str(self.ctrl_fpga))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'MCPU0',
+                                               str(self.ctrl_mcpu0))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'MCPU1',
+                                               str(self.ctrl_mcpu1))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'MCPU2',
+                                               str(self.ctrl_mcpu2))
+        msg += '{:}{:<12s}:{:>5s}\n'.format(level, 'DRIVER', str(self.driver))
         if self.is_axis:
-            msg += '      {:<9s}:{:>5s}\n'.format('DSP', str(self.driver_dsp))
-            msg += '      {:<9s}:{:>5s}\n'.format('FPGA', str(self.driver_fpga))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'DSP',
+                                               str(self.driver_dsp))
+            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'FPGA',
+                                               str(self.driver_fpga))
         return msg
 
     def is_supported(self):
