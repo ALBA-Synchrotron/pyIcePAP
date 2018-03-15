@@ -13,7 +13,6 @@
 
 import weakref
 import struct
-from future import *
 from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE
 from .utils import State
 from fwversion import FirmwareVersion

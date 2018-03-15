@@ -1,6 +1,7 @@
 import configparser
 import argparse
 import time
+import logging
 from pyIcePAP import EthIcePAPController, Registers
 
 
@@ -41,14 +42,14 @@ def print_diff(diff, level=0):
         tab_level = ' ' * level
         if isinstance(diff[key], dict):
             line = '{0}{1}'.format(tab_level, key)
-            print line
+            print(line)
             next_level = level + 1
             print_diff(diff[key], next_level)
         else:
             val1 = diff[key][0]
             val2 = diff[key][1]
             line = '{0}{1:<20} {2:<20} {3}'.format(tab_level, key, val1, val2)
-            print line
+            print(line)
 
 
 class IcePAPBackup(object):
@@ -244,10 +245,10 @@ class IcePAPBackup(object):
             for section in sections:
                 axis = int(section.split('_')[1])
                 axes.append(axis)
-        print 'Checking axes: {0}'.format(repr(axes))
+        print('Checking IcePAP {0} axes: {1}'.format(self._host, repr(axes)))
         self.do_backup(axes=axes, save=False, general=False)
         if self._cfg_bkp == self._cfg_ipap:
-            print 'Done'
+            print('DONE')
         else:
             sections = self._cfg_bkp.sections()
             total_diff = {}
@@ -259,7 +260,7 @@ class IcePAPBackup(object):
             line = 'Differences found:\n'
             line += '{0:<20} {1:<20} {2}'.format('Component', 'Backup',
                                                  'IcePAP')
-            print line
+            print(line)
             print_diff(total_diff)
 
 
@@ -277,6 +278,9 @@ def main():
     save_cmd.add_argument('filename', help='Output file name')
     save_cmd.add_argument('axes', nargs='*', help='Axes to save',
                           type=int, default=[])
+    save_cmd.add_argument('-d', '--debug', action='store_true',
+                          help='Activate log level DEBUG')
+
     save_cmd.set_defaults(which='save')
 
     # Check backup command
@@ -287,8 +291,12 @@ def main():
     check_cmd.add_argument('axes', nargs='*', help='Axes to save',
                            type=int, default=[])
     check_cmd.set_defaults(which='check')
+    check_cmd.add_argument('-d', '--debug', action='store_true',
+                          help='Activate log level DEBUG')
 
     args = parse.parse_args()
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
     if args.which == 'save':
         ipap_bkp = IcePAPBackup(args.host, args.port, args.timeout)
         ipap_bkp.do_backup(args.filename, args.axes)

@@ -1,7 +1,6 @@
 import sys
 import time
 import array
-from future import *
 from pyIcePAP import EthIcePAPController
 
 __all__ = ['firmware_update']
@@ -21,10 +20,10 @@ def _monitor(ice):
         else:
             wait = False
     except RuntimeError:
-        print '\nConnection lost, waiting for reconnection...'
+        print('\nConnection lost, waiting for reconnection...')
         while not ice.connected:
             time.sleep(0.5)
-        print 'Reconnected!'
+        print('Reconnected!')
     finally:
         return wait
 

@@ -16,7 +16,7 @@ from threading import Thread, Lock
 import struct
 import time
 import array
-from future import *
+import logging
 
 _imported_serial = False
 try:
@@ -188,6 +188,8 @@ class SocketCom(object):
     for IcePAP motion controllers.
     """
     def __init__(self, host, port=5000, timeout=3.0):
+        log_name = '{0}.SocketCom'.format(__name__)
+        self.log = logging.getLogger(log_name)
         self._socket = None
         self._host = host
         self._port = port
@@ -227,7 +229,7 @@ class SocketCom(object):
         self._send_data(str_bin, wait_answer=False)
 
     def _start_thread(self):
-        # print('Start thread %r ' % self._connect_thread)
+        self.log.debug('Start thread {0}'.format(self._connect_thread))
         self._connect_thread = Thread(target=self._try_to_connect)
         self._connect_thread.setDaemon(True)
         self._connect_thread.start()
@@ -251,6 +253,7 @@ class SocketCom(object):
                 self._connected = True
                 break
             except Exception:
+                self.log.debug('Fail to connect', exc_info=True)
                 time.sleep(sleep_time)
 
     def _send_data(self, raw_data, wait_answer=True, size=8192):
@@ -261,12 +264,11 @@ class SocketCom(object):
 
         try:
             with self._lock:
-                # TODO: use python logging
-                print('\tRAW_DATA to send: %r' % raw_data)
+                self.log.debug('RAW_DATA to send: {0}'.format(repr(raw_data)))
                 raw_data_size = len(raw_data)
                 if raw_data_size > size:
                     # TODO: use python logging
-                    # print('Send multitimes')
+                    self.log.debug('Send multi-lines')
                     n = int(raw_data_size / size)
                     start = 0
                     for i in range(n):
@@ -312,8 +314,7 @@ class SocketCom(object):
                         # FOUND
                         while answer.count('$') < 2:
                             answer = answer + self._socket.recv(size)
-                    # TODO: use python logging
-                    print('\tRAW_DATA read: %r' % answer)
+                    self.log.debug('RAW_DATA read: {0}'.format(repr(answer)))
                     return answer
         except Exception as e:
             self._start_thread()

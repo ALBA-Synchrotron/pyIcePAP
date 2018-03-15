@@ -33,7 +33,6 @@
 __all__ = ['EthIcePAPController']
 
 import time
-from future import *
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
 from .utils import State
@@ -620,7 +619,6 @@ class IcePAPController(dict):
         else:
             save_str = 'SAVE'
         cmd = '*PROG {} {} {}'.format(comp_str, force_str, save_str)
-        # print('Sending command:', cmd)
         self.send_cmd(cmd)
 
     def prog(self, component, force=False):
@@ -640,7 +638,6 @@ class IcePAPController(dict):
         prog_str = 'PROG'
 
         cmd = '{} {} {}'.format(prog_str, str(component).upper(), force_str)
-        # print('Sending command:', cmd)
         self.send_cmd(cmd)
         time.sleep(5)
 
