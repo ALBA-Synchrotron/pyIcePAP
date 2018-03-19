@@ -99,7 +99,7 @@ class IcePAPController(dict):
         :return: str
         """
         if isinstance(alias, int) or isinstance(alias, str):
-            result = self.__getitem__(alias)._str_id
+            result = str(self.__getitem__(alias)._axis_nr)
         elif isinstance(alias, list):
             result = []
             for i in alias:
