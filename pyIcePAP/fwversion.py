@@ -94,9 +94,9 @@ class FirmwareVersion(dict):
     def __repr__(self):
 
         msg = '{:<15s}:{:>5s}\n'.format('SYSTEM', str(self.system))
+        level = '   '
+        sublevel = level * 2
         if not self.is_axis:
-            level = '   '
-            sublevel = level * 2
             msg += '{:}{:<12s}:{:>5s}\n'.format(level, 'CONTROLLER',
                                                 str(self.ctrl))
             msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'DSP',
