@@ -63,7 +63,8 @@ class IcePAPBackup(object):
         if cfg_file != '':
             self._cfg_bkp = configparser.ConfigParser()
             self._cfg_bkp.read(cfg_file)
-            host = self._cfg_bkp.get('SYSTEM', 'HOST')
+            if host == '':
+                host = self._cfg_bkp.get('SYSTEM', 'HOST')
             port = int(self._cfg_bkp.get('SYSTEM', 'PORT'))
         self._host = host
         self._port = port
@@ -119,8 +120,12 @@ class IcePAPBackup(object):
                 value = 'NONE'
             self._cfg_ipap.set(section_name, option, value)
 
-        # Limit switches configuration
-        self._cfg_ipap.set(section_name, 'CSWITCH', self._ipap[axis].cswitch)
+        # Limit switches configuration. FW 3.17
+        try:
+            value = self._ipap[axis].cswitch
+            self._cfg_ipap.set(section_name, 'CSWITCH', value)
+        except Exception:
+            pass
 
         # Name
         self._cfg_ipap.set(section_name, 'NAME', self._ipap[axis].name)
@@ -130,13 +135,16 @@ class IcePAPBackup(object):
         self._cfg_ipap.set(section_name, 'HW_ID', str(hw_id))
         self._cfg_ipap.set(section_name, 'SN_ID', str(sn_id))
 
-        # Velocity
+        # Velocity. FW 3.17
         value = str(self._ipap[axis].velocity)
         self._cfg_ipap.set(section_name, 'VELOCITY', value)
-        value = str(self._ipap[axis].velocity_min)
-        self._cfg_ipap.set(section_name, 'VELOCITY_MIN', value)
-        value = str(self._ipap[axis].velocity_max)
-        self._cfg_ipap.set(section_name, 'VELOCITY_MAX', value)
+        try:
+            value = str(self._ipap[axis].velocity_min)
+            self._cfg_ipap.set(section_name, 'VELOCITY_MIN', value)
+            value = str(self._ipap[axis].velocity_max)
+            self._cfg_ipap.set(section_name, 'VELOCITY_MAX', value)
+        except Exception:
+            pass
 
         # Acceleration time
         value = str(self._ipap[axis].acctime)
@@ -151,7 +159,10 @@ class IcePAPBackup(object):
         self._cfg_ipap.set(section_name, 'INDEXER', value)
 
         # eCAM
-        self._cfg_ipap.set(section_name, 'ECAM', self._ipap[axis].ecam)
+        try:
+            self._cfg_ipap.set(section_name, 'ECAM', self._ipap[axis].ecam)
+        except Exception:
+            pass
 
         # InfoA
         value = ' '.join(self._ipap[axis].infoa)
@@ -166,20 +177,39 @@ class IcePAPBackup(object):
         self._cfg_ipap.set(section_name, 'INFOC', value)
 
         # OutPos
-        value = ' '.join(self._ipap[axis].outpos)
-        self._cfg_ipap.set(section_name, 'OUTPOS', value)
+        try:
+            value = ' '.join(self._ipap[axis].outpos)
+            self._cfg_ipap.set(section_name, 'OUTPOS', value)
+        except Exception:
+            pass
 
         # OutPaux
-        value = ' '.join(self._ipap[axis].outpaux)
-        self._cfg_ipap.set(section_name, 'OUTPAUX', value)
+        try:
+            value = ' '.join(self._ipap[axis].outpaux)
+            self._cfg_ipap.set(section_name, 'OUTPAUX', value)
+        except Exception:
+            pass
 
         # SyncPos
-        value = ' '.join(self._ipap[axis].syncpos)
-        self._cfg_ipap.set(section_name, 'SYNCPOS', value)
+        try:
+            value = ' '.join(self._ipap[axis].syncpos)
+            self._cfg_ipap.set(section_name, 'SYNCPOS', value)
+        except Exception:
+            pass
 
         # SyncAux
-        value = ' '.join(self._ipap[axis].syncaux)
-        self._cfg_ipap.set(section_name, 'SYNCAUX', value)
+        try:
+            value = ' '.join(self._ipap[axis].syncaux)
+            self._cfg_ipap.set(section_name, 'SYNCAUX', value)
+        except Exception:
+            pass
+
+        # External Disable. Valid for FW < 3.15
+        try:
+            value = self._ipap[axis].send_cmd('?DISDIS')[0]
+            self._cfg_ipap.set(section_name, 'DISDIS', value)
+        except Exception:
+            pass
 
     def save_to_file(self, filename):
         with open(filename, 'w') as f:
@@ -226,7 +256,7 @@ class IcePAPBackup(object):
         if save:
             self.save_to_file(filename)
 
-    def do_check(self, axes=[]):
+    def do_check(self, axes=[], host=''):
         self._cfg_bkp.pop('GENERAL')
         sections = self._cfg_bkp.sections()
         sections.pop(sections.index('SYSTEM'))
@@ -293,15 +323,25 @@ def main():
     check_cmd.set_defaults(which='check')
     check_cmd.add_argument('-d', '--debug', action='store_true',
                            help='Activate log level DEBUG')
+    check_cmd.add_argument('--host',
+                           help='Use another IcePAP host instead of the '
+                                'backup saved.',
+                           default='')
 
     args = parse.parse_args()
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
+    logging.basicConfig(level=level,
+                        format='%(asctime)s - %(name)s - %(levelname)s - '
+                               '%(message)s')
     if args.which == 'save':
         ipap_bkp = IcePAPBackup(args.host, args.port, args.timeout)
         ipap_bkp.do_backup(args.filename, args.axes)
     elif args.which == 'check':
-        ipap_bkp = IcePAPBackup(cfg_file=args.filename)
+        ipap_bkp = IcePAPBackup(host=args.host, cfg_file=args.filename)
         ipap_bkp.do_check(args.axes)
 
 
