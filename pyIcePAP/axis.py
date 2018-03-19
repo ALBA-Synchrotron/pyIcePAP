@@ -1447,7 +1447,7 @@ class IcePAPAxis(object):
         cmd = 'ENC {0} {1}'.format(register, long(value))
         self.send_cmd(cmd)
 
-    def get_velocity(self, vtype='NOMINAL'):
+    def get_velocity(self, vtype=''):
         """
         Get the velocity.
         IcePAP user manual pag. 143
@@ -1455,6 +1455,7 @@ class IcePAPAxis(object):
         :param vtype: str
         :return: float [steps per second]
         """
+
         cmd = '?VELOCITY {0}'.format(vtype)
         return float(self.send_cmd(cmd)[0])
 
@@ -1469,12 +1470,13 @@ class IcePAPAxis(object):
         cmd = 'VELOCITY {0}'.format(value)
         self.send_cmd(cmd)
 
-    def get_acceleration(self, atype='NOMINAL'):
+    def get_acceleration(self, atype=''):
         """
         Read the acceleration time
         IcePAP user manual pag. 48
         :return: float [seconds]
         """
+
         cmd = '?ACCTIME {0}'.format(atype)
         return float(self.send_cmd(cmd)[0])
 
