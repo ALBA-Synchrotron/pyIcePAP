@@ -33,6 +33,7 @@
 __all__ = ['EthIcePAPController']
 
 import time
+import logging
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
 from .utils import State
@@ -48,6 +49,16 @@ class IcePAPController(dict):
         dict.__init__(self)
         self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
         self._aliases = {}
+        log_name = '{0}.IcePAPController'.format(__name__)
+        self.log = logging.getLogger(log_name)
+        ver = self.ver.driver[0]
+        if ver >= 3:
+            self._new_api = True
+        else:
+            self._new_api = False
+            self.log.warning('The Driver firmware is old {0}. Some commands '
+                             'could not work'.format(ver))
+
         self._create_axes()
 
     def __getitem__(self, item):
