@@ -59,7 +59,7 @@ class IcePAPController(dict):
             self._new_api = True
         else:
             self._new_api = False
-            self.log.warning('The Driver firmware is old {0}. Some commands '
+            self.log.warning('The firmware is old {0}, some commands '
                              'could not work'.format(ver))
 
         self._create_axes()

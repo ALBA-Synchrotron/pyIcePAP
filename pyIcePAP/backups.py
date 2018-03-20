@@ -11,8 +11,9 @@
 # along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
+__all__ = ['IcePAPBackup']
+
 import configparser
-import argparse
 import time
 import logging
 from pyIcePAP import EthIcePAPController, Registers
@@ -71,6 +72,8 @@ class IcePAPBackup(object):
     """
 
     def __init__(self, host='', port=5000, timeout=3, cfg_file=''):
+        log_name = '{0}.IcePAPBackup'.format(__name__)
+        self.log = logging.getLogger(log_name)
         self._cfg_ipap = configparser.ConfigParser()
         self._cfg_bkp = None
         if cfg_file != '':
@@ -92,6 +95,7 @@ class IcePAPBackup(object):
         section_name = 'AXIS_{0}'.format(axis)
         self._cfg_ipap.add_section(section_name)
 
+        msg_error = 'Axis {0} error on reading: {1}'
         # Version
         ver = self._ipap[axis].ver
         keys = ver['SYSTEM']['DRIVER'].keys()
@@ -100,7 +104,10 @@ class IcePAPBackup(object):
             option = 'VER_{0}'.format(key)
             value = str(ver['SYSTEM']['DRIVER'][key][0])
             self._cfg_ipap.set(section_name, option, value)
-
+        if ver.driver < 3:
+            self.log.info('The version {0} does not support all command.'
+                          'The script will generate warning'
+                          'messages'.format(ver.driver))
         # Configuration
         ipap_cfg = self._ipap[axis].get_cfg()
         keys = ipap_cfg.keys()
@@ -135,10 +142,11 @@ class IcePAPBackup(object):
 
         # Limit switches configuration. FW 3.17
         try:
+            attr = 'CSWITCH'
             value = self._ipap[axis].cswitch
-            self._cfg_ipap.set(section_name, 'CSWITCH', value)
+            self._cfg_ipap.set(section_name, attr, value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
 
         # Name
         self._cfg_ipap.set(section_name, 'NAME', self._ipap[axis].name)
@@ -152,12 +160,17 @@ class IcePAPBackup(object):
         value = str(self._ipap[axis].velocity)
         self._cfg_ipap.set(section_name, 'VELOCITY', value)
         try:
+            attr = 'VELOCITY_MIN'
             value = str(self._ipap[axis].velocity_min)
-            self._cfg_ipap.set(section_name, 'VELOCITY_MIN', value)
-            value = str(self._ipap[axis].velocity_max)
-            self._cfg_ipap.set(section_name, 'VELOCITY_MAX', value)
+            self._cfg_ipap.set(section_name, attr, value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
+        try:
+            attr = 'VELOCITY_MAX'
+            value = str(self._ipap[axis].velocity_max)
+            self._cfg_ipap.set(section_name, attr, value)
+        except Exception:
+            self.log.warning(msg_error.format(axis, attr))
 
         # Acceleration time
         value = str(self._ipap[axis].acctime)
@@ -173,9 +186,10 @@ class IcePAPBackup(object):
 
         # eCAM
         try:
-            self._cfg_ipap.set(section_name, 'ECAM', self._ipap[axis].ecam)
+            attr = 'ECAM'
+            self._cfg_ipap.set(section_name, attr, self._ipap[axis].ecam)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
 
         # InfoA
         value = ' '.join(self._ipap[axis].infoa)
@@ -191,38 +205,42 @@ class IcePAPBackup(object):
 
         # OutPos
         try:
+            attr = 'OUTPOS'
             value = ' '.join(self._ipap[axis].outpos)
-            self._cfg_ipap.set(section_name, 'OUTPOS', value)
+            self._cfg_ipap.set(section_name, attr, value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
 
         # OutPaux
         try:
+            attr = 'OUTPAUX'
             value = ' '.join(self._ipap[axis].outpaux)
-            self._cfg_ipap.set(section_name, 'OUTPAUX', value)
+            self._cfg_ipap.set(section_name, attr, value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
 
         # SyncPos
         try:
+            attr = 'SYNCPOS'
             value = ' '.join(self._ipap[axis].syncpos)
-            self._cfg_ipap.set(section_name, 'SYNCPOS', value)
+            self._cfg_ipap.set(section_name, attr, value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
 
         # SyncAux
         try:
+            attr = 'SYNCAUX'
             value = ' '.join(self._ipap[axis].syncaux)
-            self._cfg_ipap.set(section_name, 'SYNCAUX', value)
+            self._cfg_ipap.set(section_name, attr, value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, attr))
 
         # External Disable. Valid for FW < 3.15
         try:
             value = self._ipap[axis].send_cmd('?DISDIS')[0]
             self._cfg_ipap.set(section_name, 'DISDIS', value)
         except Exception:
-            pass
+            self.log.warning(msg_error.format(axis, 'DISDIS'))
 
     def save_to_file(self, filename):
         with open(filename, 'w') as f:
@@ -307,56 +325,4 @@ class IcePAPBackup(object):
             print_diff(total_diff)
 
 
-def main():
-    parse = argparse.ArgumentParser('IcePAP Backup scripts, base on ethernet '
-                                    'communication')
-    subps = parse.add_subparsers(help='commands')
 
-    # Save backup command
-    save_cmd = subps.add_parser('save', help='Command to save the '
-                                             'configuration to a file')
-    save_cmd.add_argument('host', help='IcePAP Host')
-    save_cmd.add_argument('-p', '--port', default=5000, help='IcePAP port')
-    save_cmd.add_argument('-t', '--timeout', default=3, help='Socket timeout')
-    save_cmd.add_argument('filename', help='Output file name')
-    save_cmd.add_argument('axes', nargs='*', help='Axes to save',
-                          type=int, default=[])
-    save_cmd.add_argument('-d', '--debug', action='store_true',
-                          help='Activate log level DEBUG')
-
-    save_cmd.set_defaults(which='save')
-
-    # Check backup command
-    check_cmd = subps.add_parser('check', help='Command to check the '
-                                               'IcePAP configuration for a '
-                                               'backup file')
-    check_cmd.add_argument('filename', help='Backup file')
-    check_cmd.add_argument('axes', nargs='*', help='Axes to save',
-                           type=int, default=[])
-    check_cmd.set_defaults(which='check')
-    check_cmd.add_argument('-d', '--debug', action='store_true',
-                           help='Activate log level DEBUG')
-    check_cmd.add_argument('--host',
-                           help='Use another IcePAP host instead of the '
-                                'backup saved.',
-                           default='')
-
-    args = parse.parse_args()
-    if args.debug:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-
-    logging.basicConfig(level=level,
-                        format='%(asctime)s - %(name)s - %(levelname)s - '
-                               '%(message)s')
-    if args.which == 'save':
-        ipap_bkp = IcePAPBackup(args.host, args.port, args.timeout)
-        ipap_bkp.do_backup(args.filename, args.axes)
-    elif args.which == 'check':
-        ipap_bkp = IcePAPBackup(host=args.host, cfg_file=args.filename)
-        ipap_bkp.do_check(args.axes)
-
-
-if __name__ == '__main__':
-    main()
