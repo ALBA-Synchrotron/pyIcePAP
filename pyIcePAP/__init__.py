@@ -18,8 +18,8 @@ from .controller import EthIcePAPController
 from .programming import *
 from .fwversion import *
 from .utils import *
-
+from .backups import *
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-version = '1.22.4-alpha'
+version = '1.23.0-alpha'
