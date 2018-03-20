@@ -93,28 +93,30 @@ class FirmwareVersion(dict):
 
     def __repr__(self):
 
-        msg = '{:<15s}:{:>5s}\n'.format('SYSTEM', str(self.system))
+        msg = '{0:<15s}:{1:>5s}\n'.format('SYSTEM', str(self.system))
         level = '   '
         sublevel = level * 2
         if not self.is_axis:
-            msg += '{:}{:<12s}:{:>5s}\n'.format(level, 'CONTROLLER',
-                                                str(self.ctrl))
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'DSP',
-                                               str(self.ctrl_dsp))
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'FPGA',
-                                               str(self.ctrl_fpga))
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'MCPU0',
-                                               str(self.ctrl_mcpu0))
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'MCPU1',
-                                               str(self.ctrl_mcpu1))
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'MCPU2',
-                                               str(self.ctrl_mcpu2))
-        msg += '{:}{:<12s}:{:>5s}\n'.format(level, 'DRIVER', str(self.driver))
+            # Not use field name does not work on python 2.6
+            msg += '{0:}{1:<12s}:{2:>5s}\n'.format(level, 'CONTROLLER',
+                                                   str(self.ctrl))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'DSP',
+                                                  str(self.ctrl_dsp))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'FPGA',
+                                                  str(self.ctrl_fpga))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'MCPU0',
+                                                  str(self.ctrl_mcpu0))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'MCPU1',
+                                                  str(self.ctrl_mcpu1))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'MCPU2',
+                                                  str(self.ctrl_mcpu2))
+        msg += '{0:}{1:<12s}:{2:>5s}\n'.format(level, 'DRIVER',
+                                               str(self.driver))
         if self.is_axis:
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'DSP',
-                                               str(self.driver_dsp))
-            msg += '{:}{:<9s}:{:>5s}\n'.format(sublevel, 'FPGA',
-                                               str(self.driver_fpga))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'DSP',
+                                                  str(self.driver_dsp))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'FPGA',
+                                                  str(self.driver_fpga))
         return msg
 
     def is_supported(self):
@@ -134,7 +136,12 @@ class FirmwareVersion(dict):
             if self['SYSTEM']['CONTROLLER']['VER'][0] == _ctrl_ver:
                 d = self['SYSTEM']['CONTROLLER']
                 a = SUPPORTED_VERSIONS[_sys]['SYSTEM']['CONTROLLER']
-                _d = {x: d[x][0] for x in d if x in a}
+                # Does not work on python 2.6
+                # _d = {x: d[x][0] for x in d if x in a}
+                _d = {}
+                for x in d:
+                    if x in a:
+                        _d[x] = d[x][0]
                 # print('supported ctrl:', a)
                 # print('supported loaded:', _d)
                 return a == _d
@@ -151,7 +158,12 @@ class FirmwareVersion(dict):
             if self['SYSTEM']['DRIVER']['VER'][0] == _driver_ver:
                 d = self['SYSTEM']['DRIVER']
                 a = SUPPORTED_VERSIONS[_sys]['SYSTEM']['DRIVER']
-                _d = {x: d[x][0] for x in d if x in a}
+                # Does not work on python 2.6
+                # _d = {x: d[x][0] for x in d if x in a}
+                _d = {}
+                for x in d:
+                    if x in a:
+                        _d[x] = d[x][0]
                 # print('supported driver:', a)
                 # print('supported loaded:', _d)
                 return a == _d
