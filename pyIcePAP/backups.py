@@ -43,7 +43,9 @@ def dict_cfg(first, second):
         diff[key] = (KEYNOTFOUNDIN1, second[key])
     # Check for differences
     for key in sd1.intersection(sd2):
-        if first[key] != second[key]:
+        value1 = first[key].upper().strip()
+        value2 = second[key].upper().strip()
+        if value1 != value2:
             diff[key] = (first[key], second[key])
     return diff
 
@@ -94,7 +96,12 @@ class IcePAPBackup(object):
         """
         section_name = 'AXIS_{0}'.format(axis)
         self._cfg_ipap.add_section(section_name)
-
+        # Active
+        active = self._ipap[axis].active
+        self._cfg_ipap.set(section_name, 'ACTIVE', str(active))
+        if not active:
+            self.log.warning('Driver {0} is not active, '
+                             'some commands will fail.'.format(axis))
         msg_error = 'Axis {0} error on reading: {1}'
         # Version
         ver = self._ipap[axis].ver
@@ -128,7 +135,8 @@ class IcePAPBackup(object):
             try:
                 value = str(self._ipap[axis].get_pos(key))
             except Exception:
-                value = 'NONE'
+                value = 'UNKNOWN'
+                self.log.warning(msg_error.format(axis, option))
             self._cfg_ipap.set(section_name, option, value)
 
         # Encoder Register
@@ -137,7 +145,8 @@ class IcePAPBackup(object):
             try:
                 value = str(self._ipap[axis].get_enc(key))
             except Exception:
-                value = 'NONE'
+                value = 'UNKNOWN'
+                self.log.warning(msg_error.format(axis, option))
             self._cfg_ipap.set(section_name, option, value)
 
         # Limit switches configuration. FW 3.17
@@ -157,7 +166,12 @@ class IcePAPBackup(object):
         self._cfg_ipap.set(section_name, 'SN_ID', str(sn_id))
 
         # Velocity. FW 3.17
-        value = str(self._ipap[axis].velocity)
+        try:
+            value = str(self._ipap[axis].velocity)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'VELOCITY'))
+
         self._cfg_ipap.set(section_name, 'VELOCITY', value)
         try:
             attr = 'VELOCITY_MIN'
@@ -173,15 +187,27 @@ class IcePAPBackup(object):
             self.log.warning(msg_error.format(axis, attr))
 
         # Acceleration time
-        value = str(self._ipap[axis].acctime)
+        try:
+            value = str(self._ipap[axis].acctime)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'ACCTIME'))
         self._cfg_ipap.set(section_name, 'ACCTIME', value)
 
         # Position close loop
-        value = str(self._ipap[axis].pcloop)
+        try:
+            value = str(self._ipap[axis].pcloop)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'PCLOOP'))
         self._cfg_ipap.set(section_name, 'PCLOOP', value)
 
         # Indexer
-        value = str(self._ipap[axis].indexer)
+        try:
+            value = str(self._ipap[axis].indexer)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'INDEXER'))
         self._cfg_ipap.set(section_name, 'INDEXER', value)
 
         # eCAM
@@ -192,15 +218,27 @@ class IcePAPBackup(object):
             self.log.warning(msg_error.format(axis, attr))
 
         # InfoA
-        value = ' '.join(self._ipap[axis].infoa)
+        try:
+            value = ' '.join(self._ipap[axis].infoa)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'INFOA'))
         self._cfg_ipap.set(section_name, 'INFOA', value)
 
         # InfoB
-        value = ' '.join(self._ipap[axis].infob)
+        try:
+            value = ' '.join(self._ipap[axis].infob)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'INFOB'))
         self._cfg_ipap.set(section_name, 'INFOB', value)
 
         # InfoC
-        value = ' '.join(self._ipap[axis].infoa)
+        try:
+            value = ' '.join(self._ipap[axis].infoc)
+        except Exception:
+            value = 'UNKNOWN'
+            self.log.warning(msg_error.format(axis, 'INFOB'))
         self._cfg_ipap.set(section_name, 'INFOC', value)
 
         # OutPos
@@ -287,7 +325,7 @@ class IcePAPBackup(object):
         if save:
             self.save_to_file(filename)
 
-    def do_check(self, axes=[], host=''):
+    def do_check(self, axes=[]):
         self._cfg_bkp.pop('GENERAL')
         sections = self._cfg_bkp.sections()
         sections.pop(sections.index('SYSTEM'))
@@ -309,6 +347,7 @@ class IcePAPBackup(object):
         print('Checking IcePAP {0} axes: {1}'.format(self._host, repr(axes)))
         self.do_backup(axes=axes, save=False, general=False)
         if self._cfg_bkp == self._cfg_ipap:
+            print('*' * 80)
             print('DONE')
         else:
             sections = self._cfg_bkp.sections()
@@ -318,11 +357,23 @@ class IcePAPBackup(object):
                     section])
                 if len(diff) > 0:
                     total_diff[section] = diff
+            print('*' * 80)
             line = 'Differences found:\n'
             line += '{0:<20} {1:<20} {2}'.format('Component', 'Backup',
                                                  'IcePAP')
             print(line)
             print_diff(total_diff)
 
-
-
+    def active_axes(self, axes=[]):
+        sections = self._cfg_bkp.sections()
+        for section in sections:
+            if section in ['GENERAL', 'SYSTEM', 'CONTROLLER']:
+                continue
+            axis = int(section.split('_')[1])
+            if axes == [] or axis in axes:
+                active = self._cfg_bkp.getboolean(section, 'ACTIVE')
+                self._ipap[axis].send_cmd('config')
+                cfg = 'ACTIVE {0}'.format(['NO', 'YES'][active])
+                print('Axis {0}: {1}'.format(axis, cfg))
+                self._ipap[axis].set_cfg(cfg)
+                self._ipap[axis].send_cmd('config conf{0:03d}'.format(axis))
