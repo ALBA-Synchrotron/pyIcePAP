@@ -37,12 +37,11 @@ def main():
     save_cmd.add_argument('-p', '--port', default=5000, help='IcePAP port')
     save_cmd.add_argument('-t', '--timeout', default=3, help='Socket timeout')
     save_cmd.add_argument('--bkpfile', help='Output backup filename',
-                            default='')
+                          default='')
     save_cmd.add_argument('axes', nargs='*', help='Axes to save, default all',
                           type=int, default=[])
     save_cmd.add_argument('-d', '--debug', action='store_true',
                           help='Activate log level DEBUG')
-
 
     # Check backup command
     check_cmd = subps.add_parser('check', help='Command to check the '
@@ -130,7 +129,7 @@ def main():
             args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
         abspath = os.path.abspath(args.bkpfile)
         print('\nUpdating {0} with firmware file {1}'.format(args.host,
-                                                           args.fwfile))
+                                                             args.fwfile))
         print('Saving backup on: {0}\n'.format(abspath))
         ipap_bkp = IcePAPBackup(host=args.host, port=args.port,
                                 timeout=args.timeout)
@@ -148,7 +147,7 @@ def main():
                   'driver procedure.')
         print('*' * 80)
         print('\nUpdated {0} with firmware file {1}'.format(args.host,
-                                                       args.fwfile))
+                                                            args.fwfile))
         print('Saved backup on: {0}\n'.format(abspath))
 
 
