@@ -802,6 +802,27 @@ class IcePAPAxis(object):
         self.set_pos('MOTOR', value)
 
     @property
+    def pos_sync(self):
+        """
+        Read the sync register.
+        IcePAP user manual pag. 108
+
+        :return: long
+        """
+        return self.get_pos('SYNC')
+
+    @pos_sync.setter
+    def pos_sync(self, value):
+        """
+        Set the sync register
+        IcePAP user manual pag. 108
+
+        :param value: long
+        :return: None
+        """
+        self.set_pos('SYNC', value)
+
+    @property
     def enc(self):
         """
         Read the axis nominal position pointer
@@ -967,6 +988,27 @@ class IcePAPAxis(object):
         :return: None
         """
         self.set_enc('MOTOR', value)
+
+    @property
+    def enc_sync(self):
+        """
+        Read the sync register.
+        IcePAP user manual pag. 108
+
+        :return: long
+        """
+        return self.get_enc('SYNC')
+
+    @enc_sync.setter
+    def enc_sync(self, value):
+        """
+        Set the sync register
+        IcePAP user manual pag. 108
+
+        :param value: long
+        :return: None
+        """
+        self.set_enc('SYNC', value)
 
     @property
     def velocity(self):

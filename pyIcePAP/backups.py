@@ -16,11 +16,13 @@ __all__ = ['IcePAPBackup']
 import configparser
 import time
 import logging
+import os
 from pyIcePAP import EthIcePAPController, Registers
 
 
 KEYNOTFOUNDIN1 = 'KeyNotFoundInBackup'       # KeyNotFound for dictDiff
 KEYNOTFOUNDIN2 = 'KeyNotFoundInIcePAP'       # KeyNotFound for dictDiff
+UNKNOWN = 'Unknown'
 
 
 def dict_cfg(first, second):
@@ -50,24 +52,6 @@ def dict_cfg(first, second):
     return diff
 
 
-def print_diff(diff, level=0):
-    keys = diff.keys()
-    keys.sort()
-
-    for key in keys:
-        tab_level = ' ' * level
-        if isinstance(diff[key], dict):
-            line = '{0}{1}'.format(tab_level, key)
-            print(line)
-            next_level = level + 1
-            print_diff(diff[key], next_level)
-        else:
-            val1 = diff[key][0]
-            val2 = diff[key][1]
-            line = '{0}{1:<20} {2:<20} {3}'.format(tab_level, key, val1, val2)
-            print(line)
-
-
 class IcePAPBackup(object):
     """
     Class to create/restore IcePAP backups based on Ethernet communication.
@@ -88,7 +72,7 @@ class IcePAPBackup(object):
         self._port = port
         self._ipap = EthIcePAPController(host, port, timeout)
 
-    def add_axis(self, axis):
+    def _add_axis(self, axis):
         """
         Method to add axis backup.
         :param axis: int
@@ -102,7 +86,6 @@ class IcePAPBackup(object):
         if not active:
             self.log.warning('Driver {0} is not active, '
                              'some commands will fail.'.format(axis))
-        msg_error = 'Axis {0} error on reading: {1}'
         # Version
         ver = self._ipap[axis].ver
         keys = ver['SYSTEM']['DRIVER'].keys()
@@ -124,168 +107,52 @@ class IcePAPBackup(object):
             value = ipap_cfg[key]
             self._cfg_ipap.set(section_name, option, value)
 
-        register = [Registers.AXIS, Registers.MEASURE, Registers.SHFTENC,
-                    Registers.TGTENC, Registers.CTRLENC, Registers.ENCIN,
-                    Registers.INPOS, Registers.ABSENC, Registers.MOTOR,
-                    Registers.SYNC]
-        register.sort()
-        # Position Register
-        for key in register:
-            option = 'POS_{0}'.format(key)
+        # Attributes can fail on reading, but we save it anyway with UNKNOWN
+        # value
+        attrs = ['velocity', 'name', 'acctime', 'pcloop', 'indexer', 'infoa',
+                 'infob', 'infoc', 'pos', 'pos_measure', 'pos_shftenc',
+                 'pos_tgtenc', 'pos_ctrlenc', 'pos_encin', 'pos_inpos',
+                 'pos_absenc', 'pos_motor', 'pos_sync', 'enc', 'enc_measure',
+                 'enc_shftenc', 'enc_tgtenc', 'enc_ctrlenc', 'enc_encin',
+                 'enc_inpos', 'enc_absenc', 'enc_motor', 'enc_sync', 'id']
+
+        # Attributes can fail on reading because they are on version 3.17
+        # This attributes won on the backup file if the version is < 3
+        v3_attrs = ['cswitch', 'velocity_min', 'velocity_max', 'ecam',
+                    'outpos', 'outpaux', 'syncpos', 'syncaux']
+
+        attrs += v3_attrs
+        attrs.sort()
+
+        for attr in attrs:
+            if attr in v3_attrs and ver.driver < 3:
+                continue
             try:
-                value = str(self._ipap[axis].get_pos(key))
-            except Exception:
-                value = 'UNKNOWN'
-                self.log.warning(msg_error.format(axis, option))
-            self._cfg_ipap.set(section_name, option, value)
+                value = self._ipap[axis].__getattribute__(attr)
+            except Exception as e:
+                self.log.error('Error on reading axis {0} {1}: '
+                               '{2}'.format(axis, attr, repr(e)))
+                value = UNKNOWN
+            self._cfg_ipap.set(section_name, attr, repr(value))
 
-        # Encoder Register
-        for key in register:
-            option = 'ENC_{0}'.format(key)
+        # External Disable. Valid for FW < 3
+        if ver.driver < 3:
             try:
-                value = str(self._ipap[axis].get_enc(key))
-            except Exception:
-                value = 'UNKNOWN'
-                self.log.warning(msg_error.format(axis, option))
-            self._cfg_ipap.set(section_name, option, value)
+                value = self._ipap[axis].send_cmd('?DISDIS')[0]
+            except Exception as e:
+                self.log.error('Error on reading axis {0} {1}: '
+                               '{2}'.format(axis, 'DISDIS', repr(e)))
+                value = UNKNOWN
+            self._cfg_ipap.set(section_name, value, repr(value))
 
-        # Limit switches configuration. FW 3.17
-        try:
-            attr = 'CSWITCH'
-            value = self._ipap[axis].cswitch
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # Name
-        self._cfg_ipap.set(section_name, 'NAME', self._ipap[axis].name)
-
-        # ID
-        hw_id, sn_id = self._ipap[axis].id
-        self._cfg_ipap.set(section_name, 'HW_ID', str(hw_id))
-        self._cfg_ipap.set(section_name, 'SN_ID', str(sn_id))
-
-        # Velocity. FW 3.17
-        try:
-            value = str(self._ipap[axis].velocity)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'VELOCITY'))
-
-        self._cfg_ipap.set(section_name, 'VELOCITY', value)
-        try:
-            attr = 'VELOCITY_MIN'
-            value = str(self._ipap[axis].velocity_min)
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-        try:
-            attr = 'VELOCITY_MAX'
-            value = str(self._ipap[axis].velocity_max)
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # Acceleration time
-        try:
-            value = str(self._ipap[axis].acctime)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'ACCTIME'))
-        self._cfg_ipap.set(section_name, 'ACCTIME', value)
-
-        # Position close loop
-        try:
-            value = str(self._ipap[axis].pcloop)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'PCLOOP'))
-        self._cfg_ipap.set(section_name, 'PCLOOP', value)
-
-        # Indexer
-        try:
-            value = str(self._ipap[axis].indexer)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'INDEXER'))
-        self._cfg_ipap.set(section_name, 'INDEXER', value)
-
-        # eCAM
-        try:
-            attr = 'ECAM'
-            self._cfg_ipap.set(section_name, attr, self._ipap[axis].ecam)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # InfoA
-        try:
-            value = ' '.join(self._ipap[axis].infoa)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'INFOA'))
-        self._cfg_ipap.set(section_name, 'INFOA', value)
-
-        # InfoB
-        try:
-            value = ' '.join(self._ipap[axis].infob)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'INFOB'))
-        self._cfg_ipap.set(section_name, 'INFOB', value)
-
-        # InfoC
-        try:
-            value = ' '.join(self._ipap[axis].infoc)
-        except Exception:
-            value = 'UNKNOWN'
-            self.log.warning(msg_error.format(axis, 'INFOB'))
-        self._cfg_ipap.set(section_name, 'INFOC', value)
-
-        # OutPos
-        try:
-            attr = 'OUTPOS'
-            value = ' '.join(self._ipap[axis].outpos)
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # OutPaux
-        try:
-            attr = 'OUTPAUX'
-            value = ' '.join(self._ipap[axis].outpaux)
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # SyncPos
-        try:
-            attr = 'SYNCPOS'
-            value = ' '.join(self._ipap[axis].syncpos)
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # SyncAux
-        try:
-            attr = 'SYNCAUX'
-            value = ' '.join(self._ipap[axis].syncaux)
-            self._cfg_ipap.set(section_name, attr, value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, attr))
-
-        # External Disable. Valid for FW < 3.15
-        try:
-            value = self._ipap[axis].send_cmd('?DISDIS')[0]
-            self._cfg_ipap.set(section_name, 'DISDIS', value)
-        except Exception:
-            self.log.warning(msg_error.format(axis, 'DISDIS'))
-
-    def save_to_file(self, filename):
-        with open(filename, 'w') as f:
+    def _save_to_file(self, filename):
+        abspath = os.path.abspath(filename)
+        self.log.info('Saving backup on: {0}'. format(abspath))
+        with open(abspath, 'w') as f:
             f.write('# File auto-generated by IcePAPBackup class.\n\n')
             self._cfg_ipap.write(f)
 
-    def add_system(self):
+    def _add_system(self):
         section_name = 'SYSTEM'
         self._cfg_ipap.add_section(section_name)
         self._cfg_ipap.set(section_name, 'HOST', self._host)
@@ -293,13 +160,13 @@ class IcePAPBackup(object):
         ver = str(self._ipap.ver['SYSTEM']['VER'][0])
         self._cfg_ipap.set(section_name, 'VERSION', ver)
 
-    def add_general(self):
+    def _add_general(self):
         section_name = 'GENERAL'
         self._cfg_ipap.add_section(section_name)
         self._cfg_ipap.set(section_name, 'DATE', time.strftime('%Y/%m/%d'))
         self._cfg_ipap.set(section_name, 'TIME', time.strftime('%H:%M:%S +%z'))
 
-    def add_controller(self):
+    def _add_controller(self):
         section_name = 'CONTROLLER'
         self._cfg_ipap.add_section(section_name)
         # Version
@@ -314,16 +181,16 @@ class IcePAPBackup(object):
     def do_backup(self, filename='', axes=[], save=True, general=True):
         axes.sort()
         if general:
-            self.add_general()
-        self.add_system()
-        self.add_controller()
+            self._add_general()
+        self._add_system()
+        self._add_controller()
         if len(axes) == 0:
             axes = self._ipap.keys()
             axes.sort()
         for axis in axes:
-            self.add_axis(axis)
+            self._add_axis(axis)
         if save:
-            self.save_to_file(filename)
+            self._save_to_file(filename)
 
     def do_check(self, axes=[]):
         self._cfg_bkp.pop('GENERAL')
@@ -344,25 +211,21 @@ class IcePAPBackup(object):
             for section in sections:
                 axis = int(section.split('_')[1])
                 axes.append(axis)
-        print('Checking IcePAP {0} axes: {1}'.format(self._host, repr(axes)))
+        self.log.info('Checking IcePAP {0} axes: {1}'.format(self._host,
+                                                             repr(axes)))
         self.do_backup(axes=axes, save=False, general=False)
+        total_diff = {}
         if self._cfg_bkp == self._cfg_ipap:
-            print('*' * 80)
-            print('DONE')
+            self.log.info('There are not difference')
         else:
             sections = self._cfg_bkp.sections()
-            total_diff = {}
             for section in sections:
                 diff = dict_cfg(self._cfg_bkp[section], self._cfg_ipap[
                     section])
                 if len(diff) > 0:
                     total_diff[section] = diff
-            print('*' * 80)
-            line = 'Differences found:\n'
-            line += '{0:<20} {1:<20} {2}'.format('Component', 'Backup',
-                                                 'IcePAP')
-            print(line)
-            print_diff(total_diff)
+            self.log.info('Differences found: {0}'.format(repr(total_diff)))
+        return total_diff
 
     def active_axes(self, axes=[]):
         sections = self._cfg_bkp.sections()
@@ -374,6 +237,6 @@ class IcePAPBackup(object):
                 active = self._cfg_bkp.getboolean(section, 'ACTIVE')
                 self._ipap[axis].send_cmd('config')
                 cfg = 'ACTIVE {0}'.format(['NO', 'YES'][active])
-                print('Axis {0}: {1}'.format(axis, cfg))
+                self.log.info('Axis {0}: {1}'.format(axis, cfg))
                 self._ipap[axis].set_cfg(cfg)
                 self._ipap[axis].send_cmd('config conf{0:03d}'.format(axis))
