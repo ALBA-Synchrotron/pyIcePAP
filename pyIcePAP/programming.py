@@ -14,7 +14,7 @@ import sys
 import time
 import array
 from pyIcePAP import EthIcePAPController
-from .communication import EthIcePAPCommunication
+
 
 __all__ = ['firmware_update']
 
@@ -103,17 +103,17 @@ def install_firmware(ice, component='ALL', force=False, saving=False,
 
 
 # TODO: Define entry point for system_update method
-def firmware_update(hostname, filename):
+def firmware_update(hostname, filename, log):
     ice = EthIcePAPController(hostname)
 
     curr_ver = ice.check_version()
-    print('Current firmware version is {}'.format(curr_ver))
+    log.info('Current firmware version is {}'.format(curr_ver))
     ice.mode = 'prog'
     load_firmware(ice, filename)
-    print('Firmware "{}" loaded to master.'.format(filename))
+    log.info('Firmware "{}" loaded to master.'.format(filename))
     new_ver = ice.ver_saved.system[0]
 
-    print('Installing version {}'.format(new_ver))
+    log.info('Installing version {}'.format(new_ver))
     if curr_ver < 3.17:
 
         install_firmware(ice, 'ALL', force=True)
@@ -128,16 +128,17 @@ def firmware_update(hostname, filename):
     while wait:
         wait = _monitor(ice)
         time.sleep(0.5)
-
     ice.reboot()
+    print('')
     # wait reboot to finish
-    print('\nWaiting for 2 min...')
-    time.sleep(120)
-    print('Connecting...')
+    for i in range(120):
+        _progress_bar(i+1, 120, 'Rebooting IcePAP')
+        time.sleep(1)
+    print('')
     ice = EthIcePAPController(hostname)
     ice.mode = 'oper'
     if ice.mode.lower() != 'oper':
-        print('[ERROR: It was not possible to set mode oper!!!]')
+        log.error('[ERROR: It was not possible to set mode oper!!!]')
         return False
-    print('[DONE]')
+    log.info('Change firmware DONE')
     return True
