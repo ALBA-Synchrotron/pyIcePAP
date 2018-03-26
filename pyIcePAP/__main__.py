@@ -72,7 +72,7 @@ def end(log, err_no=0):
     sys.exit(err_no)
 
 
-def main():
+def get_parser():
     parse = argparse.ArgumentParser('IcePAP scripts, base on ethernet '
                                     'communication')
     subps = parse.add_subparsers(help='commands')
@@ -147,17 +147,13 @@ def main():
                           type=str)
     send_cmd.add_argument('-d', '--debug', action='store_true',
                           help='Activate log level DEBUG')
-
     # -------------------------------------------------------------------------
-    args = parse.parse_args()
-    # if args.debug:
-    #     level = logging.DEBUG
-    # else:
-    #     level = logging.INFO
-    #
-    # logging.basicConfig(level=level,
-    #                     format='%(asctime)s - %(name)s - %(levelname)s - '
-    #                            '%(message)s')
+    return parse
+
+
+def main():
+    args = get_parser().parse_args()
+
     value = time.strftime('%Y%m%d_%H%m%S')
     log_file = '{0}_icepap_update.log'.format(value)
     log_file = os.path.abspath(log_file)

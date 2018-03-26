@@ -19,7 +19,9 @@ from .programming import *
 from .fwversion import *
 from .utils import *
 from .backups import *
+from .__main__ import get_parser
 
 # The version is updated automatically with bumpversion
 # Do not update manually
 version = '1.23.0-alpha'
+
