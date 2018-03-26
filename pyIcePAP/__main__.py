@@ -14,11 +14,62 @@
 
 import argparse
 import logging
+import logging.config
 import time
 import os
-from .backups import IcePAPBackup
+import sys
+from .backups import IcePAPBackup, UNKNOWN
 from .communication import EthIcePAPCommunication
 from .programming import firmware_update
+from .controller import EthIcePAPController
+
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)-8s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '',
+            'mode': 'w',
+            'encoding': 'utf-8',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'Application': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'pyIcePAP': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        }
+    }
+}
+
+
+def end(log, err_no=0):
+    log_file = LOGGING_CONFIG['handlers']['file']['filename']
+    log.info('Log saved on: {0}'.format(log_file))
+    for h in log.handlers:
+        h.flush()
+    sys.exit(err_no)
 
 
 def main():
@@ -99,56 +150,153 @@ def main():
 
     # -------------------------------------------------------------------------
     args = parse.parse_args()
-    if args.debug:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
+    # if args.debug:
+    #     level = logging.DEBUG
+    # else:
+    #     level = logging.INFO
+    #
+    # logging.basicConfig(level=level,
+    #                     format='%(asctime)s - %(name)s - %(levelname)s - '
+    #                            '%(message)s')
+    value = time.strftime('%Y%m%d_%H%m%S')
+    log_file = '{0}_icepap_update.log'.format(value)
+    log_file = os.path.abspath(log_file)
+    LOGGING_CONFIG['handlers']['file']['filename'] = log_file
+    logging.config.dictConfig(LOGGING_CONFIG)
+    log = logging.getLogger('Application')
 
-    logging.basicConfig(level=level,
-                        format='%(asctime)s - %(name)s - %(levelname)s - '
-                               '%(message)s')
+    # Save Command
     if args.which == 'save':
         if args.bkpfile == '':
             value = time.strftime('%Y%m%d_%H%m%S')
             args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
         abspath = os.path.abspath(args.bkpfile)
-        print('Saving backup on: {0}\n'.format(abspath))
-
+        log.info('Saving backup on: {0}'.format(abspath))
         ipap_bkp = IcePAPBackup(args.host, args.port, args.timeout)
         ipap_bkp.do_backup(abspath, args.axes)
+
+    # Check Command
     elif args.which == 'check':
         ipap_bkp = IcePAPBackup(host=args.host, cfg_file=args.filename)
         ipap_bkp.do_check(args.axes)
+
+    # Send Command
     elif args.which == 'send':
         ipap_com = EthIcePAPCommunication(host=args.host, port=args.port,
                                           timeout=args.timeout)
-        print(ipap_com.send_cmd(args.command))
+        log.info(ipap_com.send_cmd(args.command))
+
+    # Update Command
     elif args.which == 'update':
         if args.bkpfile == '':
             value = time.strftime('%Y%m%d_%H%m%S')
             args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
         abspath = os.path.abspath(args.bkpfile)
-        print('\nUpdating {0} with firmware file {1}'.format(args.host,
-                                                             args.fwfile))
-        print('Saving backup on: {0}\n'.format(abspath))
+        log.info('Updating {0} with firmware file {1}'.format(args.host,
+                                                              args.fwfile))
+        log.info('Saving backup on: {0}'.format(abspath))
         ipap_bkp = IcePAPBackup(host=args.host, port=args.port,
                                 timeout=args.timeout)
         ipap_bkp.do_backup(abspath)
-        print('*' * 80)
-        if firmware_update(args.host, args.fwfile):
-            print('Restore active drivers...')
-            ipap_bkp = IcePAPBackup(cfg_file=abspath)
-            ipap_bkp.active_axes()
-            if not args.nocheck:
-                print('Checking registers....')
-                ipap_bkp.do_check()
-        else:
-            print('Errors on update firmware. Skipping active and check '
-                  'driver procedure.')
-        print('*' * 80)
-        print('\nUpdated {0} with firmware file {1}'.format(args.host,
-                                                            args.fwfile))
-        print('Saved backup on: {0}\n'.format(abspath))
+        if not firmware_update(args.host, args.fwfile, log):
+            log.error('Errors on update firmware. Skipping active and check '
+                      'driver procedure.')
+            end(log, -1)
+
+        log.info('Restore active drivers...')
+        ipap_bkp = IcePAPBackup(cfg_file=abspath)
+        ipap_bkp.active_axes()
+        if args.nocheck:
+            end(log)
+
+        log.info('Checking registers....')
+        diff = ipap_bkp.do_check()
+        if len(diff) == 0:
+            log.info('Checking DONE')
+            end(log)
+
+        log.info('Auto-fix differences')
+        ipap_bkp.active_axes(force=True)
+        time.sleep(2)
+        ipap = EthIcePAPController(args.host)
+        sections = diff.keys()
+        sections.sort()
+        for section in sections:
+            if section in ['SYSTEM', 'CONTROLLER']:
+                continue
+            axis = int(section.split('_')[1])
+            registers = diff[section]
+            for register in registers:
+                if 'ver' in register:
+                    continue
+                if 'cfg' in register:
+                    continue
+                value_bkp, value_ipap = diff[section][register]
+
+                if UNKNOWN in value_bkp:
+                    continue
+
+                # Check DISDIS configuration
+                if register.lower() == 'disdis':
+                    try:
+                        if 'KeyNot' in value_bkp:
+                            # Version backup > 3
+                            value = diff[section]['cfg_extdisable'][0]
+                            if value.lower() == 'none':
+                                cmd = 'DISDIS 1'
+                            else:
+                                cmd = 'DISDIS 0'
+                            ipap[axis].send_cmd(cmd)
+                            log.info('Fixed axis {0} disdis configuration: '
+                                     'cfg_extdisable({1}) ->'
+                                     ' {2}'.format(axis, value, cmd))
+                        else:
+                            # Version backup < 3:
+                            value_bkp = eval(value_bkp)
+                            ipap[axis].send_cmd('config')
+                            value = ['Disable', 'NONE'][value_bkp]
+                            cfg = 'EXTDISABLE {0}'.format(value)
+                            ipap[axis].set_cfg(cfg)
+                            ipap[axis].send_cmd('config '
+                                                'conf{0:03d}'.format(axis))
+
+                            log.info('Fixed axis {0} disdis configuration: '
+                                     'DISDIS {1} -> '
+                                     'cfg_extdisable {2}'.format(axis,
+                                                                 value_bkp,
+                                                                 value))
+                    except Exception as e:
+                        if ipap[axis].mode != 'oper':
+                            ipap[axis].send_cmd('config')
+                        log.error('Can not fix axis {0} disdis configuration: '
+                                  'bkp({1}) icepap({2}). '
+                                  'Error {3}'.format(axis, value_bkp,
+                                                     value_ipap, e))
+
+                if 'KeyNot' in value_ipap or 'KeyNot' in value_bkp:
+                    continue
+
+                try:
+                    value = eval(value_bkp)
+                    if register == 'velocity':
+                        acctime = ipap[axis].acctime
+                        ipap[axis].velocity = value
+                        ipap[axis].acctime = acctime
+                    else:
+                        ipap[axis].__setattr__(register, value)
+
+                    log.info('Fixed axis {0} {1}: bkp({2}) '
+                             'icepap({3})'.format(axis, register,
+                                                  value_bkp, value_ipap))
+                except Exception as e:
+                    log.error('Can not fix axis {0} {1}: bkp({2}) '
+                              'icepap({3}). '
+                              'Error {4})'.format(axis, register,
+                                                  value_bkp, value_ipap,
+                                                  e))
+
+        ipap_bkp.active_axes()
+        end(log)
 
 
 if __name__ == '__main__':

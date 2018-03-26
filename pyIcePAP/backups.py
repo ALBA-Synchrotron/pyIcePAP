@@ -94,7 +94,8 @@ class IcePAPBackup(object):
             option = 'VER_{0}'.format(key)
             value = str(ver['SYSTEM']['DRIVER'][key][0])
             self._cfg_ipap.set(section_name, option, value)
-        if ver.driver < 3:
+        ver_drv = ver.driver[0]
+        if ver_drv < 3:
             self.log.info('The version {0} does not support all command.'
                           'The script will generate warning'
                           'messages'.format(ver.driver))
@@ -125,7 +126,7 @@ class IcePAPBackup(object):
         attrs.sort()
 
         for attr in attrs:
-            if attr in v3_attrs and ver.driver < 3:
+            if attr in v3_attrs and ver_drv < 3:
                 continue
             try:
                 value = self._ipap[axis].__getattribute__(attr)
@@ -136,14 +137,14 @@ class IcePAPBackup(object):
             self._cfg_ipap.set(section_name, attr, repr(value))
 
         # External Disable. Valid for FW < 3
-        if ver.driver < 3:
+        if ver_drv < 3:
             try:
-                value = self._ipap[axis].send_cmd('?DISDIS')[0]
+                value = eval(self._ipap[axis].send_cmd('?DISDIS')[0])
             except Exception as e:
                 self.log.error('Error on reading axis {0} {1}: '
                                '{2}'.format(axis, 'DISDIS', repr(e)))
                 value = UNKNOWN
-            self._cfg_ipap.set(section_name, value, repr(value))
+            self._cfg_ipap.set(section_name, 'DISDIS', repr(value))
 
     def _save_to_file(self, filename):
         abspath = os.path.abspath(filename)
@@ -227,7 +228,7 @@ class IcePAPBackup(object):
             self.log.info('Differences found: {0}'.format(repr(total_diff)))
         return total_diff
 
-    def active_axes(self, axes=[]):
+    def active_axes(self, axes=[], force=False):
         sections = self._cfg_bkp.sections()
         for section in sections:
             if section in ['GENERAL', 'SYSTEM', 'CONTROLLER']:
@@ -236,7 +237,11 @@ class IcePAPBackup(object):
             if axes == [] or axis in axes:
                 active = self._cfg_bkp.getboolean(section, 'ACTIVE')
                 self._ipap[axis].send_cmd('config')
-                cfg = 'ACTIVE {0}'.format(['NO', 'YES'][active])
+                if force:
+                    cfg = 'ACTIVE YES'
+                else:
+                    cfg = 'ACTIVE {0}'.format(['NO', 'YES'][active])
                 self.log.info('Axis {0}: {1}'.format(axis, cfg))
                 self._ipap[axis].set_cfg(cfg)
-                self._ipap[axis].send_cmd('config conf{0:03d}'.format(axis))
+                cmd = 'config conf{0:03d}'.format(axis)
+                self._ipap[axis].send_cmd(cmd)
