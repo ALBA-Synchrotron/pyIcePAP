@@ -15,7 +15,6 @@ import time
 import array
 from pyIcePAP import EthIcePAPController
 
-
 __all__ = ['firmware_update']
 
 # TODO: Review downgrade from 1.225 to 1.22 (MCPU<X> components not updated)
@@ -48,7 +47,6 @@ def load_firmware(ice, filename):
 
     :param ice: IcePAPController object.
     :param filename: firmware code.
-    :return: None
     """
     if filename:
         with open(filename, 'rb') as f:
@@ -87,7 +85,6 @@ def install_firmware(ice, component='ALL', force=False, saving=False,
     :param force: Force overwrite regardless of being idential versions.
     :param saving: Saves firmware into master board flash.
     :param filename: firmware code.
-    :return: None
     """
 
     if filename:
@@ -103,7 +100,15 @@ def install_firmware(ice, component='ALL', force=False, saving=False,
 
 
 # TODO: Define entry point for system_update method
+
 def firmware_update(hostname, filename, log):
+    """
+    Installs firmware stored in master memory to ALL system components.
+
+    :param hostname: Icepap host
+    :param filename: Firmware filename
+    :param log: Logger object
+    """
     ice = EthIcePAPController(hostname)
 
     curr_ver = ice.check_version()

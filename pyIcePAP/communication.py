@@ -32,6 +32,7 @@ __all__ = ['CommType', 'IcePAPCommunication', 'EthIcePAPCommunication']
 def comm_error_handler(f):
     """
     Error handling function (decorator).
+
     @param f: target function.
     @return: decorated function with error handling.
     """
@@ -47,16 +48,18 @@ def comm_error_handler(f):
 
 
 class CommType(object):
+    """
+    Class that defines the communication class implemented.
+    Currently supported communication layers: Serial and Socket.
+    """
     Serial = 1
     Socket = 2
 
 
-# TODO Implement logging
-
 class IcePAPCommunication(object):
     """
-    Abstract class which provides a certain communication layer to the IcePAP
-    motion controller.
+    This abstract class provides an abstraction of the communication layer
+    for the IcePAP motion controller by defining a common API.
     """
     def __init__(self, comm_type, *args, **kwargs):
         if comm_type == CommType.Serial:
@@ -70,13 +73,13 @@ class IcePAPCommunication(object):
 
     def send_cmd(self, cmd):
         """
-        Method to send commands to the IcePAP controller. Use acknowledge
-        communication. (IcePAP User Manual pag. 37)
-        :param cmd: Command without acknowledge character and carriage
-                    return (\r) and/or line feed (\n)
+        Method to send commands to the IcePAP controller. It uses acknowledge
+        communication (IcePAP User Manual pag. 37).
+
+        :param cmd: Command without acknowledge character and carriage return
+        and/or line feed.
+
         :return: None or list of string without the command and the CRLF.
-                 example: 1:move 100 -> None
-                          1:?Pos -> 100
         """
         cmd.upper().strip()
         flg_read_cmd = '?' in cmd
@@ -122,13 +125,19 @@ class IcePAPCommunication(object):
 
     def send_binary(self, ushort_data):
         """
-        Method to send a binary data to the IcePAP
-        :param ushort_data: Data converted to a unsigned short list
+        Method to send a binary data to the IcePAP controller.
+
+        :param ushort_data: Data converted to a unsigned short list.
         :return:
         """
         self._comm.send_binary(ushort_data=ushort_data)
 
     def get_comm_type(self):
+        """
+        Returns the communication type implemented in the controller.
+
+        :return: `CommType` object according to the communicationlayer defined.
+        """
         return self._comm_type
 
 
@@ -147,6 +156,12 @@ class SerialCom(Serial):
 
     @comm_error_handler
     def send_cmd(self, cmd):
+        """
+        Implementation of the API send command via Serial communication layer.
+
+        :param cmd: string Icepap command
+        :return: Raw string answer for the requested commmand.
+        """
         self.flush()
         self.write(cmd)
         time.sleep(0.02)
@@ -207,13 +222,24 @@ class SocketCom(object):
 
     @comm_error_handler
     def send_cmd(self, cmd):
+        """
+        Implementation of the API send command via Socket communication layer.
+
+        :param cmd: string Icepap command.
+        :return: Raw string answer for the requested commmand.
+        """
         wait_answer = ('#' in cmd) or ('?' in cmd)
         return self._send_data(cmd, wait_answer=wait_answer)
 
     @comm_error_handler
     def send_binary(self, ushort_data):
-        # Prepare Metadata header
+        """
+        Send data in binary mode.
 
+        :param ushort_data: binary data.
+        :return:
+        """
+        # Prepare Metadata header
         startmark = 0xa5aa555a
         nworddata = len(ushort_data)
         checksum = sum(ushort_data)
@@ -323,6 +349,10 @@ class SocketCom(object):
 
 
 class EthIcePAPCommunication(IcePAPCommunication):
+    """
+    Class implementating the socket communication layer for the Base Icepap
+    motor controller class.
+    """
     def __init__(self, host, port=5000, timeout=3):
         IcePAPCommunication.__init__(self, CommType.Socket, host=host,
                                      port=port, timeout=timeout)
