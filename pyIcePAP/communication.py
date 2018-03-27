@@ -76,9 +76,7 @@ class IcePAPCommunication(object):
         Method to send commands to the IcePAP controller. It uses acknowledge
         communication (IcePAP User Manual pag. 37).
 
-        :param cmd: Command without acknowledge character and carriage return
-        and/or line feed.
-
+        :param cmd: Command without acknowledge character and CR and/or LF.
         :return: None or list of string without the command and the CRLF.
         """
         cmd.upper().strip()
@@ -128,7 +126,6 @@ class IcePAPCommunication(object):
         Method to send a binary data to the IcePAP controller.
 
         :param ushort_data: Data converted to a unsigned short list.
-        :return:
         """
         self._comm.send_binary(ushort_data=ushort_data)
 

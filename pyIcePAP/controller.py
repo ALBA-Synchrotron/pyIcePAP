@@ -200,10 +200,9 @@ class IcePAPController(dict):
         Communication function used to send any command to the IcePAP
         controller.
 
-        :param cmd: string command following the Smaract ASCii Programming
-        Interface.
+        :param cmd: string command following the Programming Interface.
 
-        :return:
+        :return: None or list of string without the command and the CRLF.
         """
         return self._comm.send_cmd(cmd)
 
