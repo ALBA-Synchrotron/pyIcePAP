@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 # -----------------------------------------------------------------------------
-# This file is part of IcePAP (https://github.com/ALBA-Synchrotron/smaract)
+# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #

@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
@@ -9,7 +9,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from functools import wraps
 
 __all__ = ['ver122', 'ver1225', 'ver317', 'FirmwareVersion',
