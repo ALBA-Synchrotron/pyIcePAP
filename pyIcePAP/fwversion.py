@@ -140,9 +140,10 @@ class FirmwareVersion(dict):
 
         :return: bool
         """
-        return self._is_valid_system() and \
-               self._is_valid_ctrl() and \
-               self._is_valid_driver()
+        system = self._is_valid_system()
+        ctrl = self._is_valid_ctrl()
+        driver = self._is_valid_driver()
+        return system and ctrl and driver
 
     def _is_valid_system(self):
         # print('supported system', str(self['SYSTEM']['VER'][0]))
