@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
@@ -9,7 +9,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+from functools import wraps
+
 __all__ = ['ver122', 'ver1225', 'ver317', 'FirmwareVersion',
            'SUPPORTED_VERSIONS']
 
@@ -64,6 +66,7 @@ SUPPORTED_VERSIONS = {'1.22': ver122,
 
 
 def key_error(fn):
+    @wraps(fn)
     def wrapped(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
@@ -75,8 +78,8 @@ def key_error(fn):
 # TODO: improve class to restrict info for component
 class FirmwareVersion(dict):
     """
-    Class to manage the different version numbers corresponding to the
-    different components of an IcePAP system.
+    Class to manage the different version numbers for the different components
+    of the IcePAP system.
     """
     def __init__(self, data, is_axis=False):
         super(FirmwareVersion, self).__init__()
@@ -132,9 +135,15 @@ class FirmwareVersion(dict):
         return msg
 
     def is_supported(self):
-        return self._is_valid_system() and \
-               self._is_valid_ctrl() and \
-               self._is_valid_driver()
+        """
+        Returns is the system configuration is one of the supported versions.
+
+        :return: bool
+        """
+        system = self._is_valid_system()
+        ctrl = self._is_valid_ctrl()
+        driver = self._is_valid_driver()
+        return system and ctrl and driver
 
     def _is_valid_system(self):
         # print('supported system', str(self['SYSTEM']['VER'][0]))
@@ -187,49 +196,99 @@ class FirmwareVersion(dict):
     @property
     @key_error
     def system(self):
+        """
+        Returns system version.
+
+        :return: str
+        """
         return self['SYSTEM']['VER']
 
     @property
     @key_error
     def ctrl(self):
+        """
+        Returns controller version.
+
+        :return: str
+        """
         return self['SYSTEM']['CONTROLLER']['VER']
 
     @property
     @key_error
     def ctrl_dsp(self):
+        """
+        Returns Controller DSP version.
+
+        :return: str
+        """
         return self['SYSTEM']['CONTROLLER']['DSP']
 
     @property
     @key_error
     def ctrl_fpga(self):
+        """
+        Returns Controller FPGA version.
+
+        :return: str
+        """
         return self['SYSTEM']['CONTROLLER']['FPGA']
 
     @property
     @key_error
     def ctrl_mcpu0(self):
+        """
+        Returns MCPU0 version.
+
+        :return: str
+        """
         return self['SYSTEM']['CONTROLLER']['MCPU0']
 
     @property
     @key_error
     def ctrl_mcpu1(self):
+        """
+        Returns MCPU1 version.
+
+        :return: str
+        """
         return self['SYSTEM']['CONTROLLER']['MCPU1']
 
     @property
     @key_error
     def ctrl_mcpu2(self):
+        """
+        Returns MCPU2 version.
+
+        :return: str
+        """
         return self['SYSTEM']['CONTROLLER']['MCPU2']
 
     @property
     @key_error
     def driver(self):
+        """
+        Returns driver version.
+
+        :return: str
+        """
         return self['SYSTEM']['DRIVER']['VER']
 
     @property
     @key_error
     def driver_dsp(self):
+        """
+        Returns driver DSP version.
+
+        :return: str
+        """
         return self['SYSTEM']['DRIVER']['DSP']
 
     @property
     @key_error
     def driver_fpga(self):
+        """
+        Returns driver FPGS version.
+
+        :return: str
+        """
         return self['SYSTEM']['DRIVER']['FPGA']

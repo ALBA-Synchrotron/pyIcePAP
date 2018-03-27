@@ -12,7 +12,6 @@
 # -----------------------------------------------------------------------------
 
 # General additions
-# TODO: add logging
 # TODO: export non official commands as advance commands in new API
 
 # Changes to be supported from the old API
@@ -40,7 +39,7 @@ import logging
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
 from .utils import State
-from fwversion import SUPPORTED_VERSIONS, FirmwareVersion
+from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
 class IcePAPController(dict):
@@ -109,7 +108,9 @@ class IcePAPController(dict):
         Method to get the axis motor number. The input can be: string or a
         number or a list with combination of strings and numbers. The result
         depends of the number of inputs.
+
         :param alias: str or int or [str, int, ...]
+
         :return: str
         """
         if isinstance(alias, int) or isinstance(alias, str):
@@ -126,7 +127,9 @@ class IcePAPController(dict):
     def _axesvalues2str(self, axes_values, cast_type=long):
         """
         Method to convert a list of tuples (axis, pos) to a string.
+
         :param axes_values: [[str/int, float/long]]
+
         :return: str
         """
         result = ''
@@ -147,8 +150,8 @@ class IcePAPController(dict):
     @property
     def ver(self):
         """
-        Get the version of the all driver modules: Driver, DSP, FPGA, PCB, IO,
-        IcePAP user manual pag. 144
+        Get the version of the all driver modules: Driver, DSP, FPGA, PCB, IO
+        (IcePAP user manual pag. 144).
 
         :return: dict{module: (ver, date)}
         """
@@ -173,8 +176,8 @@ class IcePAPController(dict):
     @property
     def mode(self):
         """
-        Get the system mode
-        IcePAP user manual pag. 91
+        Get the system mode (IcePAP user manual pag. 91).
+
         :return: str
         """
         return self.send_cmd('?MODE')[0]
@@ -182,9 +185,9 @@ class IcePAPController(dict):
     @mode.setter
     def mode(self, value):
         """
-        Set the system mode
+        Set the system mode.
+
         :param value: str
-        :return: None
         """
         cmd = 'MODE {0}'.format(value)
         self.send_cmd(cmd)
@@ -196,19 +199,20 @@ class IcePAPController(dict):
         """
         Communication function used to send any command to the IcePAP
         controller.
-        :param cmd: string command following the Smaract ASCii Programming
-        Interface.
-        :return:
+
+        :param cmd: string command following the Programming Interface.
+
+        :return: None or list of string without the command and the CRLF.
         """
         return self._comm.send_cmd(cmd)
 
     def move(self, axes_pos, group=True, strict=False):
         """
-        Start absolute movement for axes motor. The method allows alias.
+        Start absolute movement for axes motor. The method allows aliases.
+
         :param axes_pos: [(str/int, int)]
         :param group: bool
         :param strict: bool
-        :return: None
         """
         cmd = 'MOVE {0} {1} {2}'.format(['', 'GROUP'][group],
                                         ['', 'STRICT'][strict],
@@ -217,11 +221,11 @@ class IcePAPController(dict):
 
     def rmove(self, axes_pos, group=True, strict=False):
         """
-        Start relative movement for axes motor. The method allows alias.
+        Start relative movement for axes motor. The method allows aliases.
+
         :param axes_pos: [(str/int,int)]
         :param group: bool
         :param strict: bool
-        :return: None
         """
 
         cmd = 'RMOVE {0} {1} {2}'.format(['', 'GROUP'][group],
@@ -231,12 +235,12 @@ class IcePAPController(dict):
 
     def movep(self, pos, axes, group=True, strict=False):
         """
-        Start axes movement to parameter value
+        Start axes movement to parameter value.
+
         :param pos: float
         :param axes: [str/int]
         :param group: bool
         :param strict: bool
-        :return: None
         """
 
         cmd = 'MOVEP {0} {1} {2} {3}'.format(['', 'GROUP'][group],
@@ -248,11 +252,11 @@ class IcePAPController(dict):
     def pmove(self, pos, axes, group=False, strict=False):
         """
         Start parameter movement.
+
         :param pos: float
         :param axes: [str/int]
         :param group: bool
         :param strict: bool
-        :return: None
         """
         cmd = 'PMOVE {0} {1} {2} {3}'.format(['', 'GROUP'][group],
                                              ['', 'STRICT'][strict],
@@ -262,28 +266,26 @@ class IcePAPController(dict):
 
     def stop(self, axes):
         """
-        Stop multiple axis movement
-        IcePAP user manual pag. 129
+        Stop multiple axis movement (IcePAP user manual pag. 129).
+
         :param axes: [str/int]
-        :return: None
         """
         cmd = 'STOP {0}'.format(self._alias2axisstr(axes))
         self.send_cmd(cmd)
 
     def abort(self, axes):
         """
-        Abort multiple axis movement
-        IcePAP user manual pag. 129
+        Abort multiple axis movement (IcePAP user manual pag. 129).
+
         :param axes: [str/int]
-        :return: None
         """
         cmd = 'ABORT {0}'.format(self._alias2axisstr(axes))
         self.send_cmd(cmd)
 
     def get_fpos(self, axes, register='AXIS'):
         """
-        Fast read of multiple positions
-        IcePAP user manual pag. 73
+        Fast read of multiple positions (IcePAP user manual pag. 73).
+
         :param axes: [str/int]
         :param register: str
         :return: [float]
@@ -294,8 +296,8 @@ class IcePAPController(dict):
 
     def get_fstatus(self, axes):
         """
-        Fast read of multiple status.
-        IcePAP user manual. pag. 74
+        Fast read of multiple status (IcePAP user manual pag. 74).
+
         :param axes: [str/int]
         :return: [int]
         """
@@ -306,6 +308,7 @@ class IcePAPController(dict):
     def get_states(self, axes):
         """
         Fast read of the multiples status
+
         :param axes: [str/int]
         :return: [State]
         """
@@ -314,8 +317,8 @@ class IcePAPController(dict):
 
     def get_status(self, axes):
         """
-        Read of multiple status.
-        IcePAP user manual. pag. 128
+        Read of multiple status (IcePAP user manual pag. 128).
+
         :param axes: [str/int]
         :return: [int]
         """
@@ -344,17 +347,13 @@ class IcePAPController(dict):
 
     def reboot(self):
         """
-        System reboot.
-        IcePAP user manual pag. 115
-        :return: None
+        System reboot (IcePAP user manual pag. 115).
         """
         self.send_cmd('REBOOT')
 
     def reset(self, rack_nr=None):
         """
-        Reset system or rack.
-        IcePAP user manual pag. 117
-        :return: None
+        Reset system or rack (IcePAP user manual pag. 117).
         """
         if rack_nr is None:
             rack_nr = ''
@@ -363,34 +362,33 @@ class IcePAPController(dict):
 
     def get_rid(self, rack_nrs):
         """
-        Get the rack hardware identification string.
-        IcePAP user manual pag. 118
+        Get the rack hardware identification string (IcePAP user manual pag.
+        118).
+
         :param rack_nrs: [int]
         :return: [str]
         """
-
         racks_str = ' '.join(['{0:x}'.format(i) for i in rack_nrs])
         cmd = '?RID {0}'.format(racks_str)
         return self.send_cmd(cmd)
 
     def get_rtemp(self, rack_nrs):
         """
-        Get the rack temperatures.
-        IcePAP user manual pag. 123
+        Get the rack temperatures (IcePAP user manual pag. 123).
+
         :param rack_nrs: [int]
         :return: [float]
         """
-
         racks_str = ' '.join(['{0:x}'.format(i) for i in rack_nrs])
         cmd = '?RTEMP {0}'.format(racks_str)
         return map(float, self.send_cmd(cmd))
 
     def set_power(self, axes, power_on=True):
         """
-        Set axes power state
+        Set axes power state.
+
         :param axes: [str/int]
         :param power_on: bool
-        :return: None
         """
         cmd = 'POWER {0} {1}'.format(['OFF', 'ON'][power_on],
                                      self._alias2axisstr(axes))
@@ -398,7 +396,8 @@ class IcePAPController(dict):
 
     def get_power(self, axes):
         """
-        Get axes power state
+        Get axes power state.
+
         :param axes: [str/int]
         :return: [bool]
         """
@@ -408,16 +407,15 @@ class IcePAPController(dict):
 
     def print_commands(self):
         """
-        Get the allows commands ?HELP
-        IcePAP user manual pag. 75
-        :return: None
+        Get the allowed commands (IcePAP user manual pag. 75).
         """
         ans = self.send_cmd('?HELP')
         print('\n'.join(ans))
 
     def get_pos(self, axes, register='AXIS'):
         """
-        Get multiple position
+        Get multiple position.
+
         :param axes: [str/int]
         :param register: str
         :return: [float]
@@ -428,17 +426,18 @@ class IcePAPController(dict):
 
     def set_pos(self, axes_pos, register='AXIS'):
         """
-        Set multiple positions
+        Set multiple positions.
+
         :param axes_pos: [(str/int,int)]
         :param register: str
-        :return: None
         """
         cmd = 'POS {0} {1}'.format(register, self._axesvalues2str(axes_pos))
         self.send_cmd(cmd)
 
     def get_enc(self, axes, register='AXIS'):
         """
-        Get multiple encoder
+        Get multiple encoder.
+
         :param axes: [str/int]
         :param register: str
         :return: [float]
@@ -449,17 +448,18 @@ class IcePAPController(dict):
 
     def set_enc(self, axes_pos, register='AXIS'):
         """
-        Set multiple encoder
+        Set multiple encoder.
+
         :param axes_pos: [(str/int,int)]
         :param register: str
-        :return: None
         """
         cmd = 'ENC {0} {1}'.format(register, self._axesvalues2str(axes_pos))
         self.send_cmd(cmd)
 
     def get_homestat(self, axes):
         """
-        Get home search status
+        Get home search status.
+
         :param axes: [str/int]
         :return: [(str,int)] list of Status, Direction per motor
         """
@@ -469,8 +469,7 @@ class IcePAPController(dict):
 
     def get_velocity(self, axes, vtype='NOMINAL'):
         """
-        Get multiple velocities
-        IcePAP user manual pag. 141
+        Get multiple velocities (IcePAP user manual pag. 141).
 
         :param axes: [str/int]
         :return: [float]
@@ -481,11 +480,9 @@ class IcePAPController(dict):
 
     def set_velocity(self, axes_vel):
         """
-        Set multiple velocities.
-        Icepap user manual pag. 141
+        Set multiple velocities (Icepap user manual pag. 141).
 
         :param axes_vel: [(str/int, float)]
-        :return: None
         """
         cmd = 'VELOCITY {0}'.format(self._axesvalues2str(axes_vel,
                                                          cast_type=float))
@@ -493,8 +490,7 @@ class IcePAPController(dict):
 
     def get_acctime(self, axes, atype='NOMINAL'):
         """
-        Get multiple velocities
-        IcePAP user manual pag. 141
+        Get multiple velocities (IcePAP user manual pag. 141).
 
         :param axes: [str/int]
         :return: [float]
@@ -505,11 +501,9 @@ class IcePAPController(dict):
 
     def set_acctime(self, axes_acc):
         """
-        Set multiple velocities.
-        Icepap user manual pag. 141
+        Set multiple velocities (Icepap user manual pag. 141).
 
-        :param axes_vel: [(str/int, float)]
-        :return: None
+        :param axes_acc: [(str/int, float)]
         """
         cmd = 'ACCTIME {0}'.format(self._axesvalues2str(axes_acc,
                                                         cast_type=float))
@@ -517,18 +511,18 @@ class IcePAPController(dict):
 
     def esync(self, axes):
         """
-        Synchronize internal position register for multiple axis
+        Synchronize internal position register for multiple axis.
+
         :param axes: [str/int]
-        :return: None
         """
         cmd = 'ESYNC {0}'.format(self._alias2axisstr(axes))
         self.send_cmd(cmd)
 
     def ctrlrst(self, axes):
         """
-        Reset control position register for multiple axis
+        Reset control position register for multiple axis.
+
         :param axes: [str/int]
-        :return: None
         """
         cmd = 'CTRLRST {0}'.format(self._alias2axisstr(axes))
         self.send_cmd(cmd)
@@ -536,28 +530,24 @@ class IcePAPController(dict):
     def clear_pmux(self, dest=''):
         """
         Clear the multiplexer configuration. You can pass a destination with
-        an optional signal or just the signals to remove.
+        an optional signal or just the signals to remove (IcePAP user manual,
+        page 107).
 
-        IcePAP user manual, page 107.
-
-        :param reg: node to remove
-        :return: None
+        :param dest: node to remove
         """
         cmd = 'PMUX REMOVE {0}'.format(dest)
         self.send_cmd(cmd)
 
     def add_pmux(self, source, dest='', pos=True, aux=True, hard=False):
         """
-        Configures a position signal multiplexer configuration.
-
-        IcePAP user manual, page 107.
+        Configures a position signal multiplexer configuration (IcePAP user
+        manual, page 107).
 
         :param source: Source node
         :param dest: Target node
         :param pos: Connect the Position signals
         :param aux: Connect the Auxiliary signals
         :param hard: Enabling/Disabling hard flag connection.
-        :return: None
         """
         cmd = 'PMUX {0} {1} {2} {3} {4}'.format(['', 'HARD'][hard],
                                                 ['', 'POS'][pos],
@@ -568,9 +558,8 @@ class IcePAPController(dict):
 
     def get_pmux(self):
         """
-        Returns a list of the current signals sources used as axis indexers.
-
-        IcePAP user manual, page 107.
+        Returns a list of the current signals sources used as axis indexers
+        (IcePAP user manual, page 107).
 
         :return: list of multiplexer configurations.
         """
@@ -578,10 +567,10 @@ class IcePAPController(dict):
 
     def add_alias(self, alias, axis):
         """
-        Set a alias for a axis. The axis can have more than one alias
+        Set a alias for an axis. The axis can have more than one alias.
+
         :param alias: str
         :param axis: int
-        :return: None
         """
         if alias in self._aliases:
             self._aliases.pop(alias)
@@ -590,8 +579,8 @@ class IcePAPController(dict):
     def add_aliases(self, aliases):
         """
         Set alias for mutiple axes.
+
         :param aliases: {str: int}
-        :return: None
         """
         for alias, axis in aliases.items():
             self.add_alias(alias, axis)
@@ -599,6 +588,7 @@ class IcePAPController(dict):
     def get_aliases(self):
         """
         Get the aliases of the system. One axis can have move than one alias.
+
         :return: {int:[str]}
         """
         aliases = {}
@@ -612,14 +602,12 @@ class IcePAPController(dict):
     def sprog(self, component=None, force=False, saving=False):
         """
         Firmware programming command. This command assumes that the firmware
-        code will be transferred as a binary data block.
-
-        IcePAP user manual, page 112.
+        code will be transferred as a binary data block (IcePAP user manual,
+        page 112).
 
         :param component: { NONE | board adress | DRIVERS | CONTROLLERS| ALL }
         :param force: Force overwrite regardless of being idential versions.
         :param saving: Saves firmware into master board flash.
-        :return: None
         """
         force_str = ''
         if component:
@@ -638,13 +626,11 @@ class IcePAPController(dict):
     def prog(self, component, force=False):
         """
         Firmware programming command. This command uses the firmware code
-        previously stored in the flash memory of the system master board.
-
-        IcePAP user manual, page 112.
+        previously stored in the flash memory of the system master board
+        (IcePAP user manual, page 112).
 
         :param component: { board adress | DRIVERS | CONTROLLERS| ALL }
         :param force: Force overwrite regardless of being idential versions.
-        :return: None
         """
         force_str = ''
         if force:
@@ -657,9 +643,8 @@ class IcePAPController(dict):
 
     def get_prog_status(self):
         """
-        Request the state of the firmware programing operations.
-
-        IcePAP user manual, page 112.
+        Request the state of the firmware programing operations (IcePAP user
+        manual, page 112).
 
         :return: { OFF | ACTIVE <progress> | DONE | ERROR }
         """
@@ -671,6 +656,10 @@ class IcePAPController(dict):
 
 
 class EthIcePAPController(IcePAPController):
+    """
+    This class implements the sockry communication layer for the IcePAP motor
+    controller inhereted from IcePAPController class.
+    """
     def __init__(self, host, port=5000, timeout=3):
         IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
                                   timeout=timeout)

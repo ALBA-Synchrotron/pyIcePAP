@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of IcePAP (https://github.com/ALBA-Synchrotron/smaract)
+# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -19,6 +19,7 @@ from .programming import *
 from .fwversion import *
 from .utils import *
 from .backups import *
+from .__main__ import get_parser
 
 # The version is updated automatically with bumpversion
 # Do not update manually
