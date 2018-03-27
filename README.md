@@ -1,19 +1,8 @@
-How to define an python profile based on pyIcePAP module
---------------------------------------------------------
+# pyIcePAP
 
-Following these steps you will create an ipython profile for easy access to an IncePAP system.
-The profile exposes several monitor and configuration functions.
+pyIcePAP is a python module to configure, control and monitor IcePAP based systems.
 
-1. Create a default ipython profile name ipapconsole (for instance):
+The documentation has been created by using [sphinx](http://www.sphinx-doc.org/en/stable/)
+You can create the documentation by:
 
-        ipython profile create ipapconsole
-
-2. Open the profile_ipapconsole/ipython_config.py and add the lines:
-
-        from pkg_resources import resource_filename
-        c.InteractiveShellApp.exec_files = [resource_filename('pyIcePAP', 'ipapconsole.ipy')]
-
-3. Then you can load the profile by:
-
-        ipython --profile=ipapconsole
- 
+    python setup.py install build_sphinx
