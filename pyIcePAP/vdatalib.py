@@ -153,6 +153,9 @@ class vdata(object):
         else:
             firstval = 0
 
+        if format not in [FLOAT, DFLOAT]:
+            data = map(long, data)
+
         header_size = struct.calcsize(self.__header_format)
         full_size = header_size + struct.calcsize(dformat)
         if full_size % 4:
@@ -174,7 +177,7 @@ class vdata(object):
             flags,             # format + address
             firstval           # first data value for incremental coding
             )
-        struct.pack_into(dformat, bin_column, header_size, *data)
+        struct.pack_into(dformat, bin_column, int(header_size), *data)
 
         # append the byte array
         self._bytearray += bin_column
@@ -203,7 +206,7 @@ class vdata(object):
         if log.level() >= log.DBG_DATA:
             log.trace("data vector contains:")
             n = self.bin()
-            print ' '.join('0x{0:02x}'.format(x & 0xff) for x in n)
+            print(' '.join('0x{0:02x}'.format(x & 0xff) for x in n))
 
         # minimum check
         header_size = struct.calcsize(self.__header_format)

@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
@@ -6,7 +6,10 @@
 # Distributed under the terms of the GNU General Public License,
 # either version 3 of the License, or (at your option) any later version.
 # See LICENSE.txt for more info.
-# ------------------------------------------------------------------------------
+#
+# You should have received a copy of the GNU General Public License
+# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# -----------------------------------------------------------------------------
 
 __all__ = ["IcepapInfo", "IcepapRegisters", "IcepapStatus",
            "IcepapTrackMode", "IcepapAnswers", "IcepapMode"]
@@ -286,3 +289,35 @@ class IcepapStatus:
         val = register >> 24
         val = val & 255
         return val
+
+
+def deprecated(alt=None):
+    """
+    Deprecation function (decorator) to mark future deprecated methods.
+    @param alt: Alternative command in the new API.
+    @return: decorated function with a deprecation message.
+    """
+    def _deprecated(f):
+        from inspect import isclass, isfunction
+        import warnings
+        warnings.simplefilter("always")
+        # Force warnings.warn() to omit the source code line in the message
+        formatwarning_orig = warnings.formatwarning
+        warnings.formatwarning = lambda msg, cat, fname, lineno, line=None: \
+            formatwarning_orig(msg, cat, fname, lineno, line='')
+
+        def new_func(*args, **kwargs):
+            if isfunction(f):
+                obj_type = 'method'
+            elif isclass(f):
+                obj_type = 'class'
+            else:
+                msg = "Decorated object is not a class nor a function."
+                raise RuntimeError(msg)
+            msg = "%s <%s> will be deprecated soon. " % (obj_type, f.__name__)
+            msg += "Use new API %s <%s> instead." % (obj_type, alt)
+            warnings.warn(msg, PendingDeprecationWarning, stacklevel=0)
+            ans = f(*args, **kwargs)
+            return ans
+        return new_func
+    return _deprecated

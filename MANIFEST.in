@@ -1,0 +1,18 @@
+recursive-include *.py
+
+graft doc/source
+graft build/sphinx/html
+
+global-exclude *.pyc .cvsignore .svnignore .gitignore
+exclude setup.cfg
+exclude .idea
+exclude .project
+exclude .pydevproject
+exclude .ropeproject
+exclude .travis.yml
+exclude .flake8
+exclude .bumpversion.cfg
+exclude build_*
+
+include CHANGELOG.md
+include LICENSE.txt

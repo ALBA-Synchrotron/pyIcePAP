@@ -10,17 +10,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
-
-# TODO: better use the __all__ = [...] structure
-from .legacy import *
-from .communication import EthIcePAPCommunication
-from .controller import EthIcePAPController
-from .programming import *
-from .fwversion import *
-from .utils import *
-from .backups import *
-from .__main__ import get_parser
-
-# The version is updated automatically with bumpversion
-# Do not update manually
-version = '1.23.0-alpha'
+from .IcePAP_Eth import *
+from .IcePAP_Serial import *
+from .IcePAP import *
+from .icepapdef import *

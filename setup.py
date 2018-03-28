@@ -6,7 +6,7 @@ from setuptools import find_packages
 # Do not update manually
 __version = '1.23.0-alpha' 
 
-#windows installer:
+# windows installer:
 # python setup.py bdist_wininst
 
 # patch distutils if it can't cope with the "classifiers" or
@@ -21,13 +21,13 @@ setup(
     version=__version,
     author="Guifre Cuni",
     author_email="guifre.cuni@cells.es",
-    url="",
+    url="https://github.com/ALBA-Synchrotron/pyIcePAP",
     packages=find_packages(),
     package_data={'': package_list},
     include_package_data=True,
     license="Python",
     long_description="Python IcePAP Extension for Win32, Linux, BSD, Jython",
-    classifiers = [
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
@@ -39,4 +39,9 @@ setup(
         'Topic :: Communications',
         'Topic :: Software Development :: Libraries',
     ],
+    entry_points={
+        'console_scripts': [
+            'pyIcePAP = pyIcePAP.__main__:main',
+        ]
+    }
 )
