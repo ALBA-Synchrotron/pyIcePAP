@@ -6,7 +6,7 @@
 Welcome to pyIcePAP's documentation!
 =====================================
 
-.. image:: _images/IcePAP_3D.png
+.. image:: _static/IcePAP_3D.png
    :scale: 50%
 
 **pyIcePAP** is python library (written in python 2.7) that provides access
