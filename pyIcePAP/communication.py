@@ -116,7 +116,9 @@ class IcePAPCommunication(object):
             else:
                 ans = ans.split('\r\n')[0]
                 result = ans.split()[1:]
-                if result[0] == 'ERROR':
+                if len(result) == 0:
+                    result = None
+                elif result[0] == 'ERROR':
                     raise RuntimeError(msg.format(ans))
 
         return result

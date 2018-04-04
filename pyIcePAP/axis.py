@@ -468,7 +468,10 @@ class IcePAPAxis(object):
 
         :return: str
         """
-        return self.send_cmd('?NAME')[0]
+        value = self.send_cmd('?NAME')
+        if isinstance(value, list):
+            value = value[0]
+        return value
 
     @name.setter
     def name(self, value):
