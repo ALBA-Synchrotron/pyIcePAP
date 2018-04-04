@@ -17,7 +17,7 @@ import configparser
 import time
 import logging
 import os
-from pyIcePAP import EthIcePAPController, Registers
+from pyIcePAP import EthIcePAPController
 
 
 KEYNOTFOUNDIN1 = 'KeyNotFoundInBackup'       # KeyNotFound for dictDiff

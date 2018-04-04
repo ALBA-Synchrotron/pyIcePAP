@@ -18,10 +18,10 @@ import logging.config
 import time
 import os
 import sys
-from .backups import IcePAPBackup, UNKNOWN
+from .backups import IcePAPBackup
 from .communication import EthIcePAPCommunication
 from .programming import firmware_update
-from .controller import EthIcePAPController
+
 
 LOGGING_CONFIG = {
     'version': 1,
