@@ -23,4 +23,4 @@ from .__main__ import get_parser
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-version = '2.1.0'
+version = '2.1.1'
