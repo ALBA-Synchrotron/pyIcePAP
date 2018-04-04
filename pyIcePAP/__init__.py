@@ -19,7 +19,7 @@ from .controller import EthIcePAPController
 from .fwversion import *
 from .utils import *
 # from .backups import *
-from .__main__ import get_parser
+# from .__main__ import get_parser
 
 # The version is updated automatically with bumpversion
 # Do not update manually
