@@ -21,6 +21,7 @@ import sys
 from .backups import IcePAPBackup
 from .communication import EthIcePAPCommunication
 from .programming import firmware_update
+from .__init__ import version
 
 
 LOGGING_CONFIG = {
@@ -73,15 +74,23 @@ def end(log, err_no=0):
 
 
 def get_parser():
-    parse = argparse.ArgumentParser('IcePAP scripts, base on ethernet '
-                                    'communication')
+    desc = 'IcePAP scripts, base on ethernet communication\n'
+    desc += 'Version: {}.\n'.format(version)
+    epi = 'Documentation: https://alba-synchrotron.github.io/pyIcePAP-doc/\n'
+    epi += 'Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain.'
+    fmt = argparse.RawTextHelpFormatter
+    parse = argparse.ArgumentParser(description=desc,
+                                    formatter_class=fmt,
+                                    epilog=epi)
+    ver = '%(prog)s {0}'.format(version)
+    parse.add_argument('--version', action='version', version=ver)
     subps = parse.add_subparsers(help='commands')
 
     # -------------------------------------------------------------------------
     #                           Backup commands
     # -------------------------------------------------------------------------
     # Save backup command
-    save_cmd = subps.add_parser('save', help='Command to save the '
+    save_cmd = subps.add_parser('save', help='Save the '
                                              'configuration to a file')
     save_cmd.set_defaults(which='save')
     save_cmd.add_argument('host', help='IcePAP Host')
@@ -95,7 +104,7 @@ def get_parser():
                           help='Activate log level DEBUG')
 
     # Check backup command
-    check_cmd = subps.add_parser('check', help='Command to check the '
+    check_cmd = subps.add_parser('check', help='Check the '
                                                'IcePAP configuration for a '
                                                'backup file')
     check_cmd.set_defaults(which='check')
@@ -113,7 +122,7 @@ def get_parser():
     #                           Firmware commands
     # -------------------------------------------------------------------------
     # Update
-    update_cmd = subps.add_parser('update', help='Command to change the '
+    update_cmd = subps.add_parser('update', help='Change the '
                                                  'firmware version. It '
                                                  'creates a backup before to '
                                                  'change the FW')
@@ -133,7 +142,7 @@ def get_parser():
                             help='Activate log level DEBUG')
 
     # Autofix
-    autofix_cmd = subps.add_parser('autofix', help='Command to autofix a driver '
+    autofix_cmd = subps.add_parser('autofix', help='Autofix a driver '
                                                    'configuration')
     autofix_cmd.set_defaults(which='autofix')
     autofix_cmd.add_argument('host', help='IcePAP Host')
@@ -154,7 +163,7 @@ def get_parser():
     #                           IcePAP commands
     # -------------------------------------------------------------------------
     # Send raw command
-    send_cmd = subps.add_parser('send', help='Command to send IcePAP raw '
+    send_cmd = subps.add_parser('send', help='Send IcePAP raw '
                                              'commands')
 
     send_cmd.set_defaults(which='send')
