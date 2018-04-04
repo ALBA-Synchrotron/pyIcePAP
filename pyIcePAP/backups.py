@@ -217,7 +217,7 @@ class IcePAPBackup(object):
         self.do_backup(axes=axes, save=False, general=False)
         total_diff = {}
         if self._cfg_bkp == self._cfg_ipap:
-            self.log.info('There are not difference')
+            self.log.info('No differences found')
         else:
             sections = self._cfg_bkp.sections()
             for section in sections:
@@ -227,6 +227,91 @@ class IcePAPBackup(object):
                     total_diff[section] = diff
             self.log.info('Differences found: {0}'.format(repr(total_diff)))
         return total_diff
+
+    def do_autofix(self, diff):
+        """
+        Solve inconsistentcies in IcePAP configuration registers.
+
+        :param diff: Differences dictiomnary.
+        :return:
+        """
+        self.active_axes(force=True)
+        time.sleep(2)
+        sections = diff.keys()
+        sections.sort()
+        for section in sections:
+            if section in ['SYSTEM', 'CONTROLLER']:
+                continue
+            axis = int(section.split('_')[1])
+            registers = diff[section]
+            for register in registers:
+                if 'ver' in register:
+                    continue
+                if 'cfg' in register:
+                    continue
+                value_bkp, value_ipap = diff[section][register]
+
+                if UNKNOWN in value_bkp:
+                    continue
+
+                # Check DISDIS configuration
+                if register.lower() == 'disdis':
+                    try:
+                        if 'KeyNot' in value_bkp:
+                            # Version backup > 3
+                            value = diff[section]['cfg_extdisable'][0]
+                            if value.lower() == 'none':
+                                cmd = 'DISDIS 1'
+                            else:
+                                cmd = 'DISDIS 0'
+                            self._ipap[axis].send_cmd(cmd)
+                            self.log.info('Fixed axis {0} disdis '
+                                          'configuration: cfg_extdisable({1})'
+                                          ' -> {2}'.format(axis, value, cmd))
+                        else:
+                            # Version backup < 3:
+                            value_bkp = eval(value_bkp)
+                            self._ipap[axis].send_cmd('config')
+                            value = ['Disable', 'NONE'][value_bkp]
+                            cfg = 'EXTDISABLE {0}'.format(value)
+                            self._ipap[axis].set_cfg(cfg)
+                            cmd_str = 'config conf{0:03d}'.format(axis)
+                            self._ipap[axis].send_cmd(cmd_str)
+
+                            self.log.info('Fixed axis {0} disdis '
+                                          'configuration: DISDIS {1} -> '
+                                          'cfg_extdisable {2}'
+                                          .format(axis, value_bkp, value))
+                    except Exception as e:
+                        if self._ipap[axis].mode != 'oper':
+                            self._ipap[axis].send_cmd('config')
+                        self.log.error('Cannot fix axis {0} disdis '
+                                       'configuration: bkp({1}) icepap({2}).'
+                                       ' Error {3}'.format(axis, value_bkp,
+                                                           value_ipap, e))
+
+                if 'KeyNot' in value_ipap or 'KeyNot' in value_bkp:
+                    continue
+
+                try:
+                    value = eval(value_bkp)
+                    if register == 'velocity':
+                        acctime = self._ipap[axis].acctime
+                        self._ipap[axis].velocity = value
+                        self._ipap[axis].acctime = acctime
+                    else:
+                        self._ipap[axis].__setattr__(register, value)
+
+                    self.log.info('Fixed axis {0} {1}: bkp({2}) '
+                                  'icepap({3})'.format(axis, register,
+                                                       value_bkp, value_ipap))
+                except Exception as e:
+                    self.log.error('Cannot fix axis {0} {1}: bkp({2}) '
+                                   'icepap({3}). '
+                                   'Error {4})'.format(axis, register,
+                                                       value_bkp, value_ipap,
+                                                       e))
+        self.active_axes()
 
     def active_axes(self, axes=[], force=False):
         sections = self._cfg_bkp.sections()

@@ -132,6 +132,24 @@ def get_parser():
     update_cmd.add_argument('-d', '--debug', action='store_true',
                             help='Activate log level DEBUG')
 
+    # Autofix
+    autofix_cmd = subps.add_parser('autofix', help='Command to autofix a driver '
+                                                   'configuration')
+    autofix_cmd.set_defaults(which='autofix')
+    autofix_cmd.add_argument('host', help='IcePAP Host')
+    autofix_cmd.add_argument('-p', '--port', default=5000, help='IcePAP port')
+    autofix_cmd.add_argument('-t', '--timeout', default=3,
+                             help='Socket timeout')
+    autofix_cmd.add_argument('--bkpfile', help='Output backup filename',
+                             default='')
+    autofix_cmd.add_argument('--no-check',
+                             help='Avoid the checking procedure after the '
+                                  'update',
+                             dest='nocheck')
+    autofix_cmd.add_argument('loadfile', help='backup to load')
+    autofix_cmd.add_argument('-d', '--debug', action='store_true',
+                             help='Activate log level DEBUG')
+
     # -------------------------------------------------------------------------
     #                           IcePAP commands
     # -------------------------------------------------------------------------
@@ -208,90 +226,33 @@ def main():
         log.info('Checking registers....')
         diff = ipap_bkp.do_check()
         if len(diff) == 0:
-            log.info('Checking DONE')
+            log.info('No differences found')
             end(log)
 
-        log.info('Auto-fix differences')
-        ipap_bkp.active_axes(force=True)
-        time.sleep(2)
-        ipap = EthIcePAPController(args.host)
-        sections = diff.keys()
-        sections.sort()
-        for section in sections:
-            if section in ['SYSTEM', 'CONTROLLER']:
-                continue
-            axis = int(section.split('_')[1])
-            registers = diff[section]
-            for register in registers:
-                if 'ver' in register:
-                    continue
-                if 'cfg' in register:
-                    continue
-                value_bkp, value_ipap = diff[section][register]
+        log.info('Fixing differences')
+        ipap_bkp.do_autofix(diff)
+        end(log)
 
-                if UNKNOWN in value_bkp:
-                    continue
+    elif args.which == 'autofix':
 
-                # Check DISDIS configuration
-                if register.lower() == 'disdis':
-                    try:
-                        if 'KeyNot' in value_bkp:
-                            # Version backup > 3
-                            value = diff[section]['cfg_extdisable'][0]
-                            if value.lower() == 'none':
-                                cmd = 'DISDIS 1'
-                            else:
-                                cmd = 'DISDIS 0'
-                            ipap[axis].send_cmd(cmd)
-                            log.info('Fixed axis {0} disdis configuration: '
-                                     'cfg_extdisable({1}) ->'
-                                     ' {2}'.format(axis, value, cmd))
-                        else:
-                            # Version backup < 3:
-                            value_bkp = eval(value_bkp)
-                            ipap[axis].send_cmd('config')
-                            value = ['Disable', 'NONE'][value_bkp]
-                            cfg = 'EXTDISABLE {0}'.format(value)
-                            ipap[axis].set_cfg(cfg)
-                            ipap[axis].send_cmd('config '
-                                                'conf{0:03d}'.format(axis))
+        if args.bkpfile == '':
+            value = time.strftime('%Y%m%d_%H%m%S')
+            args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
+        abspath = os.path.abspath(args.bkpfile)
+        log.info('Saving backup on: {0}'.format(abspath))
+        ipap_bkp = IcePAPBackup(host=args.host, port=args.port,
+                                timeout=args.timeout)
+        ipap_bkp.do_backup(abspath)
 
-                            log.info('Fixed axis {0} disdis configuration: '
-                                     'DISDIS {1} -> '
-                                     'cfg_extdisable {2}'.format(axis,
-                                                                 value_bkp,
-                                                                 value))
-                    except Exception as e:
-                        if ipap[axis].mode != 'oper':
-                            ipap[axis].send_cmd('config')
-                        log.error('Can not fix axis {0} disdis configuration: '
-                                  'bkp({1}) icepap({2}). '
-                                  'Error {3}'.format(axis, value_bkp,
-                                                     value_ipap, e))
+        ipap_bkp = IcePAPBackup(host=args.host, cfg_file=args.loadfile)
+        log.info('Checking registers....')
+        diff = ipap_bkp.do_check()
+        if len(diff) == 0:
+            log.info('No differences found')
+            end(log)
 
-                if 'KeyNot' in value_ipap or 'KeyNot' in value_bkp:
-                    continue
-
-                try:
-                    value = eval(value_bkp)
-                    if register == 'velocity':
-                        acctime = ipap[axis].acctime
-                        ipap[axis].velocity = value
-                        ipap[axis].acctime = acctime
-                    else:
-                        ipap[axis].__setattr__(register, value)
-
-                    log.info('Fixed axis {0} {1}: bkp({2}) '
-                             'icepap({3})'.format(axis, register,
-                                                  value_bkp, value_ipap))
-                except Exception as e:
-                    log.error('Can not fix axis {0} {1}: bkp({2}) '
-                              'icepap({3}). '
-                              'Error {4})'.format(axis, register,
-                                                  value_bkp, value_ipap,
-                                                  e))
-
-        ipap_bkp.active_axes()
+        log.info('Fixing differences')
+        ipap_bkp.do_autofix(args.axes)
         end(log)
 
 
