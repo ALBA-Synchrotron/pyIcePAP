@@ -116,7 +116,10 @@ def firmware_update(hostname, filename, log):
     ice.mode = 'prog'
     load_firmware(ice, filename)
     log.info('Firmware "{}" loaded to master.'.format(filename))
-    new_ver = ice.ver_saved.system[0]
+    try:
+        new_ver = ice.ver_saved.system[0]
+    except Exception:
+        new_ver = -1
 
     log.info('Installing version {}'.format(new_ver))
     if curr_ver < 3.17:
