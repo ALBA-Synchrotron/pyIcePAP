@@ -15,10 +15,10 @@
 from .legacy import *
 from .communication import EthIcePAPCommunication
 from .controller import EthIcePAPController
-from .programming import *
+# from .programming import *
 from .fwversion import *
 from .utils import *
-from .backups import *
+# from .backups import *
 from .__main__ import get_parser
 
 # The version is updated automatically with bumpversion
