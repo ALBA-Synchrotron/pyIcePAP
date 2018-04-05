@@ -23,4 +23,4 @@ from .utils import *
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-version = '2.1.4'
+version = '2.2.0'
