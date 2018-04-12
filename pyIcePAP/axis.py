@@ -13,7 +13,8 @@
 
 import weakref
 import struct
-from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE
+from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE, DWORD, \
+    FLOAT
 from .utils import State
 from .fwversion import FirmwareVersion
 
@@ -1725,21 +1726,26 @@ class IcePAPAxis(object):
         cmd = '?LISTDAT {0} {1}'
         return self._get_dump_table(cmd, dtype)
 
-    def set_parametric_table(self, lparam, lpos, lslope=None, mode='SPLINE'):
+    def set_parametric_table(self, lparam, lpos, lslope=None, mode='SPLINE',
+                             param_type=FLOAT, pos_type=DWORD,
+                             slope_type=FLOAT):
         """
         Method to set the parametric trajectory data (IcePAP user manual
         pag. 100).
 
         :param lparam: [float]
-        :param lpos: [float]
+        :param lpos: [long]
         :param lslope: [float]
         :param mode: str [Linear, Spline, Cyclic]'
+        :param param_type: str (Global Definitions in pyIcePAP.vdatalib)
+        :param pos_type: str (Global Definitions in pyIcePAP.vdatalib)
+        :param slope_type: str (Global Definitions in pyIcePAP.vdatalib)
         """
         data = vdata()
-        data.append(lparam, ADDRUNSET, PARAMETER)
-        data.append(lpos, self._axis_nr, POSITION)
+        data.append(lparam, ADDRUNSET, PARAMETER, format=param_type)
+        data.append(lpos, self._axis_nr, POSITION, format=pos_type)
         if lslope is not None:
-            data.append(lslope, self.addr, SLOPE)
+            data.append(lslope, self.addr, SLOPE, format=slope_type)
 
         bin_data = data.bin().flatten()
         lushorts = self.get_ushort_list(bin_data, dtype='BYTE')
