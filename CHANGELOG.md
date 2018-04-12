@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!--## [Unreleased] -->
 <!--### Added -->
+## [2.3.0] - 2018-04-12
+
+### Added
+- Allow to change the data format of the parameter, slope and motor position
+ tables.
+
 ## [2.2.0] - 2018-04-05
 For a full log of commits between versions run (in your git repo):
 `git log 2.0.0..2.2.0`
@@ -51,7 +57,8 @@ For a full log of commits between versions run (in your git repo):
 Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
-[Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...HEAD
+[Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.0.0...2.2.0
 [2.0.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/1.22.0...2.0.0
 [1.22.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/tree/1.22.0
