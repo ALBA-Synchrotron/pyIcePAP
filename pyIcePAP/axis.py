@@ -1780,17 +1780,17 @@ class IcePAPAxis(object):
             start_pos += MAX_SUBSET_SIZE
             for raw_value in raw_values:
                 param, pos, slope = raw_value.strip().split()
-                lparam.append(param)
-                lpos.append(pos)
-                lslope.append(slope)
+                lparam.append(float(param))
+                lpos.append(float(pos))
+                lslope.append(float(slope))
         if (nr_points % MAX_SUBSET_SIZE) > 0:
             last_points = nr_points - start_pos
             raw_values = self.send_cmd(cmd.format(start_pos, last_points))
             for raw_value in raw_values:
                 param, pos, slope = raw_value.strip().split()
-                lparam.append(param)
-                lpos.append(pos)
-                lslope.append(slope)
+                lparam.append(float(param))
+                lpos.append(float(pos))
+                lslope.append(float(slope))
 
         return lparam, lpos, lslope
 
