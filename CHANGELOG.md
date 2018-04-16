@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!--## [Unreleased] -->
 <!--### Added -->
+
+## [2.3.1] - 2018-04-16
+
+### Fixed
+- Correct the return value of the get_parametric_table method.  
+
 ## [2.3.0] - 2018-04-12
 
 ### Added
@@ -57,7 +63,8 @@ For a full log of commits between versions run (in your git repo):
 Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
-[Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.0...HEAD
+[Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[2.3.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.0.0...2.2.0
 [2.0.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/1.22.0...2.0.0
