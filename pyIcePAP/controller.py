@@ -49,10 +49,20 @@ class IcePAPController(dict):
 
     def __init__(self, comm_type, *args, **kwargs):
         dict.__init__(self)
-        self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
-        self._aliases = {}
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
+        self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
+        # TODO: Find solution for serial communication.
+        if not self.connected:
+            if 'host' in kwargs:
+                host = kwargs['host']
+            else:
+                host = args[0]
+            error_msg = 'Can not connect to {0}. Check if the IcePAP ' \
+                        'is ON.'.format(host)
+            self.log.error(error_msg)
+            raise RuntimeError(error_msg)
+        self._aliases = {}
         ver = self.ver.driver[0]
         if ver >= 3:
             self._new_api = True
