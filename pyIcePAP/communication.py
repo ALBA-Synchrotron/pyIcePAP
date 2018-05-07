@@ -262,7 +262,7 @@ class SocketCom(object):
 
     def _try_to_connect(self, wait=True):
         self._connected = False
-        sleep_time = self._timeout / 10
+        sleep_time = self._timeout / 10.0
         if self._socket is not None:
             try:
                 self._socket.close()
