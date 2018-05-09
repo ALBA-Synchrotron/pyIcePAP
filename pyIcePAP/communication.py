@@ -212,7 +212,7 @@ class SocketCom(object):
         self._lock = Lock()
         self._stop_thread = False
         self._connect_thread = None
-        self._start_thread()
+        self._start_thread(wait=False)
         self._connect_thread.join()
 
     def __del__(self):
@@ -253,15 +253,16 @@ class SocketCom(object):
                                           str_maskedchksum, str_data)
         self._send_data(str_bin, wait_answer=False)
 
-    def _start_thread(self):
+    def _start_thread(self, wait=True):
         self.log.debug('Start thread {0}'.format(self._connect_thread))
-        self._connect_thread = Thread(target=self._try_to_connect)
+        self._connect_thread = Thread(target=self._try_to_connect,
+                                      args=[wait])
         self._connect_thread.setDaemon(True)
         self._connect_thread.start()
 
-    def _try_to_connect(self):
+    def _try_to_connect(self, wait=True):
         self._connected = False
-        sleep_time = self._timeout / 10
+        sleep_time = self._timeout / 10.0
         if self._socket is not None:
             try:
                 self._socket.close()
@@ -279,6 +280,8 @@ class SocketCom(object):
                 break
             except Exception:
                 self.log.debug('Fail to connect', exc_info=True)
+                if not wait:
+                    break
                 time.sleep(sleep_time)
 
     def _send_data(self, raw_data, wait_answer=True, size=8192):
