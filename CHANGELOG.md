@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
+
+## [2.3.2] - 2018-05-09
+
+### Fixed
+- Protect connection to one IcePAP OFF.
+
 ## [2.3.1] - 2018-04-16
 
 ### Fixed
