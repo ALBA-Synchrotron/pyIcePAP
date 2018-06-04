@@ -237,18 +237,22 @@ class IcePAPBackup(object):
         """
         self.active_axes(force=True)
         time.sleep(2)
-        sections = diff.keys()
-        sections.sort()
+        sections = list(diff.keys())
+        axes = []
         for section in sections:
-            if section in ['SYSTEM', 'CONTROLLER']:
-                continue
-            axis = int(section.split('_')[1])
+            if 'AXIS_' in section:
+                axis = int(section.split('_')[1])
+                axes.append(axis)
+        axes.sort()
+        for axis in axes:
+            section = 'AXIS_{0}'.format(axis)
             registers = diff[section]
             for register in registers:
                 if 'ver' in register:
                     continue
                 if 'cfg' in register:
                     continue
+
                 value_bkp, value_ipap = diff[section][register]
 
                 if UNKNOWN in value_bkp:
