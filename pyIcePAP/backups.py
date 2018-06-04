@@ -293,6 +293,18 @@ class IcePAPBackup(object):
                 if 'KeyNot' in value_ipap or 'KeyNot' in value_bkp:
                     continue
 
+                if register.startswith('enc') and register != 'enc_encin':
+                    self.log.info('Skip axis {0} {1}: bkp({2}) '
+                                  'icepap({3})'.format(axis, register,
+                                                       value_bkp, value_ipap))
+                    continue
+                if register.startswith('pos'):
+                    self.log.info('Skip axis {0} {1}: bkp({2}) '
+                                  'icepap({3})'.format(axis, register,
+                                                       value_bkp,
+                                                       value_ipap))
+                    continue
+
                 try:
                     value = eval(value_bkp)
                     if register == 'velocity':
