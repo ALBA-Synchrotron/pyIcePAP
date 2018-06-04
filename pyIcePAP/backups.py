@@ -230,7 +230,7 @@ class IcePAPBackup(object):
 
     def do_autofix(self, diff):
         """
-        Solve inconsistentcies in IcePAP configuration registers.
+        Solve inconsistencies in IcePAP configuration registers.
 
         :param diff: Differences dictiomnary.
         :return:
