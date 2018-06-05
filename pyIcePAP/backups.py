@@ -230,25 +230,29 @@ class IcePAPBackup(object):
 
     def do_autofix(self, diff):
         """
-        Solve inconsistentcies in IcePAP configuration registers.
+        Solve inconsistencies in IcePAP configuration registers.
 
         :param diff: Differences dictiomnary.
         :return:
         """
         self.active_axes(force=True)
         time.sleep(2)
-        sections = diff.keys()
-        sections.sort()
+        sections = list(diff.keys())
+        axes = []
         for section in sections:
-            if section in ['SYSTEM', 'CONTROLLER']:
-                continue
-            axis = int(section.split('_')[1])
+            if 'AXIS_' in section:
+                axis = int(section.split('_')[1])
+                axes.append(axis)
+        axes.sort()
+        for axis in axes:
+            section = 'AXIS_{0}'.format(axis)
             registers = diff[section]
             for register in registers:
                 if 'ver' in register:
                     continue
                 if 'cfg' in register:
                     continue
+
                 value_bkp, value_ipap = diff[section][register]
 
                 if UNKNOWN in value_bkp:
@@ -291,6 +295,19 @@ class IcePAPBackup(object):
                                                            value_ipap, e))
 
                 if 'KeyNot' in value_ipap or 'KeyNot' in value_bkp:
+                    continue
+
+                if register.startswith('enc') and register != 'enc_encin':
+                    self.log.warning('Skip axis {0} {1}: bkp({2}) '
+                                     'icepap({3})'.format(axis, register,
+                                                          value_bkp,
+                                                          value_ipap))
+                    continue
+                if register.startswith('pos'):
+                    self.log.warning('Skip axis {0} {1}: bkp({2}) '
+                                     'icepap({3})'.format(axis, register,
+                                                          value_bkp,
+                                                          value_ipap))
                     continue
 
                 try:
