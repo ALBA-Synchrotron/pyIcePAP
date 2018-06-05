@@ -8,27 +8,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--### Added -->
 
 
-## [2.3.3] - 2018-06-05
-
-### Fixed
-- Change autofix method.
-
-
-## [2.3.2] - 2018-05-09
-
-### Fixed
-- Protect connection to one IcePAP OFF.
-
-## [2.3.1] - 2018-04-16
-
-### Fixed
-- Correct the return value of the get_parametric_table method.  
-
-## [2.3.0] - 2018-04-12
+## [2.3.X] 
 
 ### Added
 - Allow to change the data format of the parameter, slope and motor position
  tables.
+
+### Fixed
+- Correct the return value of the get_parametric_table method.  
+- Protect connection to one IcePAP OFF.
+- Change autofix method used on pyIcePAP update command to do not restore 
+the encoders and positions registers.
+- Add protection on the firmware version reading.
+
 
 ## [2.2.0] - 2018-04-05
 For a full log of commits between versions run (in your git repo):
@@ -76,10 +68,7 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.3.3]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...2.3.3
-[2.3.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...2.3.2
-[2.3.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.0...2.3.1
-[2.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...2.3.0
+[2.3.X]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...HEAD
 [2.2.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.0.0...2.2.0
 [2.0.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/1.22.0...2.0.0
 [1.22.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/tree/1.22.0
