@@ -79,7 +79,7 @@ def key_error(fn):
 class FirmwareVersion(dict):
     """
     Class to manage the different version numbers for the different components
-    of the IcePAP system.
+    of the IcePAP system. A negative value means an error on the data.
     """
     def __init__(self, data, is_axis=False):
         super(FirmwareVersion, self).__init__()
@@ -89,7 +89,10 @@ class FirmwareVersion(dict):
             length = len(line.split(line.lstrip())[0])
             # print 'length = %s' % l
             component = v[0].strip()
-            value = float(v[1].strip())
+            try:
+                value = float(v[1].strip())
+            except Exception:
+                value = -1.0
             # print component, value
             # manage date
             when = ''
