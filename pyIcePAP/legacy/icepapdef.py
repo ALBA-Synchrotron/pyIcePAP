@@ -300,7 +300,7 @@ def deprecated(alt=None):
     def _deprecated(f):
         from inspect import isclass, isfunction
         import warnings
-        warnings.simplefilter("always")
+        warnings.simplefilter("once")
         # Force warnings.warn() to omit the source code line in the message
         formatwarning_orig = warnings.formatwarning
         warnings.formatwarning = lambda msg, cat, fname, lineno, line=None: \
