@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--### Added -->
 
 
-## [2.3.X] 
+## [2.3.x] 
 
 ### Added
 - Allow to change the data format of the parameter, slope and motor position
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Change autofix method used on pyIcePAP update command to do not restore 
 the encoders and positions registers.
 - Add protection on the firmware version reading.
-
+- Show deprecation warnings only one time. 
 
 ## [2.2.0] - 2018-04-05
 For a full log of commits between versions run (in your git repo):
