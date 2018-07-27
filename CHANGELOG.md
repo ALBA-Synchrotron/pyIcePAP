@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 the encoders and positions registers.
 - Add protection on the firmware version reading.
 - Show deprecation warnings only one time. 
+- Add more descriptive filenames for configuration backups and logs.
 
 ## [2.2.0] - 2018-04-05
 For a full log of commits between versions run (in your git repo):
