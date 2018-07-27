@@ -178,22 +178,28 @@ def get_parser():
     return parse
 
 
+def get_filename(host, command, filename='', log=False):
+    value = time.strftime('%Y%m%d_%H%m%S')
+    ext = ['cfg', 'log'][log]
+    if host == '':
+        host = 'icepap'
+    new_filename = '{0}_{1}_{2}.{3}'.format(value, host, command, ext)
+    if log or filename == '':
+        filename = new_filename
+    return os.path.abspath(filename)
+
+
 def main():
     args = get_parser().parse_args()
 
-    value = time.strftime('%Y%m%d_%H%m%S')
-    log_file = '{0}_icepap_update.log'.format(value)
-    log_file = os.path.abspath(log_file)
+    log_file = get_filename(args.host, args.which, log=True)
     LOGGING_CONFIG['handlers']['file']['filename'] = log_file
     logging.config.dictConfig(LOGGING_CONFIG)
     log = logging.getLogger('Application')
 
     # Save Command
     if args.which == 'save':
-        if args.bkpfile == '':
-            value = time.strftime('%Y%m%d_%H%m%S')
-            args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
-        abspath = os.path.abspath(args.bkpfile)
+        abspath = get_filename(args.host, args.which, args.bkpfile)
         log.info('Saving backup on: {0}'.format(abspath))
         ipap_bkp = IcePAPBackup(args.host, args.port, args.timeout)
         ipap_bkp.do_backup(abspath, args.axes)
@@ -211,10 +217,7 @@ def main():
 
     # Update Command
     elif args.which == 'update':
-        if args.bkpfile == '':
-            value = time.strftime('%Y%m%d_%H%m%S')
-            args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
-        abspath = os.path.abspath(args.bkpfile)
+        abspath = get_filename(args.host, args.which, args.bkpfile)
         log.info('Updating {0} with firmware file {1}'.format(args.host,
                                                               args.fwfile))
         log.info('Saving backup on: {0}'.format(abspath))
@@ -243,11 +246,7 @@ def main():
         end(log)
 
     elif args.which == 'autofix':
-
-        if args.bkpfile == '':
-            value = time.strftime('%Y%m%d_%H%m%S')
-            args.bkpfile = '{0}_icepap_backup.cfg'.format(value)
-        abspath = os.path.abspath(args.bkpfile)
+        abspath = get_filename(args.host, args.which, args.bkpfile)
         log.info('Saving backup on: {0}'.format(abspath))
         ipap_bkp = IcePAPBackup(host=args.host, port=args.port,
                                 timeout=args.timeout)
