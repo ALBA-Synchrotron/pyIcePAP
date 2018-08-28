@@ -13,6 +13,7 @@
 
 import weakref
 import struct
+import collections
 from .vdatalib import vdata, ADDRUNSET, POSITION, PARAMETER, SLOPE, DWORD, \
     FLOAT
 from .utils import State
@@ -1368,7 +1369,7 @@ class IcePAPAxis(object):
         """
         cmd = '?CFGINFO {0}'.format(parameter)
         ans = self.send_cmd(cmd)
-        cfg = {}
+        cfg = collections.OrderedDict()
         for line in ans:
             key, value = line.split(' ', 1)
             cfg[key] = value
@@ -1393,7 +1394,7 @@ class IcePAPAxis(object):
         """
         cmd = '?CFG {0}'.format(parameter)
         ans = self.send_cmd(cmd)
-        cfg = {}
+        cfg = collections.OrderedDict()
         for line in ans:
             key, value = line.split(' ', 1)
             cfg[key] = value
