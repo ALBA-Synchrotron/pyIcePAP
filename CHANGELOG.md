@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  tables.
 
 ### Fixed
+- Use ordered dictionaries on the configuration data. 
 - Correct the return value of the get_parametric_table method.  
 - Protect connection to one IcePAP OFF.
 - Change autofix method used on pyIcePAP update command to do not restore 
