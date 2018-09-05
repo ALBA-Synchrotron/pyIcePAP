@@ -295,3 +295,13 @@ class FirmwareVersion(dict):
         :return: str
         """
         return self['SYSTEM']['DRIVER']['FPGA']
+
+    @property
+    @key_error
+    def driver_pcb(self):
+        """
+        Returns driver PCB version.
+
+        :return: (float, str)
+        """
+        return self['SYSTEM']['DRIVER']['PCB']
