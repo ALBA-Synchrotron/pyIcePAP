@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
+## [2.4.x] 
 
-## [2.3.x] 
+### Added
+- Allow to read the driver PCB version as property of firmware version class.
+
+### Fixed
+- None
+
+## [2.3.7] - 2018-08-28
 
 ### Added
 - Allow to change the data format of the parameter, slope and motor position
@@ -70,7 +77,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.3.X]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...HEAD
+[2.4.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.7...HEAD
+[2.3.7]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...2.3.7
 [2.2.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.0.0...2.2.0
 [2.0.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/1.22.0...2.0.0
 [1.22.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/tree/1.22.0
