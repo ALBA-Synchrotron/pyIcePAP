@@ -7,3 +7,5 @@ The project documentation can be found [here](https://alba-synchrotron.github.io
     python setup.py build_sphinx
 
 This documentation has been created by [sphinx](http://www.sphinx-doc.org/en/stable/).
+
+You can find how to contribute to this project on CONTRIBUTING.md file.
