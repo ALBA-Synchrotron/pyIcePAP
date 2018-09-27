@@ -1409,7 +1409,9 @@ class IcePAPAxis(object):
         Set the configuration of a parameter or change to Default/Expert
         configuration (IcePAP user manual pag. 54).
 
-        :param args: List of arguments: (parameter, value) or ('Default')
+        set_cfg('Active', 'YES', 'NVOLT', '48',...)
+
+        :param args: str: parameter, value or ('Default')
         """
         cmd = 'CFG {0}'.format(' '.join(args))
         self.send_cmd(cmd)
