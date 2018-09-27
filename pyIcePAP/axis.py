@@ -1370,8 +1370,13 @@ class IcePAPAxis(object):
         cmd = '?CFGINFO {0}'.format(parameter)
         ans = self.send_cmd(cmd)
         cfg = collections.OrderedDict()
-        for line in ans:
-            key, value = line.split(' ', 1)
+        if parameter == '':
+            for line in ans:
+                key, value = line.split(' ', 1)
+                cfg[key] = value
+        else:
+            key = ans[0]
+            value = ' '.join(ans[1:])
             cfg[key] = value
         return cfg
 
