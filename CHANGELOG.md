@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow to read the driver PCB version as property of firmware version class.
 
 ### Fixed
-- None
+- Fix errors on configuration commands when using a parameter. 
 
 ## [2.3.7] - 2018-08-28
 
