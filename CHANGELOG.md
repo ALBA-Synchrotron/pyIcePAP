@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [2.4.x] 
+## [2.5.X] 
+
+### Added
+- Implement disconnection method used on IcepapCMS
+
+### Fixed
+- Remove the legacy module from the PEP8 verification. 
+
+## [2.4.1] 
 
 ### Added
 - Allow to read the driver PCB version as property of firmware version class.
@@ -77,7 +85,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.4.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.7...HEAD
+[2.5.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.4.1...HEAD
+[2.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.7...2.4.1
 [2.3.7]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...2.3.7
 [2.2.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.0.0...2.2.0
 [2.0.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/1.22.0...2.0.0
