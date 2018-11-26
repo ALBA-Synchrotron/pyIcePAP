@@ -139,6 +139,12 @@ class IcePAPCommunication(object):
         """
         return self._comm_type
 
+    def disconnect(self):
+        """
+        Method to close the communication
+        """
+        self._comm.disconnect()
+
 
 # -----------------------------------------------------------------------------
 #                           Serial Communication
@@ -192,6 +198,9 @@ class SerialCom(Serial):
     def send_binary(self, ushort_data):
         raise NotImplemented
 
+    def disconnect(self):
+        self.close()
+
 
 # -----------------------------------------------------------------------------
 #                           Socket Communication
@@ -216,6 +225,11 @@ class SocketCom(object):
         self._connect_thread.join()
 
     def __del__(self):
+        self.disconnect()
+
+    def disconnect(self):
+        self._socket.close()
+        self._connected = False
         self._stop_thread = True
         self._connect_thread.join()
 

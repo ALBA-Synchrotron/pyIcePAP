@@ -664,6 +664,14 @@ class IcePAPController(dict):
             ans = self.send_cmd('?_PROG')
         return ans
 
+    def disconnect(self):
+        """
+        Method to close the communication with the IcePAP
+        :return:
+        """
+
+        self._comm.disconnect()
+
 
 class EthIcePAPController(IcePAPController):
     """
