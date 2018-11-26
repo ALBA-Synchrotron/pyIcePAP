@@ -17,3 +17,5 @@ ignore =
     F401,
     # F403: ‘from module import *’ used; unable to detect undefined names
     F403
+
+exclude = pyIcePAP/legacy
