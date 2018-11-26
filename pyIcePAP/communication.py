@@ -196,7 +196,7 @@ class SerialCom(Serial):
 
     @comm_error_handler
     def send_binary(self, ushort_data):
-        raise NotImplemented
+        raise NotImplementedError
 
     def disconnect(self):
         self.close()
