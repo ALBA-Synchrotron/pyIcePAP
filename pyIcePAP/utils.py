@@ -170,6 +170,10 @@ class State(object):
     def __init__(self, status_register):
         self._status_reg = status_register
 
+    @property
+    def status_register(self):
+        return self._status_reg
+
     def is_present(self):
         """
         Check if the driver is present.
