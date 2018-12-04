@@ -1184,6 +1184,17 @@ class IcePAPAxis(object):
         return status, int(direction)
 
     @property
+    def srchstat(self):
+        """
+        Return the homing procedure status.
+        (IcePAP user manual page 132, v1.0c).
+
+        :return: [str(state), int(direction)]
+        """
+        status, direction = self.send_cmd('?SRCHSTAT')
+        return status, int(direction)
+
+    @property
     def ecam(self):
         """
         Get the electronic cam mode (IcePAP user manual pag. 64).
@@ -1531,6 +1542,28 @@ class IcePAPAxis(object):
         """
         cmd = '?HOMEENC {0}'.format(register)
         return long(self.send_cmd(cmd[0]))
+
+    def get_srch_position(self, register='AXIS'):
+        """
+        Return the search value latched on the position register.
+        (IcePAP user manual page 131, v1.0c).
+
+        :param register: str
+        :return: long
+        """
+        cmd = '?SRCHPOS {0}'.format(register)
+        return long(self.send_cmd(cmd)[0])
+
+    def get_srch_encoder(self, register='AXIS'):
+        """
+        Return the search value latched on encoder register.
+        (IcePAP user manual page 130, v1.0c).
+
+        :param register: str
+        :return: long
+        """
+        cmd = '?SRCHENC {0}'.format(register)
+        return long(self.send_cmd(cmd)[0])
 
     def move(self, position):
         """
