@@ -1635,6 +1635,18 @@ class IcePAPAxis(object):
         cmd = 'HOME {0}'.format(mode)
         self.send_cmd(cmd)
 
+    def srch(self, signal, edgetype, srchdir):
+        """
+        Start search sequence.
+        (IcePAP user manual page 129, v1.0c).
+
+        :param signal: str ['Lim-', 'Lim+', 'Home', 'EncAux', 'InpAux']
+        :param edgetype: str ['POSEDGE', 'NEGEDGE']
+        :param srchdir: str ['-1', '+1']
+        """
+        cmd = 'SRCH {} {} {}'.format(signal, edgetype, srchdir)
+        self.send_cmd(cmd)
+
     def movel(self, lpos):
         """
         Start postion list movement (IcePAP user manual pag. 93).
