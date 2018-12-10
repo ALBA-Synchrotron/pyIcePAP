@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add status_register as property of the State class. 
 
 ### Fixed
+- Bug on getting the home registers: position and encoder 
 
 ## [2.5.0] 
 
