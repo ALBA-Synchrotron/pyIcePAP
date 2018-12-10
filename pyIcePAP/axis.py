@@ -1512,25 +1512,25 @@ class IcePAPAxis(object):
 
     def get_home_position(self, register='AXIS'):
         """
-        Return the value latched on the position register (IcePAP user manual
-        pag. 78).
+        Return the home value latched on the position register.
+        (IcePAP user manual page 83, v1.0c).
 
         :param register: str
         :return: long
         """
         cmd = '?HOMEPOS {0}'.format(register)
-        return long(self.send_cmd(cmd[0]))
+        return long(self.send_cmd(cmd)[0])
 
     def get_home_encoder(self, register='AXIS'):
         """
-        Return the value latched on encoder register (IcePAP user manual
-        pag. 77)
+        Return the home value latched on encoder register.
+        (IcePAP user manual page 82, v1.0c).
 
         :param register: str
         :return: long
         """
         cmd = '?HOMEENC {0}'.format(register)
-        return long(self.send_cmd(cmd[0]))
+        return long(self.send_cmd(cmd)[0])
 
     def move(self, position):
         """
