@@ -1635,16 +1635,17 @@ class IcePAPAxis(object):
         cmd = 'HOME {0}'.format(mode)
         self.send_cmd(cmd)
 
-    def srch(self, signal, edgetype, srchdir):
+    def srch(self, signal, edge_type, direction):
         """
         Start search sequence.
         (IcePAP user manual page 129, v1.0c).
 
-        :param signal: str ['Lim-', 'Lim+', 'Home', 'EncAux', 'InpAux']
-        :param edgetype: str ['POSEDGE', 'NEGEDGE']
-        :param srchdir: str ['-1', '+1']
+        :param signal: str ['LIM-', 'LIM+', 'HOME', 'ENCAUX', 'INPAUX']
+        :param edge_type: str ['POSEDGE', 'NEGEDGE']
+        :param direction: int [-1, 1]
         """
-        cmd = 'SRCH {} {} {}'.format(signal, edgetype, srchdir)
+        # TODO: Investigate why it does not work with '1' like home command
+        cmd = 'SRCH {0} {1} {2:+}'.format(signal, edge_type, direction)
         self.send_cmd(cmd)
 
     def movel(self, lpos):
