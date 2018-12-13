@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [2.6.X] 
+## [2.7.X] 
+
+### Added
+- Add search methods. 
+
+### Fixed
+
+## [2.6.1] 
 
 ### Added
 - Add status_register as property of the State class. 
@@ -93,8 +100,9 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.6.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.5.0...HEAD
-[2.5.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.4.1...HEAD
+[2.7.X]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...HEAD
+[2.6.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.5.0...2.6.1
+[2.5.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.4.1...2.5.0
 [2.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.7...2.4.1
 [2.3.7]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.2.0...2.3.7
 [2.2.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.0.0...2.2.0
