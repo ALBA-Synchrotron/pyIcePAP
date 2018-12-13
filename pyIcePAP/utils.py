@@ -11,8 +11,8 @@
 # along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-__all__ = ['Info', 'Registers', 'State',
-           'TrackMode', 'Answers', 'Mode']
+__all__ = ['Info', 'Registers', 'State', 'TrackMode', 'Answers', 'Mode',
+           'EdgeType']
 
 # TODO: Check the Mode, Answers, TrackMode, Info and Register classes.
 
@@ -38,6 +38,13 @@ class TrackMode(object):
     SIMPLE, SMART, FULL = 'SIMPLE', 'SMART', 'FULL'
 
 
+class EdgeType(object):
+    """
+    Edge type used on search routines. IcePAP user manual pag. 124
+    """
+    POSEDGE, NEGEDGE = 'POSEDGE', 'NEGEDGE'
+
+
 class Info(object):
     """
     Icepap general namespace values.
@@ -56,6 +63,8 @@ class Info(object):
     # NEW WITH FIRMWARE 2.x
     PULSE = 'PULSE'
     EcamSignals = [PULSE, LOW, HIGH]
+
+    SearchSignals = [LIMP, LIMN, HOME, ENCAUX, INPAUX]
 
 
 class Registers(object):
