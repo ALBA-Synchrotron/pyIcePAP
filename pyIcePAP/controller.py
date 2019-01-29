@@ -102,7 +102,14 @@ class IcePAPController(dict):
                         axis_nr = i * 10 + j + 1
                         motor = IcePAPAxis(self, axis_nr)
                         self.__setitem__(axis_nr, motor)
-                        motor_name = motor.name
+                        try:
+                            motor_name = motor.name
+                        except Exception as e:
+                            motor_name = None
+                            error_msg = 'Can not connect to axis number{0}. ' \
+                                        ''.format(axis_nr)
+                            self.log.error(error_msg)
+                            
                         if motor_name is None or motor_name == '':
                             continue
                         if motor_name in self._aliases:
