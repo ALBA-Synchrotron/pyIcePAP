@@ -431,7 +431,12 @@ class IcePAPAxis(object):
 
         :return: str
         """
-        return self.send_cmd('?CONFIG')[0]
+        config = self.send_cmd('?CONFIG')
+        if config is None:
+            config = ""
+        else:
+            config = config[0]
+        return config
 
     @property
     def cswitch(self):
