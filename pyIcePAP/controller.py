@@ -106,10 +106,10 @@ class IcePAPController(dict):
                             motor_name = motor.name
                         except Exception as e:
                             motor_name = None
-                            error_msg = 'Can not connect to axis number{0}. ' \
-                                        ''.format(axis_nr)
+                            error_msg = 'Get name command field on axis ' \
+                                        '{0}. Error: {1}'.format(axis_nr, e)
                             self.log.error(error_msg)
-                            
+
                         if motor_name is None or motor_name == '':
                             continue
                         if motor_name in self._aliases:
