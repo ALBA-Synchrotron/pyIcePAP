@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [2.7.X] 
+## [2.8.0] 
+
+### Added
+- Add axes and drivers as controller properties.
+- Allow to iterate over the controller and take the IcePAPAxis object as 
+value. 
+
+### Fixed
+
+## [2.7.2] 
 
 ### Added
 - Add search methods. 
@@ -15,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Add protection when reading the axis name on the starting. 
 - Add protection when reading the config. 
+
 ## [2.6.1] 
 
 ### Added
@@ -101,7 +111,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.7.X]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...HEAD
+[2.8.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...HEAD
+[2.7.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...2.7.2
 [2.6.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.5.0...2.6.1
 [2.5.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.4.1...2.5.0
 [2.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.7...2.4.1
