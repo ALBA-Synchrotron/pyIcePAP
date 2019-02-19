@@ -159,6 +159,14 @@ class IcePAPController(dict):
         return result
 
     @property
+    def axes(self):
+        """
+        Get the alive axes numbers.
+
+        :return: [int]
+        """
+        return self.keys()
+
     def comm_type(self):
         """
         Get the communication type for this controller.
