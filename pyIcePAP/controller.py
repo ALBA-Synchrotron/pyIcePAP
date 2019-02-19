@@ -81,6 +81,9 @@ class IcePAPController(dict):
             item = self._aliases[item]
         return dict.__getitem__(self, item)
 
+    def __iter__(self):
+        return iter([dict.__getitem__(self, item) for item in self.keys()])
+
     def _create_axes(self):
         # Take the list of racks present in the system
         # IcePAP user manual pag. 137
@@ -154,6 +157,24 @@ class IcePAPController(dict):
             result += '{0} {1} '.format(self._alias2axisstr(axis),
                                         cast_type(value))
         return result
+
+    @property
+    def axes(self):
+        """
+        Get the alive axes numbers.
+
+        :return: [int]
+        """
+        return self.keys()
+
+    @property
+    def drivers(self):
+        """
+        Get the alive drivers IcePAPAxis objects.
+
+        :return: [IcePAPAxis]
+        """
+        return self.values()
 
     @property
     def comm_type(self):
