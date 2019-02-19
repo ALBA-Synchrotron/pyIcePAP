@@ -40,9 +40,9 @@ def comm_error_handler(f):
         try:
             ans = f(*args, **kwargs)
             return ans
-        except Exception, e:
-            msg = ('Problem with the communication. Verify the hardware. '
-                   'Error: %s' % e)
+        except Exception as e:
+            msg = 'Problem with the communication. Verify ' \
+                  'the hardware. Error: {0}'.format(e)
             raise RuntimeError(msg)
     return new_func
 
