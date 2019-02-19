@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add search methods. 
 
 ### Fixed
-- Add protection on read the axis name on the starting. 
-
+- Add protection when reading the axis name on the starting. 
+- Add protection when reading the config. 
 ## [2.6.1] 
 
 ### Added
