@@ -167,6 +167,16 @@ class IcePAPController(dict):
         """
         return self.keys()
 
+    @property
+    def drivers(self):
+        """
+        Get the alive drivers IcePAPAxis objects.
+
+        :return: [IcePAPAxis]
+        """
+        return self.values()
+
+    @property
     def comm_type(self):
         """
         Get the communication type for this controller.
