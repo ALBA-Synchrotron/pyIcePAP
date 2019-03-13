@@ -7,14 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [2.8.0] 
+## [2.8.X] 
 
 ### Added
 - Add axes and drivers as controller properties.
-- Allow to iterate over the controller and take the IcePAPAxis object as 
-value. 
+ 
 
 ### Fixed
+- Remove to iterate over the controller and take the IcePAPAxis object as 
+value, it breaks the heritage theory. It was a wrong feature introduced. 
 
 ## [2.7.2] 
 
