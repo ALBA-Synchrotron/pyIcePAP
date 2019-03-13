@@ -81,9 +81,6 @@ class IcePAPController(dict):
             item = self._aliases[item]
         return dict.__getitem__(self, item)
 
-    def __iter__(self):
-        return iter([dict.__getitem__(self, item) for item in self.keys()])
-
     def _create_axes(self):
         # Take the list of racks present in the system
         # IcePAP user manual pag. 137
