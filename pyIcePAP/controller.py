@@ -38,17 +38,16 @@ import time
 import logging
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
-from .utils import State
+from .utils import State, deprecated
 from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
-class IcePAPController(dict):
+class IcePAPController(object):
     """
     Base class for IcePAP motor controller.
     """
 
     def __init__(self, comm_type, *args, **kwargs):
-        dict.__init__(self)
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
         self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
@@ -63,6 +62,7 @@ class IcePAPController(dict):
             self.log.error(error_msg)
             raise RuntimeError(error_msg)
         self._aliases = {}
+        self._axes = {}
 
         self._create_axes()
 
@@ -102,6 +102,8 @@ class IcePAPController(dict):
                             error_msg = 'Get name command field on axis ' \
                                         '{0}. Error: {1}'.format(axis_nr, e)
                             self.log.error(error_msg)
+    def __iter__(self):
+        return self._axes.__iter__()
 
                         if motor_name is None or motor_name == '':
                             continue
@@ -111,7 +113,14 @@ class IcePAPController(dict):
                             continue
                         if motor_name in duplicate_alias:
                             continue
-                        self._aliases[motor_name.lower()] = axis_nr
+    def __delitem__(self, key):
+        self._axes.pop(key)
+        aliases_to_remove = []
+        for alias, axis in self._aliases.items():
+            if key == axis:
+                aliases_to_remove.append(alias)
+        for alias in aliases_to_remove:
+            self._aliases.pop(alias)
 
     def _alias2axisstr(self, alias):
         """
@@ -151,20 +160,22 @@ class IcePAPController(dict):
     @property
     def axes(self):
         """
-        Get the alive axes numbers.
+        Get the axes numbers.
 
         :return: [int]
         """
-        return self.keys()
+        axes = list(self._axes.keys())
+        axes.sort()
+        return axes
 
     @property
     def drivers(self):
         """
-        Get the alive drivers IcePAPAxis objects.
+        Get the drivers IcePAPAxis objects.
 
         :return: [IcePAPAxis]
         """
-        return self.values()
+        return self._axes.values()
 
     @property
     def comm_type(self):
@@ -223,6 +234,31 @@ class IcePAPController(dict):
 # -----------------------------------------------------------------------------
 #                       Commands
 # -----------------------------------------------------------------------------
+
+    def items(self):
+        """
+        Get the axes and drivers IcePAPAxis objects.
+
+        :return: [(axis, IcePAPAxis),]
+        """
+
+        return self._axes.items()
+
+    @deprecated('controller.axes')
+    def keys(self):
+        """
+        Backward compatibility
+        :return:
+        """
+        return self._axes.keys()
+
+    @deprecated('controller.drivers')
+    def values(self):
+        """
+        Backward compatibility
+        :return:
+        """
+        return self._axes.values()
     def send_cmd(self, cmd):
         """
         Communication function used to send any command to the IcePAP
