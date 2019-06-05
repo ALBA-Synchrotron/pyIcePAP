@@ -63,13 +63,6 @@ class IcePAPController(dict):
             self.log.error(error_msg)
             raise RuntimeError(error_msg)
         self._aliases = {}
-        ver = self.ver.driver[0]
-        if ver >= 3:
-            self._new_api = True
-        else:
-            self._new_api = False
-            self.log.warning('The firmware is old {0}, some commands '
-                             'could not work'.format(ver))
 
         self._create_axes()
 
