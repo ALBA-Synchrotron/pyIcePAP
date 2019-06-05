@@ -64,7 +64,7 @@ class IcePAPController(object):
         self._aliases = {}
         self._axes = {}
 
-        self._create_axes()
+        if auto_axes:
 
     def __getitem__(self, item):
         if isinstance(item, str):
@@ -74,45 +74,11 @@ class IcePAPController(object):
             item = self._aliases[item]
         return dict.__getitem__(self, item)
 
-    def _create_axes(self):
-        # Take the list of racks present in the system
-        # IcePAP user manual pag. 137
-        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
-        rack_mask = 1
-        duplicate_alias = []
+    def _get_axis_for_alias(self, alias):
 
-        for i in range(16):
-            if (racks_present & rack_mask << i) > 0:
-                # Take the motors presents for a rack.
-                cmd = '?sysstat {0}'.format(i)
-                drivers_mask = self._comm.send_cmd(cmd)
-                # TODO: Analyze if use the present or the alive mask
-                # drvs_present = int(drivers_mask[0], 16)
-                drvs_alives = int(drivers_mask[1], 16)
-                drv_mask = 1
-                for j in range(8):
-                    if (drvs_alives & drv_mask << j) > 0:
-                        axis_nr = i * 10 + j + 1
-                        motor = IcePAPAxis(self, axis_nr)
-                        self.__setitem__(axis_nr, motor)
-                        try:
-                            motor_name = motor.name
-                        except Exception as e:
-                            motor_name = None
-                            error_msg = 'Get name command field on axis ' \
-                                        '{0}. Error: {1}'.format(axis_nr, e)
-                            self.log.error(error_msg)
     def __iter__(self):
         return self._axes.__iter__()
 
-                        if motor_name is None or motor_name == '':
-                            continue
-                        if motor_name in self._aliases:
-                            self._aliases.pop(motor_name)
-                            duplicate_alias.append(motor_name)
-                            continue
-                        if motor_name in duplicate_alias:
-                            continue
     def __delitem__(self, key):
         self._axes.pop(key)
         aliases_to_remove = []
