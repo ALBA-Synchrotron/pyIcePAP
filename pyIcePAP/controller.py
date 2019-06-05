@@ -234,6 +234,31 @@ class IcePAPController(object):
         :return:
         """
         return self._axes.values()
+    def find_axes(self, only_alive=False):
+
+        # Take the list of racks present in the system
+        # IcePAP user manual pag. 137
+        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
+        rack_mask = 1
+        axes = []
+        for i in range(16):
+            if (racks_present & rack_mask << i) > 0:
+                # Take the motors presents for a rack.
+                cmd = '?sysstat {0}'.format(i)
+                drivers_mask = self._comm.send_cmd(cmd)
+                # TODO: Analyze if use the present or the alive mask
+                if only_alive:
+                    # Drivers alive
+                    drvs = int(drivers_mask[1], 16)
+                else:
+                    # Drivers present
+                    drvs = int(drivers_mask[0], 16)
+                drv_mask = 1
+                for j in range(8):
+                    if (drvs & drv_mask << j) > 0:
+                        axis_nr = i * 10 + j + 1
+                        axes.append(axis_nr)
+        return axes
     def send_cmd(self, cmd):
         """
         Communication function used to send any command to the IcePAP
