@@ -259,6 +259,25 @@ class IcePAPController(object):
                         axis_nr = i * 10 + j + 1
                         axes.append(axis_nr)
         return axes
+
+    def update_axes(self):
+        """
+        Method to check if the axes created are presents. In case of no,
+        the method will remove the IcePAPAxis object and its aliases.
+
+        Note: The axis can be present but not alive
+
+        :return:
+        """
+        alive_axes = self.find_axes()
+        axes_to_remove = []
+
+        for axis in self._axes:
+            if axis not in alive_axes:
+                axes_to_remove.append(axis)
+
+        for axis in axes_to_remove:
+            self.__delitem__(axis)
     def send_cmd(self, cmd):
         """
         Communication function used to send any command to the IcePAP
