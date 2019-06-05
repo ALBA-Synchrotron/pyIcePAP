@@ -132,6 +132,10 @@ class IcePAPController(object):
                                         cast_type(value))
         return result
 
+# -----------------------------------------------------------------------------
+#                       Properties
+# -----------------------------------------------------------------------------
+
     @property
     def axes(self):
         """
@@ -278,6 +282,44 @@ class IcePAPController(object):
 
         for axis in axes_to_remove:
             self.__delitem__(axis)
+
+    def add_alias(self, alias, axis):
+        """
+        Set a alias for an axis. The axis can have more than one alias.
+
+        :param alias: str
+        :param axis: int
+        """
+        if axis not in self._axes:
+            self._axes[axis] = IcePAPAxis(self, axis)
+        self._aliases[alias] = axis
+
+    def add_aliases(self, aliases):
+        """
+        Set alias for mutiple axes.
+
+        :param aliases: {str: int}
+        """
+        for alias, axis in aliases.items():
+            self.add_alias(alias, axis)
+
+    def get_aliases(self):
+        """
+        Get the aliases of the system. One axis can have move than one alias.
+
+        :return: {int:[str]}
+        """
+        aliases = {}
+        for key, value in self._aliases.items():
+            if value in aliases:
+                aliases[value].append(key)
+            else:
+                aliases[value] = [key]
+        return aliases
+
+# -----------------------------------------------------------------------------
+#                       IcePAP Commands
+# -----------------------------------------------------------------------------
     def send_cmd(self, cmd):
         """
         Communication function used to send any command to the IcePAP
@@ -647,40 +689,6 @@ class IcePAPController(object):
         :return: list of multiplexer configurations.
         """
         return self.send_cmd('?PMUX')
-
-    def add_alias(self, alias, axis):
-        """
-        Set a alias for an axis. The axis can have more than one alias.
-
-        :param alias: str
-        :param axis: int
-        """
-        if alias in self._aliases:
-            self._aliases.pop(alias)
-        self._aliases[alias] = axis
-
-    def add_aliases(self, aliases):
-        """
-        Set alias for mutiple axes.
-
-        :param aliases: {str: int}
-        """
-        for alias, axis in aliases.items():
-            self.add_alias(alias, axis)
-
-    def get_aliases(self):
-        """
-        Get the aliases of the system. One axis can have move than one alias.
-
-        :return: {int:[str]}
-        """
-        aliases = {}
-        for key, value in self._aliases.items():
-            if value in aliases:
-                aliases[value].append(key)
-            else:
-                aliases[value] = [key]
-        return aliases
 
     def sprog(self, component=None, force=False, saving=False):
         """
