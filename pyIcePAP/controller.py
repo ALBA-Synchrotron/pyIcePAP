@@ -105,8 +105,10 @@ class IcePAPController(object):
 
         :return: str
         """
-        if isinstance(alias, int) or isinstance(alias, str):
-            result = str(self.__getitem__(alias)._axis_nr)
+        if isinstance(alias, int):
+            result = str(alias)
+        elif isinstance(alias, str):
+            result = str(self._get_axis_for_alias(alias))
         elif isinstance(alias, list):
             result = []
             for i in alias:
