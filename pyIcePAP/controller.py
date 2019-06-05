@@ -697,5 +697,11 @@ class EthIcePAPController(IcePAPController):
     controller inhereted from IcePAPController class.
     """
     def __init__(self, host, port=5000, timeout=3):
+        self._host = host
+        self._port = port
         IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
                                   timeout=timeout)
+    def __repr__(self):
+        msg = 'EthIcePAPController connected to {}:{}'.format(self._host,
+                                                              self._port)
+        return msg
