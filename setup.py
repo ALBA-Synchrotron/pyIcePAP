@@ -43,5 +43,6 @@ setup(
         'console_scripts': [
             'pyIcePAP = pyIcePAP.__main__:main',
         ]
-    }
+    },
+    install_requires=['numpy']
 )
