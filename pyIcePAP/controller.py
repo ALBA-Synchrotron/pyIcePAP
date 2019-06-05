@@ -46,7 +46,7 @@ class IcePAPController(object):
     """
     Base class for IcePAP motor controller.
     """
-    ALL_AXES_VALID = set([r *10 + i for r in range(16) for i in range(1, 9)])
+    ALL_AXES_VALID = set([r * 10 + i for r in range(16) for i in range(1, 9)])
 
     def __init__(self, comm_type, *args, **kwargs):
         log_name = '{0}.IcePAPController'.format(__name__)
