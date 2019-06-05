@@ -51,6 +51,25 @@ class IcePAPController(object):
     def __init__(self, comm_type, *args, **kwargs):
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
+
+        # TODO: Remove on version 3.x
+        if 'auto_axes' not in kwargs:
+            import warnings
+            warnings.simplefilter("once")
+            # Force warnings.warn() to omit the source code line in the message
+            formatwarning_orig = warnings.formatwarning
+            warnings.formatwarning = \
+                lambda msg, cat, fname, lineno, line=None: \
+                formatwarning_orig(msg, cat, fname, lineno, line='')
+            msg = 'On version 3.x the constructor is lazy and it is up to ' \
+                  'the user of the object to request specific axes and ' \
+                  'manage their destruction. Use explicit auto_axes=True to ' \
+                  'create the axes on the EthIcePAPController creation.'
+            warnings.warn(msg, PendingDeprecationWarning, stacklevel=0)
+
+        # TODO: Set to False on version 3.x
+        auto_axes = kwargs.pop('auto_axes', True)
+
         self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
         # TODO: Find solution for serial communication.
         if not self.connected:
@@ -62,10 +81,13 @@ class IcePAPController(object):
                         'is ON.'.format(host)
             self.log.error(error_msg)
             raise RuntimeError(error_msg)
+
         self._aliases = {}
         self._axes = {}
 
         if auto_axes:
+            for axis in self.find_axes(only_alive=True):
+                self._axes[axis] = IcePAPAxis(self, axis)
 
     def __getitem__(self, item):
         if isinstance(item, str):
@@ -238,6 +260,7 @@ class IcePAPController(object):
         :return:
         """
         return self._axes.values()
+
     def find_axes(self, only_alive=False):
 
         # Take the list of racks present in the system
@@ -759,11 +782,12 @@ class EthIcePAPController(IcePAPController):
     This class implements the sockry communication layer for the IcePAP motor
     controller inhereted from IcePAPController class.
     """
-    def __init__(self, host, port=5000, timeout=3):
+    def __init__(self, host, port=5000, timeout=3, **kwargs):
         self._host = host
         self._port = port
         IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
-                                  timeout=timeout)
+                                  timeout=timeout, **kwargs)
+
     def __repr__(self):
         msg = 'EthIcePAPController connected to {}:{}'.format(self._host,
                                                               self._port)
