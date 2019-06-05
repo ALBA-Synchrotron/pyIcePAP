@@ -46,6 +46,7 @@ class IcePAPController(object):
     """
     Base class for IcePAP motor controller.
     """
+    ALL_AXES_VALID = set([r *10 + i for r in range(16) for i in range(1, 9)])
 
     def __init__(self, comm_type, *args, **kwargs):
         log_name = '{0}.IcePAPController'.format(__name__)
@@ -68,13 +69,19 @@ class IcePAPController(object):
 
     def __getitem__(self, item):
         if isinstance(item, str):
-            if item not in self._aliases:
-                msg = 'There is not any motor with name {0}'.format(item)
-                raise ValueError(msg)
-            item = self._aliases[item]
-        return dict.__getitem__(self, item)
+            item = self._get_axis_for_alias(item)
+        if item not in self._axes:
+            if item not in self.ALL_AXES_VALID:
+                raise ValueError('Bad axis value.')
+            self._axes[item] = IcePAPAxis(self, item)
+        return self._axes[item]
 
     def _get_axis_for_alias(self, alias):
+        if alias not in self._aliases:
+            msg = 'There is not any motor with name {0}'.format(alias)
+            raise ValueError(msg)
+        alias = self._aliases[alias]
+        return alias
 
     def __iter__(self):
         return self._axes.__iter__()
