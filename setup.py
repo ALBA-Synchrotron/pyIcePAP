@@ -1,4 +1,5 @@
 # setup.py
+import sys
 from setuptools import setup
 from setuptools import find_packages
 
@@ -14,6 +15,12 @@ __version = '2.8.1'
 
 # ipython profile magic commands implementation
 package_list = ['*ipy']
+
+TESTING = any(x in sys.argv for x in ["test", "pytest"])
+setup_requirements = []
+if TESTING:
+    setup_requirements += ['pytest-runner']
+test_requirements = ['pytest', 'pytest-cov']
 
 setup(
     name="pyIcePAP",
@@ -44,5 +51,7 @@ setup(
             'pyIcePAP = pyIcePAP.__main__:main',
         ]
     },
-    install_requires=['numpy']
+    install_requires=['numpy'],
+    setup_requires=setup_requirements,
+    tests_require=test_requirements
 )
