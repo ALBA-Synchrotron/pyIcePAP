@@ -15,56 +15,75 @@ def confirm_initial_m1_state(s1):
     assert s1.get_disable_str() == 'Axis not active'
 
 
-@protect_socket
-def test_create_eth_icepap():
-    with pytest.raises(RuntimeError):
-        ice = EthIcePAPController('weirdhost')
-    with pytest.raises(RuntimeError):
-        ice = EthIcePAPController('icepap1', 5001)
-    ice = EthIcePAPController('icepap1', 5000)
-    assert ice is not None
+@pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
+def test_create_eth_icepap(auto_axes):
+    with socket_context() as mock_sock:
+        patch_socket(mock_sock)
+        with pytest.raises(RuntimeError):
+            ice = EthIcePAPController('weirdhost')
+        with pytest.raises(RuntimeError):
+            ice = EthIcePAPController('icepap1', 5001)
+        ice = EthIcePAPController('icepap1', 5000)
+        assert ice is not None
 
 
-def test_smart_connection(smart_pap):
-    assert smart_pap.comm_type == CommType.Socket
-    assert smart_pap.connected
 
-    smart_pap.disconnect()
-    assert not smart_pap.connected
+@pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
+def test_connection(auto_axes):
+    with socket_context() as mock_sock:
+        patch_socket(mock_sock)
+        pap = EthIcePAPController('icepap1', auto_axes=auto_axes)
+
+        assert pap.comm_type == CommType.Socket
+        assert pap.connected
+
+        pap.disconnect()
+        assert not pap.connected
 
 
-def test_smart_system(smart_pap):
-    assert smart_pap.mode == 'OPER'
+@pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
+def test_system(auto_axes):
+    with socket_context() as mock_sock:
+        patch_socket(mock_sock)
+        pap = EthIcePAPController('icepap1', auto_axes=auto_axes)
 
-    assert smart_pap.get_pos(1) == [55]
-    assert smart_pap.get_pos([1]) == [55]
-    assert smart_pap.get_pos([1, 5]) == [55, -3]
-    assert smart_pap.get_pos([5, 1]) == [-3, 55]
+        assert pap.mode == 'OPER'
 
-    assert smart_pap.get_fpos(1) == [55]
-    assert smart_pap.get_fpos([1]) == [55]
-    assert smart_pap.get_fpos([1, 5]) == [55, -3]
-    assert smart_pap.get_fpos([5, 1]) == [-3, 55]
+        assert pap.get_pos(1) == [55]
+        assert pap.get_pos([1]) == [55]
+        assert pap.get_pos([1, 5]) == [55, -3]
+        assert pap.get_pos([5, 1]) == [-3, 55]
 
-    assert smart_pap.get_status(1) == [0x00205013]
-    assert smart_pap.get_status([1]) == [0x00205013]
-    assert smart_pap.get_status([1, 5]) == [0x00205013, 0x00205013]
+        assert pap.get_fpos(1) == [55]
+        assert pap.get_fpos([1]) == [55]
+        assert pap.get_fpos([1, 5]) == [55, -3]
+        assert pap.get_fpos([5, 1]) == [-3, 55]
 
-    assert smart_pap.get_fstatus(1) == [0x00205013]
-    assert smart_pap.get_fstatus([1]) == [0x00205013]
-    assert smart_pap.get_fstatus([1, 5]) == [0x00205013, 0x00205013]
+        assert pap.get_status(1) == [0x00205013]
+        assert pap.get_status([1]) == [0x00205013]
+        assert pap.get_status([1, 5]) == [0x00205013, 0x00205013]
 
-    s1 = smart_pap.get_states(1)[0]
-    confirm_initial_m1_state(s1)
-    assert smart_pap.get_states([1])[0].status_register == 0x00205013
-    assert [s.status_register for s in smart_pap.get_states([1, 5])] == [
-                                                            0x00205013, 0x00205013]
+        assert pap.get_fstatus(1) == [0x00205013]
+        assert pap.get_fstatus([1]) == [0x00205013]
+        assert pap.get_fstatus([1, 5]) == [0x00205013, 0x00205013]
 
-    assert smart_pap.get_power(1) == [True]
-    assert smart_pap.get_power([1]) == [True]
-    assert smart_pap.get_power([1, 151]) == [True, False]
-    assert smart_pap.get_power([151, 1]) == [False, True]
+        s1 = pap.get_states(1)[0]
+        confirm_initial_m1_state(s1)
+        assert pap.get_states([1])[0].status_register == 0x00205013
+        assert [s.status_register for s in pap.get_states([1, 5])] == [
+                                                                0x00205013, 0x00205013]
 
+        assert pap.get_power(1) == [True]
+        assert pap.get_power([1]) == [True]
+        assert pap.get_power([1, 151]) == [True, False]
+        assert pap.get_power([151, 1]) == [False, True]
+
+        with pytest.raises(ValueError):
+            pap.get_pos('th')
+
+        pap.add_alias('th', 1)
+
+        assert pap.get_pos('th') == [55]
 
 
 @pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
