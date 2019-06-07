@@ -20,9 +20,9 @@ def ice_auto_axes(f):
     @pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
     def wrapper(auto_axes):
         with socket_context() as mock_sock:
-             patch_socket(mock_sock)
-             pap = EthIcePAPController('icepap1', auto_axes=auto_axes)
-             return f(pap)
+            patch_socket(mock_sock)
+            pap = EthIcePAPController('icepap1', auto_axes=auto_axes)
+            return f(pap)
     return wrapper
 
 
@@ -108,7 +108,7 @@ def test_axis_not_plugged(pap):
     with pytest.raises(ValueError):
         pap[200]
 
-    #axis 2 is not installed but is valid
+    # axis 2 is not installed but is valid
     m2 = pap[2]
     with pytest.raises(RuntimeError):
         m2.pos
