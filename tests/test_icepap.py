@@ -67,17 +67,14 @@ def test_smart_system(smart_pap):
 
 
 def test_smart_racks(smart_pap):
-    # BUG in pyicepap: cannot use single number
-    #    assert smart_pap.get_rid(0) == ['0008.0153.F797']
+
+    assert smart_pap.get_rid(0) == ['0008.0153.F797']
     assert smart_pap.get_rid([0]) == ['0008.0153.F797']
 
-# BUG in pyicepap: 15 is being sent as hexadecimal: should be decimal
 #    assert smart_pap.get_rid([0, 15]) == ['0008.0153.F797', '0008.020B.1028']
 #    assert smart_pap.get_rid([15, 0]) == ['0008.020B.1028', '0008.0153.F797']
 
-
-# BUG in pyicepap: cannot use single number
-#    assert smart_pap.get_rtemp(0) == ['30.1']
+    assert smart_pap.get_rtemp(0) == [30.1]
     assert smart_pap.get_rtemp([0]) == [30.1]
 
 # BUG in pyicepap: 15 is being sent as hexadecimal: should be decimal
