@@ -99,10 +99,14 @@ def patch_socket(mock):
     mock.return_value.connect = connect
 
 
+def socket_context():
+    return mock.patch('pyIcePAP.communication.socket')
+
+
 def protect_socket(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        with mock.patch('pyIcePAP.communication.socket') as mock_sock:
+        with socket_context() as mock_sock:
             patch_socket(mock_sock)
             return f(*args, **kwargs)
     return wrapper

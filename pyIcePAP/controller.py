@@ -518,7 +518,7 @@ class IcePAPController(object):
         """
         if isinstance(rack_nrs, int):
             rack_nrs = [rack_nrs]
-        racks_str = ' '.join(['{0:x}'.format(i) for i in rack_nrs])
+        racks_str = ' '.join(['{}'.format(i) for i in rack_nrs])
         cmd = '?RID {0}'.format(racks_str)
         return self.send_cmd(cmd)
 
@@ -531,7 +531,7 @@ class IcePAPController(object):
         """
         if isinstance(rack_nrs, int):
             rack_nrs = [rack_nrs]
-        racks_str = ' '.join(['{0:x}'.format(i) for i in rack_nrs])
+        racks_str = ' '.join(['{}'.format(i) for i in rack_nrs])
         cmd = '?RTEMP {0}'.format(racks_str)
         return map(float, self.send_cmd(cmd))
 

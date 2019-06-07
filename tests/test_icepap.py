@@ -3,7 +3,7 @@ import pytest
 from pyIcePAP.communication import CommType
 from pyIcePAP import EthIcePAPController
 
-from patch_socket import protect_socket
+from patch_socket import protect_socket, patch_socket, socket_context
 
 
 def confirm_initial_m1_state(s1):
@@ -66,20 +66,23 @@ def test_smart_system(smart_pap):
     assert smart_pap.get_power([151, 1]) == [False, True]
 
 
-def test_smart_racks(smart_pap):
 
-    assert smart_pap.get_rid(0) == ['0008.0153.F797']
-    assert smart_pap.get_rid([0]) == ['0008.0153.F797']
+@pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
+def test_racks(auto_axes):
+    with socket_context() as mock_sock:
+        patch_socket(mock_sock)
+        pap = EthIcePAPController('icepap1', auto_axes=auto_axes)
+        assert pap.get_rid(0) == ['0008.0153.F797']
+        assert pap.get_rid([0]) == ['0008.0153.F797']
 
-#    assert smart_pap.get_rid([0, 15]) == ['0008.0153.F797', '0008.020B.1028']
-#    assert smart_pap.get_rid([15, 0]) == ['0008.020B.1028', '0008.0153.F797']
+        assert pap.get_rid([0, 15]) == ['0008.0153.F797', '0008.020B.1028']
+        assert pap.get_rid([15, 0]) == ['0008.020B.1028', '0008.0153.F797']
 
-    assert smart_pap.get_rtemp(0) == [30.1]
-    assert smart_pap.get_rtemp([0]) == [30.1]
+        assert pap.get_rtemp(0) == [30.1]
+        assert pap.get_rtemp([0]) == [30.1]
 
-# BUG in pyicepap: 15 is being sent as hexadecimal: should be decimal
-#    assert smart_pap.get_rtemp([0, 15]) == [30.1, 29.5]
-#    assert smart_pap.get_rtemp([15, 0]) == [29.5, 30.1]
+        assert pap.get_rtemp([0, 15]) == [30.1, 29.5]
+        assert pap.get_rtemp([15, 0]) == [29.5, 30.1]
 
 
 def test_smart_axis(smart_pap):
