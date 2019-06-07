@@ -57,7 +57,8 @@ def test_smart_system(smart_pap):
     s1 = smart_pap.get_states(1)[0]
     confirm_initial_m1_state(s1)
     assert smart_pap.get_states([1])[0].status_register == 0x00205013
-    assert [s.status_register for s in smart_pap.get_states([1, 5])] == [0x00205013, 0x00205013]
+    assert [s.status_register for s in smart_pap.get_states([1, 5])] == [
+                                                            0x00205013, 0x00205013]
 
     assert smart_pap.get_power(1) == [True]
     assert smart_pap.get_power([1]) == [True]
@@ -66,8 +67,8 @@ def test_smart_system(smart_pap):
 
 
 def test_smart_racks(smart_pap):
-# BUG in pyicepap: cannot use single number
-#    assert smart_pap.get_rid(0) == ['0008.0153.F797']
+    # BUG in pyicepap: cannot use single number
+    #    assert smart_pap.get_rid(0) == ['0008.0153.F797']
     assert smart_pap.get_rid([0]) == ['0008.0153.F797']
 
 # BUG in pyicepap: 15 is being sent as hexadecimal: should be decimal
@@ -126,6 +127,7 @@ def test_smart_axis(smart_pap):
 
     del smart_pap[1]
     assert 1 not in smart_pap
+
 
 def test_smart_find_axes(smart_pap):
     assert set(smart_pap.find_axes()) == {1, 5, 151, 152}

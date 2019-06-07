@@ -17,6 +17,7 @@ SYSTEM       :  3.17 : Tue Feb 16 10:57:37 2016
    DRIVER    :  3.17
 $'''
 
+
 def patch_socket(mock):
     axes = {
         '1': dict(addr='1', name='th', pos_axis=55, fpos_axis=55,
@@ -41,6 +42,7 @@ def patch_socket(mock):
             msg = 'ERROR Board is not present in the system'
         cmd_reply = cmd.split('_')[0]
         return '{}:?{} {}\n'.format(axis, cmd_reply, msg)
+
     def get_multi_axis_question(cmd):
         args = cmd.split()
         cmd = args[0][1:]
@@ -86,7 +88,6 @@ def patch_socket(mock):
             rtemp = [racks[rack]['rtemp'] for rack in params]
             result = '?RTEMP {}\n'.format(' '.join(rtemp))
 
-
         elif ':?' in cmd:
             return get_axis_question(cmd)
         elif '?' in cmd:
@@ -96,6 +97,7 @@ def patch_socket(mock):
     mock.return_value.recv = recv
     mock.return_value.sendall = sendall
     mock.return_value.connect = connect
+
 
 def protect_socket(f):
     @functools.wraps(f)

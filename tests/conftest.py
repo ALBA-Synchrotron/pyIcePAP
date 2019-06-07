@@ -22,4 +22,3 @@ def expert_pap():
         patch_socket(mock_sock)
         ice = pyIcePAP.EthIcePAPController('icepaptest', auto_axes=False)
         yield ice
-
