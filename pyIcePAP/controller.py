@@ -793,6 +793,9 @@ class EthIcePAPController(IcePAPController):
                                   timeout=timeout, **kwargs)
 
     def __repr__(self):
+        return '{}({}:{})'.format(type(self).__name__, self._host, self._port)
+
+    def __str__(self):
         msg = 'EthIcePAPController connected to {}:{}'.format(self._host,
                                                               self._port)
         return msg
