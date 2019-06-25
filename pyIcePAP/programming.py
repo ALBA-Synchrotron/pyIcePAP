@@ -111,7 +111,11 @@ def firmware_update(hostname, filename, log):
     """
     ice = EthIcePAPController(hostname)
 
-    curr_ver = ice.check_version()
+    try:
+        curr_ver = ice.ver['SYSTEM']['VER'][0]
+    except Exception as e:
+        log.error('Can not read the current version. {}'.format(e))
+        curr_ver = -1
     log.info('Current firmware version is {}'.format(curr_ver))
     ice.mode = 'prog'
     load_firmware(ice, filename)
