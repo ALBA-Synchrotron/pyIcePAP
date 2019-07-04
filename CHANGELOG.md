@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [2.8.X] 
+## [2.9.X] 
+
+### Added
+- Optimize EthIcePAPController to do not create unused axes. 
+- Allow to create axes on execution time. 
+- Allow to use the controller without axes created. 
+- Add testing scripts. 
+
+### Fixed
+- Remove version checking on the update script.  
+
+## [2.8.1] 
 
 ### Added
 - Add axes and drivers as controller properties.
