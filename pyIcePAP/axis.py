@@ -38,6 +38,12 @@ class IcePAPAxis(object):
         #         self._axis_nr, self.addr)
         #     raise RuntimeError(msg)
 
+    def __repr__(self):
+        return '{}({})'.format(type(self).__name__, self._axis_nr)
+
+    def __str__(self):
+        return 'IcePAPAxis {} on {}'.format(self._axis_nr, self._ctrl)
+
     @staticmethod
     def get_ushort_list(ldata, dtype='FLOAT'):
         dtype = dtype.upper()

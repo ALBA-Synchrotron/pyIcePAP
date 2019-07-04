@@ -38,19 +38,38 @@ import time
 import logging
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
-from .utils import State
+from .utils import State, deprecated
 from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
-class IcePAPController(dict):
+class IcePAPController(object):
     """
     Base class for IcePAP motor controller.
     """
+    ALL_AXES_VALID = set([r * 10 + i for r in range(16) for i in range(1, 9)])
 
     def __init__(self, comm_type, *args, **kwargs):
-        dict.__init__(self)
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
+
+        # TODO: Remove on version 3.x
+        if 'auto_axes' not in kwargs:
+            import warnings
+            warnings.simplefilter("once")
+            # Force warnings.warn() to omit the source code line in the message
+            formatwarning_orig = warnings.formatwarning
+            warnings.formatwarning = \
+                lambda msg, cat, fname, lineno, line=None: \
+                formatwarning_orig(msg, cat, fname, lineno, line='')
+            msg = 'On version 3.x the constructor is lazy and it is up to ' \
+                  'the user of the object to request specific axes and ' \
+                  'manage their destruction. Use explicit auto_axes=True to ' \
+                  'create the axes on the EthIcePAPController creation.'
+            warnings.warn(msg, PendingDeprecationWarning, stacklevel=0)
+
+        # TODO: Set to False on version 3.x
+        auto_axes = kwargs.pop('auto_axes', True)
+
         self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
         # TODO: Find solution for serial communication.
         if not self.connected:
@@ -62,63 +81,41 @@ class IcePAPController(dict):
                         'is ON.'.format(host)
             self.log.error(error_msg)
             raise RuntimeError(error_msg)
-        self._aliases = {}
-        ver = self.ver.driver[0]
-        if ver >= 3:
-            self._new_api = True
-        else:
-            self._new_api = False
-            self.log.warning('The firmware is old {0}, some commands '
-                             'could not work'.format(ver))
 
-        self._create_axes()
+        self._aliases = {}
+        self._axes = {}
+
+        if auto_axes:
+            for axis in self.find_axes(only_alive=True):
+                self._axes[axis] = IcePAPAxis(self, axis)
 
     def __getitem__(self, item):
         if isinstance(item, str):
-            if item not in self._aliases:
-                msg = 'There is not any motor with name {0}'.format(item)
-                raise ValueError(msg)
-            item = self._aliases[item]
-        return dict.__getitem__(self, item)
+            item = self._get_axis_for_alias(item)
+        if item not in self._axes:
+            if item not in self.ALL_AXES_VALID:
+                raise ValueError('Bad axis value.')
+            self._axes[item] = IcePAPAxis(self, item)
+        return self._axes[item]
 
-    def _create_axes(self):
-        # Take the list of racks present in the system
-        # IcePAP user manual pag. 137
-        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
-        rack_mask = 1
-        duplicate_alias = []
+    def _get_axis_for_alias(self, alias):
+        if alias not in self._aliases:
+            msg = 'There is not any motor with name {0}'.format(alias)
+            raise ValueError(msg)
+        alias = self._aliases[alias]
+        return alias
 
-        for i in range(16):
-            if (racks_present & rack_mask << i) > 0:
-                # Take the motors presents for a rack.
-                cmd = '?sysstat {0}'.format(i)
-                drivers_mask = self._comm.send_cmd(cmd)
-                # TODO: Analyze if use the present or the alive mask
-                # drvs_present = int(drivers_mask[0], 16)
-                drvs_alives = int(drivers_mask[1], 16)
-                drv_mask = 1
-                for j in range(8):
-                    if (drvs_alives & drv_mask << j) > 0:
-                        axis_nr = i * 10 + j + 1
-                        motor = IcePAPAxis(self, axis_nr)
-                        self.__setitem__(axis_nr, motor)
-                        try:
-                            motor_name = motor.name
-                        except Exception as e:
-                            motor_name = None
-                            error_msg = 'Get name command field on axis ' \
-                                        '{0}. Error: {1}'.format(axis_nr, e)
-                            self.log.error(error_msg)
+    def __iter__(self):
+        return self._axes.__iter__()
 
-                        if motor_name is None or motor_name == '':
-                            continue
-                        if motor_name in self._aliases:
-                            self._aliases.pop(motor_name)
-                            duplicate_alias.append(motor_name)
-                            continue
-                        if motor_name in duplicate_alias:
-                            continue
-                        self._aliases[motor_name.lower()] = axis_nr
+    def __delitem__(self, key):
+        self._axes.pop(key)
+        aliases_to_remove = []
+        for alias, axis in self._aliases.items():
+            if key == axis:
+                aliases_to_remove.append(alias)
+        for alias in aliases_to_remove:
+            self._aliases.pop(alias)
 
     def _alias2axisstr(self, alias):
         """
@@ -130,8 +127,10 @@ class IcePAPController(dict):
 
         :return: str
         """
-        if isinstance(alias, int) or isinstance(alias, str):
-            result = str(self.__getitem__(alias)._axis_nr)
+        if isinstance(alias, int):
+            result = str(alias)
+        elif isinstance(alias, str):
+            result = str(self._get_axis_for_alias(alias))
         elif isinstance(alias, list):
             result = []
             for i in alias:
@@ -155,23 +154,29 @@ class IcePAPController(dict):
                                         cast_type(value))
         return result
 
+# -----------------------------------------------------------------------------
+#                       Properties
+# -----------------------------------------------------------------------------
+
     @property
     def axes(self):
         """
-        Get the alive axes numbers.
+        Get the axes numbers.
 
         :return: [int]
         """
-        return self.keys()
+        axes = list(self._axes.keys())
+        axes.sort()
+        return axes
 
     @property
     def drivers(self):
         """
-        Get the alive drivers IcePAPAxis objects.
+        Get the drivers IcePAPAxis objects.
 
         :return: [IcePAPAxis]
         """
-        return self.values()
+        return self._axes.values()
 
     @property
     def comm_type(self):
@@ -229,6 +234,114 @@ class IcePAPController(dict):
 
 # -----------------------------------------------------------------------------
 #                       Commands
+# -----------------------------------------------------------------------------
+
+    def items(self):
+        """
+        Get the axes and drivers IcePAPAxis objects.
+
+        :return: [(axis, IcePAPAxis),]
+        """
+
+        return self._axes.items()
+
+    @deprecated('controller.axes')
+    def keys(self):
+        """
+        Backward compatibility
+        :return:
+        """
+        return self._axes.keys()
+
+    @deprecated('controller.drivers')
+    def values(self):
+        """
+        Backward compatibility
+        :return:
+        """
+        return self._axes.values()
+
+    def find_axes(self, only_alive=False):
+
+        # Take the list of racks present in the system
+        # IcePAP user manual pag. 137
+        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
+        rack_mask = 1
+        axes = []
+        for i in range(16):
+            if (racks_present & rack_mask << i) > 0:
+                # Take the motors presents for a rack.
+                cmd = '?sysstat {0}'.format(i)
+                drivers_mask = self._comm.send_cmd(cmd)
+                # TODO: Analyze if use the present or the alive mask
+                if only_alive:
+                    # Drivers alive
+                    drvs = int(drivers_mask[1], 16)
+                else:
+                    # Drivers present
+                    drvs = int(drivers_mask[0], 16)
+                drv_mask = 1
+                for j in range(8):
+                    if (drvs & drv_mask << j) > 0:
+                        axis_nr = i * 10 + j + 1
+                        axes.append(axis_nr)
+        return axes
+
+    def update_axes(self):
+        """
+        Method to check if the axes created are presents. In case of no,
+        the method will remove the IcePAPAxis object and its aliases.
+
+        Note: The axis can be present but not alive
+
+        :return:
+        """
+        alive_axes = self.find_axes()
+        axes_to_remove = []
+
+        for axis in self._axes:
+            if axis not in alive_axes:
+                axes_to_remove.append(axis)
+
+        for axis in axes_to_remove:
+            self.__delitem__(axis)
+
+    def add_alias(self, alias, axis):
+        """
+        Set a alias for an axis. The axis can have more than one alias.
+
+        :param alias: str
+        :param axis: int
+        """
+        if axis not in self._axes:
+            self._axes[axis] = IcePAPAxis(self, axis)
+        self._aliases[alias] = axis
+
+    def add_aliases(self, aliases):
+        """
+        Set alias for mutiple axes.
+
+        :param aliases: {str: int}
+        """
+        for alias, axis in aliases.items():
+            self.add_alias(alias, axis)
+
+    def get_aliases(self):
+        """
+        Get the aliases of the system. One axis can have move than one alias.
+
+        :return: {int:[str]}
+        """
+        aliases = {}
+        for key, value in self._aliases.items():
+            if value in aliases:
+                aliases[value].append(key)
+            else:
+                aliases[value] = [key]
+        return aliases
+
+# -----------------------------------------------------------------------------
+#                       IcePAP Commands
 # -----------------------------------------------------------------------------
     def send_cmd(self, cmd):
         """
@@ -400,10 +513,12 @@ class IcePAPController(dict):
         Get the rack hardware identification string (IcePAP user manual pag.
         118).
 
-        :param rack_nrs: [int]
+        :param rack_nrs: int/[int]
         :return: [str]
         """
-        racks_str = ' '.join(['{0:x}'.format(i) for i in rack_nrs])
+        if isinstance(rack_nrs, int):
+            rack_nrs = [rack_nrs]
+        racks_str = ' '.join(['{}'.format(i) for i in rack_nrs])
         cmd = '?RID {0}'.format(racks_str)
         return self.send_cmd(cmd)
 
@@ -411,10 +526,12 @@ class IcePAPController(dict):
         """
         Get the rack temperatures (IcePAP user manual pag. 123).
 
-        :param rack_nrs: [int]
+        :param rack_nrs: int/[int]
         :return: [float]
         """
-        racks_str = ' '.join(['{0:x}'.format(i) for i in rack_nrs])
+        if isinstance(rack_nrs, int):
+            rack_nrs = [rack_nrs]
+        racks_str = ' '.join(['{}'.format(i) for i in rack_nrs])
         cmd = '?RTEMP {0}'.format(racks_str)
         return map(float, self.send_cmd(cmd))
 
@@ -600,40 +717,6 @@ class IcePAPController(dict):
         """
         return self.send_cmd('?PMUX')
 
-    def add_alias(self, alias, axis):
-        """
-        Set a alias for an axis. The axis can have more than one alias.
-
-        :param alias: str
-        :param axis: int
-        """
-        if alias in self._aliases:
-            self._aliases.pop(alias)
-        self._aliases[alias] = axis
-
-    def add_aliases(self, aliases):
-        """
-        Set alias for mutiple axes.
-
-        :param aliases: {str: int}
-        """
-        for alias, axis in aliases.items():
-            self.add_alias(alias, axis)
-
-    def get_aliases(self):
-        """
-        Get the aliases of the system. One axis can have move than one alias.
-
-        :return: {int:[str]}
-        """
-        aliases = {}
-        for key, value in self._aliases.items():
-            if value in aliases:
-                aliases[value].append(key)
-            else:
-                aliases[value] = [key]
-        return aliases
-
     def sprog(self, component=None, force=False, saving=False):
         """
         Firmware programming command. This command assumes that the firmware
@@ -703,6 +786,16 @@ class EthIcePAPController(IcePAPController):
     This class implements the sockry communication layer for the IcePAP motor
     controller inhereted from IcePAPController class.
     """
-    def __init__(self, host, port=5000, timeout=3):
+    def __init__(self, host, port=5000, timeout=3, **kwargs):
+        self._host = host
+        self._port = port
         IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
-                                  timeout=timeout)
+                                  timeout=timeout, **kwargs)
+
+    def __repr__(self):
+        return '{}({}:{})'.format(type(self).__name__, self._host, self._port)
+
+    def __str__(self):
+        msg = 'EthIcePAPController connected to {}:{}'.format(self._host,
+                                                              self._port)
+        return msg
