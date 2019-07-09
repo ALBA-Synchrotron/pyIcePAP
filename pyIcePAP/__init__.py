@@ -12,7 +12,6 @@
 # -----------------------------------------------------------------------------
 
 # TODO: better use the __all__ = [...] structure
-from .legacy import *
 from .communication import EthIcePAPCommunication
 from .controller import EthIcePAPController
 # from .programming import *
