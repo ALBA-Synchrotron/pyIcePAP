@@ -140,11 +140,11 @@ class IcePAPController(object):
             raise ValueError()
         return result
 
-    def _axesvalues2str(self, axes_values, cast_type=long):
+    def _axesvalues2str(self, axes_values, cast_type=int):
         """
         Method to convert a list of tuples (axis, pos) to a string.
 
-        :param axes_values: [[str/int, float/long]]
+        :param axes_values: [[str/int, float/int]]
 
         :return: str
         """
@@ -176,7 +176,7 @@ class IcePAPController(object):
 
         :return: [IcePAPAxis]
         """
-        return self._axes.values()
+        return list(self._axes.values())
 
     @property
     def comm_type(self):
@@ -243,7 +243,7 @@ class IcePAPController(object):
         :return: [(axis, IcePAPAxis),]
         """
 
-        return self._axes.items()
+        return list(self._axes.items())
 
     def find_axes(self, only_alive=False):
 
@@ -424,7 +424,7 @@ class IcePAPController(object):
         """
         cmd = '?FPOS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return list(map(float, ans))
 
     def get_fstatus(self, axes):
         """
@@ -467,7 +467,7 @@ class IcePAPController(object):
         :return: system version number, -1 if not consistent.
         """
         sys_ver = str(self.ver['SYSTEM']['VER'][0])
-        if sys_ver in SUPPORTED_VERSIONS.keys():
+        if sys_ver in list(SUPPORTED_VERSIONS.keys()):
             if self.ver.is_supported():
                 return self.ver['SYSTEM']['VER'][0]
             else:
@@ -517,7 +517,7 @@ class IcePAPController(object):
             rack_nrs = [rack_nrs]
         racks_str = ' '.join(['{}'.format(i) for i in rack_nrs])
         cmd = '?RTEMP {0}'.format(racks_str)
-        return map(float, self.send_cmd(cmd))
+        return list(map(float, self.send_cmd(cmd)))
 
     def set_power(self, axes, power_on=True):
         """
@@ -558,7 +558,7 @@ class IcePAPController(object):
         """
         cmd = '?POS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(long, ans)
+        return list(map(int, ans))
 
     def set_pos(self, axes_pos, register='AXIS'):
         """
@@ -580,7 +580,7 @@ class IcePAPController(object):
         """
         cmd = '?ENC {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(long, ans)
+        return list(map(int, ans))
 
     def set_enc(self, axes_pos, register='AXIS'):
         """
@@ -612,7 +612,7 @@ class IcePAPController(object):
         """
         cmd = '?VELOCITY {0} {1}'.format(vtype, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return list(map(float, ans))
 
     def set_velocity(self, axes_vel):
         """
@@ -633,7 +633,7 @@ class IcePAPController(object):
         """
         cmd = '?ACCTIME {0} {1}'.format(atype, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return list(map(float, ans))
 
     def set_acctime(self, axes_acc):
         """
