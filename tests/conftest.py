@@ -1,6 +1,6 @@
 import collections
 import pytest
-import mock
+import unittest.mock as mock
 import pyIcePAP
 
 from patch_socket import patch_socket

@@ -1,7 +1,5 @@
 import functools
-
-import mock
-
+import unittest.mock as mock
 import socket
 
 VER = '''\
