@@ -150,7 +150,7 @@ class FirmwareVersion(dict):
 
     def _is_valid_system(self):
         # print('supported system', str(self['SYSTEM']['VER'][0]))
-        return str(self['SYSTEM']['VER'][0]) in SUPPORTED_VERSIONS.keys()
+        return str(self['SYSTEM']['VER'][0]) in list(SUPPORTED_VERSIONS.keys())
 
     @key_error
     def _is_valid_ctrl(self):
