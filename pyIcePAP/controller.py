@@ -38,7 +38,7 @@ import time
 import logging
 from .communication import IcePAPCommunication, CommType
 from .axis import IcePAPAxis
-from .utils import State, deprecated
+from .utils import State
 from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
@@ -244,22 +244,6 @@ class IcePAPController(object):
         """
 
         return self._axes.items()
-
-    @deprecated('controller.axes')
-    def keys(self):
-        """
-        Backward compatibility
-        :return:
-        """
-        return self._axes.keys()
-
-    @deprecated('controller.drivers')
-    def values(self):
-        """
-        Backward compatibility
-        :return:
-        """
-        return self._axes.values()
 
     def find_axes(self, only_alive=False):
 
