@@ -28,6 +28,7 @@ except ImportError:
 
 __all__ = ['CommType', 'IcePAPCommunication', 'EthIcePAPCommunication']
 
+ICEPAP_ENCODING = 'latin-1'
 
 def comm_error_handler(f):
     """
@@ -298,7 +299,8 @@ class SocketCom(object):
                     break
                 time.sleep(sleep_time)
 
-    def _send_data(self, raw_data, wait_answer=True, size=8192):
+    def _send_data(self, data, wait_answer=True, size=8192):
+        raw_data = data.encode(ICEPAP_ENCODING)
         if not self._connected:
             self._start_thread()
             raise RuntimeError('Connection error: No connection with the '
@@ -323,7 +325,7 @@ class SocketCom(object):
                     self._socket.sendall(raw_data)
                 if wait_answer:
                     answer = self._socket.recv(size)
-                    if answer.count("$") > 0:
+                    if answer.count(b'$') > 0:
                         # -----------------------------------------------------
                         # WORKAROUND
                         # -----------------------------------------------------
@@ -354,10 +356,10 @@ class SocketCom(object):
                         #
                         # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
                         # FOUND
-                        while answer.count('$') < 2:
+                        while answer.count(b'$') < 2:
                             answer = answer + self._socket.recv(size)
                     self.log.debug('RAW_DATA read: {0}'.format(repr(answer)))
-                    return answer
+                    return answer.decode(ICEPAP_ENCODING)
         except Exception as e:
             self._start_thread()
             raise RuntimeError('Communication error: Error sending command to '
