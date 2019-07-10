@@ -15,6 +15,8 @@ SYSTEM       :  3.17 : Tue Feb 16 10:57:37 2016
    DRIVER    :  3.17
 $'''
 
+ENCODING = 'latin-1'
+
 
 def patch_socket(mock):
     axes = {
@@ -58,13 +60,14 @@ def patch_socket(mock):
             raise socket.error(111, 'Connection refused')
 
     def sendall(data):
-        last_send[0] = data
+        # sockets receive bytes
+        last_send[0] = data.decode(ENCODING)
 
     def recv(size):
         cmd = last_send[0]
         last_send[0] = None
         cmd = cmd.upper().strip().replace('POS AXIS', 'POS_AXIS')
-        answer = ('#' in cmd) or ('?' in cmd)
+        # answer = ('#' in cmd) or ('?' in cmd)
 
         if cmd == '0:?VER INFO':
             result = VER
@@ -87,11 +90,12 @@ def patch_socket(mock):
             result = '?RTEMP {}\n'.format(' '.join(rtemp))
 
         elif ':?' in cmd:
-            return get_axis_question(cmd)
+            result = get_axis_question(cmd)
         elif '?' in cmd:
-            return get_multi_axis_question(cmd)
+            result = get_multi_axis_question(cmd)
         # sockets return bytes
-        return result.encode('ascii')
+        return result.encode(ENCODING)
+
     mock.return_value.recv = recv
     mock.return_value.sendall = sendall
     mock.return_value.connect = connect
