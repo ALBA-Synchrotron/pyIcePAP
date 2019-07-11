@@ -154,7 +154,7 @@ class vdata(object):
             firstval = 0
 
         if format not in [FLOAT, DFLOAT]:
-            data = map(long, data)
+            data = list(map(int, data))
 
         header_size = struct.calcsize(self.__header_format)
         full_size = header_size + struct.calcsize(dformat)
