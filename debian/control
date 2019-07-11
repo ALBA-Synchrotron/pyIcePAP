@@ -1,0 +1,16 @@
+Source: pyicepap
+Maintainer: guifre <guifre.cuni@cells.es>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 9)
+Standards-Version: 3.9.8
+
+Package: python-pyicepap
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-numpy
+Description: Python IcePAP Extension
+ Python IcePAP Extension for Win32, Linux, BSD, Jython
+ This is the python library to access IcePAP systems for generic purpose.
+ It provides Serial and Socket objects to interact with the IcePAP System.
+ Logging can be enabled by code.
+

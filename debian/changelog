@@ -1,0 +1,7 @@
+pyicepap (2.9.0-0~bpo9+0~alba+1) stretch-backports; urgency=medium
+
+  * local package
+  * New upstream version 2.9.0
+
+ -- Carlos Falcon <cfalcon@cells.es>  Thu, 11 Jul 2019 10:26:55 +0000
+
