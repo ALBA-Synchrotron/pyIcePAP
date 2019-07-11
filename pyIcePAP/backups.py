@@ -88,7 +88,7 @@ class IcePAPBackup(object):
                              'some commands will fail.'.format(axis))
         # Version
         ver = self._ipap[axis].ver
-        keys = ver['SYSTEM']['DRIVER'].keys()
+        keys = list(ver['SYSTEM']['DRIVER'].keys())
         keys.sort()
         for key in keys:
             option = 'VER_{0}'.format(key)
@@ -101,7 +101,7 @@ class IcePAPBackup(object):
                           'messages'.format(ver.driver))
         # Configuration
         ipap_cfg = self._ipap[axis].get_cfg()
-        keys = ipap_cfg.keys()
+        keys = list(ipap_cfg.keys())
         keys.sort()
         for key in keys:
             option = 'CFG_{0}'.format(key)
@@ -172,7 +172,7 @@ class IcePAPBackup(object):
         self._cfg_ipap.add_section(section_name)
         # Version
         ver = self._ipap.ver
-        keys = ver['SYSTEM']['CONTROLLER'].keys()
+        keys = list(ver['SYSTEM']['CONTROLLER'].keys())
         keys.sort()
         for key in keys:
             option = 'VER_{0}'.format(key)
@@ -186,7 +186,7 @@ class IcePAPBackup(object):
         self._add_system()
         self._add_controller()
         if len(axes) == 0:
-            axes = self._ipap.keys()
+            axes = self._ipap.axes
             axes.sort()
         for axis in axes:
             self._add_axis(axis)
