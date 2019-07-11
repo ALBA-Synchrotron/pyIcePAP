@@ -331,7 +331,7 @@ class IcePAPAxis(object):
         return self.state.is_5vpower()
 
     @property
-    def state_vererr(self):
+    def state_verserr(self):
         """
         Check if the vererr flag is active.
 
