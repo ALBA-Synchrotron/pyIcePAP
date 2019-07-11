@@ -1,23 +1,47 @@
 import pytest
 
 from pyIcePAP.communication import CommType
-from pyIcePAP import EthIcePAPController
+from pyIcePAP import EthIcePAPController, State
 
 from patch_socket import protect_socket, patch_socket, socket_context
 
 
-def confirm_initial_m1_state(s1):
-    assert s1.status_register == 0x00205013
-    assert s1.is_present()
-    assert s1.is_alive()
-    assert s1.get_mode_str() == 'OPER'
-    assert s1.is_disabled()
-    assert s1.get_disable_str() == 'Axis not active'
+def confirm_m1(m1):
+    # Status register 0x00205013
+    assert m1.state_present is True
+    assert m1.state_moving is False
+    assert m1.state_ready is False
+    assert m1.state_settling is False
+    assert m1.state_outofwin is True
+    assert m1.state_warning is False
+    assert m1.state_alive is True
+    assert m1.state_mode_str == 'OPER'
+    assert m1.state_mode_code == 0
+    assert m1.state_disabled is True
+    assert m1.state_disable_code == 1
+    assert m1.state_disable_str == 'Axis not active'
+    assert m1.state_indexer_code == 0
+    assert m1.state_indexer_str == 'Internal indexer'
+    assert m1.state_stop_code == 1
+    assert m1.state_stop_str == 'Stop'
+    assert m1.state_limit_positive is False
+    assert m1.state_limit_negative is False
+    assert m1.state_inhome is False
+    assert m1.state_5vpower is True
+    assert m1.state_verserr is False
+    assert m1.state_poweron is False
+    assert m1.state_info_code == 0
+
+    assert m1.active is True
+    assert m1.mode == 'OPER'
+    assert m1.alarm == (False, '')
+    assert m1.config == 'toto@pc1_2019/06/17_12:51:24'
 
 
 def ice_auto_axes(f):
     """A helper which provides parametrized auto_axes version of icepap"""
-    @pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
+    @pytest.mark.parametrize('auto_axes', [True, False],
+                             ids=['smart', 'expert'])
     def wrapper(auto_axes):
         with socket_context() as mock_sock:
             patch_socket(mock_sock)
@@ -26,14 +50,15 @@ def ice_auto_axes(f):
     return wrapper
 
 
-@pytest.mark.parametrize('auto_axes', [True, False], ids=['smart', 'expert'])
+@pytest.mark.parametrize('auto_axes', [True, False],
+                         ids=['smart', 'expert'])
 def test_create_eth_icepap(auto_axes):
     with socket_context() as mock_sock:
         patch_socket(mock_sock)
         with pytest.raises(RuntimeError):
-            ice = EthIcePAPController('weirdhost')
+            EthIcePAPController('weirdhost')
         with pytest.raises(RuntimeError):
-            ice = EthIcePAPController('icepap1', 5001)
+            EthIcePAPController('icepap1', 5001)
         ice = EthIcePAPController('icepap1', 5000)
         assert ice is not None
 
@@ -69,11 +94,11 @@ def test_system(pap):
     assert pap.get_fstatus([1]) == [0x00205013]
     assert pap.get_fstatus([1, 5]) == [0x00205013, 0x00205013]
 
-    s1 = pap.get_states(1)[0]
-    confirm_initial_m1_state(s1)
+    m1 = pap[1]
+    confirm_m1(m1)
     assert pap.get_states([1])[0].status_register == 0x00205013
-    assert [s.status_register for s in pap.get_states([1, 5])] == [
-                                                            0x00205013, 0x00205013]
+    assert [s.status_register for s in pap.get_states([1, 5])] == \
+           [0x00205013, 0x00205013]
 
     assert pap.get_power(1) == [True]
     assert pap.get_power([1]) == [True]
@@ -143,9 +168,8 @@ def test_smart_axis(smart_pap):
     assert m1.name == 'th'
     assert m1.pos == 55
     assert m1.status == 0x00205013
-    assert m1.power == True
-    s1 = m1.state
-    confirm_initial_m1_state(s1)
+    assert m1.power is True
+    confirm_m1(m1)
 
     assert smart_pap.get_pos(1) == [55]
     assert smart_pap.get_pos('toto') == [55]
@@ -196,9 +220,8 @@ def test_expert_axis(expert_pap):
     assert m1.name == 'th'
     assert m1.pos == 55
     assert m1.status == 0x00205013
-    assert m1.power == True
-    s1 = m1.state
-    confirm_initial_m1_state(s1)
+    assert m1.power is True
+    confirm_m1(m1)
 
     assert expert_pap.get_pos(1) == [55]
     assert expert_pap.get_pos('toto') == [55]

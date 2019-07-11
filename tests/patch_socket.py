@@ -21,7 +21,9 @@ ENCODING = 'latin-1'
 def patch_socket(mock):
     axes = {
         '1': dict(addr='1', name='th', pos_axis=55, fpos_axis=55,
-                  status='0x00205013', fstatus='0x00205013', power='ON'),
+                  status='0x00205013', fstatus='0x00205013', power='ON',
+                  active='YES', mode='OPER', alarm='NO',
+                  config='toto@pc1_2019/06/17_12:51:24'),
         '5': dict(addr='5', name='tth', pos_axis=-3, fpos_axis=-3,
                   status='0x00205013', fstatus='0x00205013', power='ON'),
         '151': dict(addr='151', name='chi', pos_axis=-1000, fpos_axis=-1000,
