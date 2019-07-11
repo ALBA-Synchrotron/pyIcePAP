@@ -52,23 +52,7 @@ class IcePAPController(object):
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
 
-        # TODO: Remove on version 3.x
-        if 'auto_axes' not in kwargs:
-            import warnings
-            warnings.simplefilter("once")
-            # Force warnings.warn() to omit the source code line in the message
-            formatwarning_orig = warnings.formatwarning
-            warnings.formatwarning = \
-                lambda msg, cat, fname, lineno, line=None: \
-                formatwarning_orig(msg, cat, fname, lineno, line='')
-            msg = 'On version 3.x the constructor is lazy and it is up to ' \
-                  'the user of the object to request specific axes and ' \
-                  'manage their destruction. Use explicit auto_axes=True to ' \
-                  'create the axes on the EthIcePAPController creation.'
-            warnings.warn(msg, PendingDeprecationWarning, stacklevel=0)
-
-        # TODO: Set to False on version 3.x
-        auto_axes = kwargs.pop('auto_axes', True)
+        auto_axes = kwargs.pop('auto_axes', False)
 
         self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
         # TODO: Find solution for serial communication.

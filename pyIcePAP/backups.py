@@ -70,7 +70,7 @@ class IcePAPBackup(object):
             port = int(self._cfg_bkp.get('SYSTEM', 'PORT'))
         self._host = host
         self._port = port
-        self._ipap = EthIcePAPController(host, port, timeout)
+        self._ipap = EthIcePAPController(host, port, timeout, auto_axes=True)
 
     def _add_axis(self, axis):
         """
