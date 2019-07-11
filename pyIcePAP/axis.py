@@ -229,7 +229,7 @@ class IcePAPAxis(object):
 
         :return: str
         """
-        return self.state.get_disable_str()
+        return self.state.get_indexer_str()
 
     @property
     def state_moving(self):
