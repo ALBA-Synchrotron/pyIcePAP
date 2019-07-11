@@ -130,7 +130,7 @@ class IcePAPAxis(object):
 
         :return: str
         """
-        return self.send_cmd('?MODE')
+        return self.send_cmd('?MODE')[0]
 
     @property
     def status(self):
