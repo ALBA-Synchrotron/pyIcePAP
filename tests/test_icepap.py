@@ -1,9 +1,14 @@
 import pytest
+import random
 
 from pyIcePAP.communication import CommType
 from pyIcePAP import EthIcePAPController, State
 
 from patch_socket import protect_socket, patch_socket, socket_context
+
+
+def get_random_pos():
+    return random.randrange(-10000, 10000)
 
 
 def confirm_m1(m1):
@@ -32,10 +37,53 @@ def confirm_m1(m1):
     assert m1.state_poweron is False
     assert m1.state_info_code == 0
 
+    assert m1.stopcode == 0
+    assert m1.vstopcode == 'No abnormal stop condition'
     assert m1.active is True
     assert m1.mode == 'OPER'
     assert m1.alarm == (False, '')
     assert m1.config == 'toto@pc1_2019/06/17_12:51:24'
+    assert m1.id == ('0008.028E.EB82', '4960')
+
+    assert m1.meas_vcc == 80.2165
+    assert m1.meas_i == 0.00545881
+    assert m1.meas_ia == -0.00723386
+    assert m1.meas_ib == -0.000653267
+    assert m1.meas_ic == 0
+    assert m1.meas_r == -6894.35
+    assert m1.meas_ra == -3797.74
+    assert m1.meas_rb == -3797.74
+    with pytest.raises(RuntimeError):
+        m1.meas_rc
+
+    pos = get_random_pos()
+    m1.pos = pos
+    assert m1.pos == pos
+    pos = get_random_pos()
+    m1.pos_shftenc = pos
+    assert m1.pos_shftenc == pos
+    pos = get_random_pos()
+    m1.pos_tgtenc = pos
+    assert m1.pos_tgtenc == pos
+    pos = get_random_pos()
+    m1.pos_ctrlenc = pos
+    assert m1.pos_ctrlenc == pos
+    pos = get_random_pos()
+    m1.pos_encin = pos
+    assert m1.pos_encin == pos
+    pos = get_random_pos()
+    m1.pos_inpos = pos
+    assert m1.pos_inpos == pos
+    # TODO implement exception to configuration mode
+    pos = get_random_pos()
+    m1.pos_absenc = pos
+    assert m1.pos_absenc == pos
+    pos = get_random_pos()
+    m1.pos_motor = pos
+    assert m1.pos_motor == pos
+    pos = get_random_pos()
+    m1.pos_sync = pos
+    assert m1.pos_sync == pos
 
 
 def ice_auto_axes(f):
@@ -75,7 +123,9 @@ def test_connection(pap):
 @ice_auto_axes
 def test_system(pap):
     assert pap.mode == 'OPER'
-
+    m1 = pap[1]
+    confirm_m1(m1)
+    m1.pos = 55
     assert pap.get_pos(1) == [55]
     assert pap.get_pos([1]) == [55]
     assert pap.get_pos([1, 5]) == [55, -3]
@@ -94,8 +144,6 @@ def test_system(pap):
     assert pap.get_fstatus([1]) == [0x00205013]
     assert pap.get_fstatus([1, 5]) == [0x00205013, 0x00205013]
 
-    m1 = pap[1]
-    confirm_m1(m1)
     assert pap.get_states([1])[0].status_register == 0x00205013
     assert [s.status_register for s in pap.get_states([1, 5])] == \
            [0x00205013, 0x00205013]
@@ -166,11 +214,10 @@ def test_smart_axis(smart_pap):
 
     assert m1.addr == 1
     assert m1.name == 'th'
-    assert m1.pos == 55
     assert m1.status == 0x00205013
     assert m1.power is True
     confirm_m1(m1)
-
+    m1.pos = 55
     assert smart_pap.get_pos(1) == [55]
     assert smart_pap.get_pos('toto') == [55]
 
@@ -218,10 +265,10 @@ def test_expert_axis(expert_pap):
 
     assert m1.addr == 1
     assert m1.name == 'th'
-    assert m1.pos == 55
     assert m1.status == 0x00205013
     assert m1.power is True
     confirm_m1(m1)
+    m1.pos = 55
 
     assert expert_pap.get_pos(1) == [55]
     assert expert_pap.get_pos('toto') == [55]

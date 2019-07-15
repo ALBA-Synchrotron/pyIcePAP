@@ -23,7 +23,17 @@ def patch_socket(mock):
         '1': dict(addr='1', name='th', pos_axis=55, fpos_axis=55,
                   status='0x00205013', fstatus='0x00205013', power='ON',
                   active='YES', mode='OPER', alarm='NO',
-                  config='toto@pc1_2019/06/17_12:51:24'),
+                  config='toto@pc1_2019/06/17_12:51:24',
+                  stopcode='0x0000', vstopcode='No abnormal stop condition',
+                  warning='NONE', wtemp='45', cswitch='NORMAL',
+                  id_hw='0008.028E.EB82', id_sn='4960', post='0', auxps='ON',
+                  meas_vcc='80.2165', meas_i='0.00545881',
+                  meas_ia='-0.00723386', meas_ib='-0.000653267',
+                  meas_ic='0', meas_r='-6894.35', meas_ra='-3797.74',
+                  meas_rb='-3797.74',
+                  meas_rc='ERROR Current too low to take the measure',
+
+                  ),
         '5': dict(addr='5', name='tth', pos_axis=-3, fpos_axis=-3,
                   status='0x00205013', fstatus='0x00205013', power='ON'),
         '151': dict(addr='151', name='chi', pos_axis=-1000, fpos_axis=-1000,
@@ -35,6 +45,8 @@ def patch_socket(mock):
         '0': dict(rid='0008.0153.F797', stat='0x11 0x11', rtemp='30.1'),
         '15': dict(rid='0008.020B.1028', stat='0x03 0x01', rtemp='29.5')
     }
+
+    last_send = [None]
 
     def get_axis_question(cmd):
         axis, cmd = cmd.split(':?', 1)
@@ -52,25 +64,7 @@ def patch_socket(mock):
         cmd_reply = cmd.split('_')[0]
         return '?{} {}\n'.format(cmd_reply, ' '.join(pos))
 
-    last_send = [None]
-
-    def connect(addr):
-        host, port = addr
-        if not host.startswith('icepap'):
-            raise socket.gaierror(-2, 'Name or service not known')
-        if port != 5000:
-            raise socket.error(111, 'Connection refused')
-
-    def sendall(data):
-        # sockets receive bytes
-        last_send[0] = data.decode(ENCODING)
-
-    def recv(size):
-        cmd = last_send[0]
-        last_send[0] = None
-        cmd = cmd.upper().strip().replace('POS AXIS', 'POS_AXIS')
-        # answer = ('#' in cmd) or ('?' in cmd)
-
+    def process_read_cmd(cmd):
         if cmd == '0:?VER INFO':
             result = VER
         elif cmd == '?SYSSTAT':
@@ -95,8 +89,89 @@ def patch_socket(mock):
             result = get_axis_question(cmd)
         elif '?' in cmd:
             result = get_multi_axis_question(cmd)
+
+        return result
+
+    def set_axis(cmd):
+        #import pdb; pdb.set_trace()
+        axis, cmd = cmd.split(':', 1)
+        register, value = cmd.split()
+        if axis in axes:
+            axes[axis][register.lower()] = value
+            msg = 'OK'
+        else:
+            msg = 'ERROR Board is not present in the system'
+        cmd_reply = cmd.split('_')[0]
+        return '{}:{} {}\n'.format(axis, cmd_reply, msg)
+
+    def set_multi_axis(cmd):
+        pass
+
+    def process_write_cmd(cmd):
+        cmd = cmd.replace('#', '')
+        if ':' in cmd:
+            result = set_axis(cmd)
+        else:
+            result = set_multi_axis(cmd)
+        return result
+
+    def connect(addr):
+        host, port = addr
+        if not host.startswith('icepap'):
+            raise socket.gaierror(-2, 'Name or service not known')
+        if port != 5000:
+            raise socket.error(111, 'Connection refused')
+
+    def sendall(data):
+        # sockets receive bytes
+        cmd = data.decode(ENCODING)
+        last_send[0] = cmd
+        return len(cmd)
+
+    def recv(size):
+        cmd = last_send[0]
+        last_send[0] = None
+        cmd = cmd.upper().strip()
+
+        # Position registers
+        cmd = cmd.replace('POS AXIS', 'POS_AXIS')
+        cmd = cmd.replace('POS SHFTENC', 'POS_AXIS')
+        cmd = cmd.replace('POS TGTENC', 'POS_AXIS')
+        cmd = cmd.replace('POS CTRLENC', 'POS_AXIS')
+        cmd = cmd.replace('POS ENCIN', 'POS_AXIS')
+        cmd = cmd.replace('POS INPOS', 'POS_AXIS')
+        cmd = cmd.replace('POS ABSENC', 'POS_AXIS')
+        cmd = cmd.replace('POS MOTOR', 'POS_AXIS')
+        cmd = cmd.replace('POS SYNC', 'POS_AXIS')
+        # Encoder registers
+
+        # ID
+        cmd = cmd.replace('ID HW', 'ID_HW')
+        cmd = cmd.replace('ID SN', 'ID_SN')
+
+        # Measurement registers
+        cmd = cmd.replace('MEAS VCC', 'MEAS_VCC')
+        cmd = cmd.replace('MEAS I', 'MEAS_I')
+        cmd = cmd.replace('MEAS IA', 'MEAS_IA')
+        cmd = cmd.replace('MEAS IB', 'MEAS_IB')
+        cmd = cmd.replace('MEAS IC', 'MEAS_IC')
+        cmd = cmd.replace('MEAS R', 'MEAS_R')
+        cmd = cmd.replace('MEAS RA', 'MEAS_RA')
+        cmd = cmd.replace('MEAS RB', 'MEAS_RB')
+        cmd = cmd.replace('MEAS RC', 'MEAS_RC')
+        cmd = cmd.replace('MEAS T', 'MEAS_T')
+        cmd = cmd.replace('MEAS RT', 'MEAS_RT')
+
+        if '?' in cmd:
+            result = process_read_cmd(cmd)
+        else:
+            result = process_write_cmd(cmd)
+
         # sockets return bytes
         return result.encode(ENCODING)
+
+        process_read_cmd()
+
 
     mock.return_value.recv = recv
     mock.return_value.sendall = sendall
