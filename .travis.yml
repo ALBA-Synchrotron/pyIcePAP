@@ -13,7 +13,7 @@ install:
 before_script:
     - flake8 icepap --count --max-line-length=127 --statistics
 script:
-    - true
+    - python setup.py test
 
 notifications:
     on_success: change
