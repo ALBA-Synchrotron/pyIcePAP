@@ -116,6 +116,7 @@ def confirm_m1(m1):
 
     m1.velocity = 200
     assert m1.velocity == 200
+    assert m1.velocity_current == 200
     assert m1.velocity_default == 50
     assert m1.velocity_max == 3000
     assert m1.velocity_min == 2
@@ -126,6 +127,17 @@ def confirm_m1(m1):
         m1.velocity_min = 100
     with pytest.raises(AttributeError):
         m1.velocity_max = 100
+
+    m1.acctime = 0.1
+    assert m1.acctime == 0.1
+    assert m1.acctime_default == 0.01
+    assert m1.acctime_steps == 30
+
+    assert m1.pcloop is True
+    m1.pcloop = False
+    assert m1.pcloop is False
+
+    assert m1.indexer == 'INTERNAL'
 
 
 def ice_auto_axes(f):

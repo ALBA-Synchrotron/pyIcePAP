@@ -33,7 +33,9 @@ def patch_socket(mock):
                   meas_rb='-3797.74',
                   meas_rc='ERROR Current too low to take the measure',
                   enc_axis=100, velocity=100, velocity_max=3000,
-                  velocity_min=2, velocity_default=50),
+                  velocity_min=2, velocity_default=50, acctime=0.1,
+                  acctime_default=0.01, acctime_steps=30, pcloop='ON',
+                  indexer='INTERNAL'),
         '5': dict(addr='5', name='tth', pos_axis=-3, fpos_axis=-3,
                   status='0x00205013', fstatus='0x00205013', power='ON'),
         '151': dict(addr='151', name='chi', pos_axis=-1000, fpos_axis=-1000,
@@ -175,6 +177,11 @@ def patch_socket(mock):
         cmd = cmd.replace('VELOCITY MIN', 'VELOCITY_MIN')
         cmd = cmd.replace('VELOCITY MAX', 'VELOCITY_MAX')
         cmd = cmd.replace('VELOCITY DEFAULT', 'VELOCITY_DEFAULT')
+        cmd = cmd.replace('VELOCITY CURRENT', 'VELOCITY')
+
+        # Acceleration time
+        cmd = cmd.replace('ACCTIME DEFAULT', 'ACCTIME_DEFAULT')
+        cmd = cmd.replace('ACCTIME STEPS', 'ACCTIME_STEPS')
 
         if '?' in cmd:
             result = process_read_cmd(cmd)
