@@ -1065,7 +1065,7 @@ class IcePAPAxis(object):
         self.set_acceleration(value)
 
     @property
-    def acctime_step(self):
+    def acctime_steps(self):
         """
         Get the acceleration in steps distances (see get_acceleration method).
 
