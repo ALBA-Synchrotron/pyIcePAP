@@ -265,9 +265,9 @@ class SocketCom(object):
         str_nworddata = struct.pack('L', nworddata)[:4]
         str_maskedchksum = struct.pack('L', maskedchksum)[:4]
         str_data = data.tostring()
-        str_bin = '{0}{1}{2}{3}\r'.format(str_startmark, str_nworddata,
-                                          str_maskedchksum, str_data)
-        self._send_data(str_bin, wait_answer=False)
+        str_bin = str_startmark + str_nworddata + str_maskedchksum + str_data
+        str_bin += b'\r'
+        self._send_data(str_bin, wait_answer=False, encoding=False)
 
     def _start_thread(self, wait=True):
         self.log.debug('Start thread {0}'.format(self._connect_thread))
@@ -300,8 +300,12 @@ class SocketCom(object):
                     break
                 time.sleep(sleep_time)
 
-    def _send_data(self, data, wait_answer=True, size=8192):
-        raw_data = data.encode(ICEPAP_ENCODING)
+    def _send_data(self, data, wait_answer=True, size=8192, encoding=True):
+        if encoding:
+            raw_data = data.encode(ICEPAP_ENCODING)
+        else:
+            raw_data = data
+
         if not self._connected:
             self._start_thread()
             raise RuntimeError('Connection error: No connection with the '
