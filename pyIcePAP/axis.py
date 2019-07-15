@@ -702,7 +702,7 @@ class IcePAPAxis(object):
 
         :param value: int
         """
-        self.set_pos('SFHTENC', value)
+        self.set_pos('SHFTENC', value)
 
     @property
     def pos_tgtenc(self):
@@ -864,7 +864,7 @@ class IcePAPAxis(object):
 
         :param value: int
         """
-        self.set_enc('SFHTENC', value)
+        self.set_enc('SHFTENC', value)
 
     @property
     def enc_tgtenc(self):
