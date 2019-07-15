@@ -30,6 +30,7 @@ __all__ = ['CommType', 'IcePAPCommunication', 'EthIcePAPCommunication']
 
 ICEPAP_ENCODING = 'latin-1'
 
+
 def comm_error_handler(f):
     """
     Error handling function (decorator).
