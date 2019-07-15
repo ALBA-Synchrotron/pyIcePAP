@@ -1,8 +1,8 @@
 import pytest
 import random
 
-from pyIcePAP.communication import CommType
-from pyIcePAP import EthIcePAPController
+from icepap.communication import CommType
+from icepap import EthIcePAPController
 
 from patch_socket import protect_socket, patch_socket, socket_context
 

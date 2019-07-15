@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -9,7 +9,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 import argparse
@@ -56,7 +56,7 @@ LOGGING_CONFIG = {
             'propagate': True,
             'level': 'INFO',
         },
-        'pyIcePAP': {
+        'icepap': {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': True,

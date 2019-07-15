@@ -200,7 +200,7 @@ def patch_socket(mock):
 
 
 def socket_context():
-    return mock.patch('pyIcePAP.communication.socket')
+    return mock.patch('icepap.communication.socket')
 
 
 def protect_socket(f):

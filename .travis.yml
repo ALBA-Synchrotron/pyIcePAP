@@ -3,13 +3,15 @@ language: python
 cache: pip
 
 python:
-    - "2.7"
+    - "3.5"
+    - "3.6"
+    - "3.7"
 
 install:
     - pip install flake8
 
 before_script:
-    - flake8 pyIcePAP --count --max-line-length=127 --statistics
+    - flake8 icepap --count --max-line-length=127 --statistics
 script:
     - true
 

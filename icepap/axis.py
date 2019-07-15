@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 import weakref
@@ -1806,9 +1806,9 @@ class IcePAPAxis(object):
         :param lpos: [int]
         :param lslope: [float]
         :param mode: str [Linear, Spline, Cyclic]'
-        :param param_type: str (Global Definitions in pyIcePAP.vdatalib)
-        :param pos_type: str (Global Definitions in pyIcePAP.vdatalib)
-        :param slope_type: str (Global Definitions in pyIcePAP.vdatalib)
+        :param param_type: str (Global Definitions in icepap.vdatalib)
+        :param pos_type: str (Global Definitions in icepap.vdatalib)
+        :param slope_type: str (Global Definitions in icepap.vdatalib)
         """
         data = vdata()
         data.append(lparam, ADDRUNSET, PARAMETER, format=param_type)

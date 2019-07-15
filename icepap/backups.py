@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 __all__ = ['IcePAPBackup']
@@ -17,7 +17,7 @@ import configparser
 import time
 import logging
 import os
-from pyIcePAP import EthIcePAPController
+from icepap import EthIcePAPController
 
 
 KEYNOTFOUNDIN1 = 'KeyNotFoundInBackup'       # KeyNotFound for dictDiff

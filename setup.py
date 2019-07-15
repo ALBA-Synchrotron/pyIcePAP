@@ -23,7 +23,7 @@ if TESTING:
 test_requirements = ['pytest', 'pytest-cov']
 
 setup(
-    name="pyIcePAP",
+    name="icepap",
     description="Python IcePAP Extension",
     version=__version,
     author="Guifre Cuni et al.",
@@ -48,7 +48,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pyIcePAP = pyIcePAP.__main__:main',
+            'icepap = icepap.__main__:main',
         ]
     },
     install_requires=['numpy', 'configparser'],
