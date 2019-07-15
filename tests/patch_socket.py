@@ -32,8 +32,8 @@ def patch_socket(mock):
                   meas_ic='0', meas_r='-6894.35', meas_ra='-3797.74',
                   meas_rb='-3797.74',
                   meas_rc='ERROR Current too low to take the measure',
-
-                  ),
+                  enc_axis=100, velocity=100, velocity_max=3000,
+                  velocity_min=2, velocity_default=50),
         '5': dict(addr='5', name='tth', pos_axis=-3, fpos_axis=-3,
                   status='0x00205013', fstatus='0x00205013', power='ON'),
         '151': dict(addr='151', name='chi', pos_axis=-1000, fpos_axis=-1000,
@@ -93,7 +93,6 @@ def patch_socket(mock):
         return result
 
     def set_axis(cmd):
-        #import pdb; pdb.set_trace()
         axis, cmd = cmd.split(':', 1)
         register, value = cmd.split()
         if axis in axes:
@@ -143,7 +142,17 @@ def patch_socket(mock):
         cmd = cmd.replace('POS ABSENC', 'POS_AXIS')
         cmd = cmd.replace('POS MOTOR', 'POS_AXIS')
         cmd = cmd.replace('POS SYNC', 'POS_AXIS')
+
         # Encoder registers
+        cmd = cmd.replace('ENC AXIS', 'ENC_AXIS')
+        cmd = cmd.replace('ENC SHFTENC', 'ENC_AXIS')
+        cmd = cmd.replace('ENC TGTENC', 'ENC_AXIS')
+        cmd = cmd.replace('ENC CTRLENC', 'ENC_AXIS')
+        cmd = cmd.replace('ENC ENCIN', 'ENC_AXIS')
+        cmd = cmd.replace('ENC INPOS', 'ENC_AXIS')
+        cmd = cmd.replace('ENC ABSENC', 'ENC_AXIS')
+        cmd = cmd.replace('ENC MOTOR', 'ENC_AXIS')
+        cmd = cmd.replace('ENC SYNC', 'ENC_AXIS')
 
         # ID
         cmd = cmd.replace('ID HW', 'ID_HW')
@@ -161,6 +170,11 @@ def patch_socket(mock):
         cmd = cmd.replace('MEAS RC', 'MEAS_RC')
         cmd = cmd.replace('MEAS T', 'MEAS_T')
         cmd = cmd.replace('MEAS RT', 'MEAS_RT')
+
+        # Velocity
+        cmd = cmd.replace('VELOCITY MIN', 'VELOCITY_MIN')
+        cmd = cmd.replace('VELOCITY MAX', 'VELOCITY_MAX')
+        cmd = cmd.replace('VELOCITY DEFAULT', 'VELOCITY_DEFAULT')
 
         if '?' in cmd:
             result = process_read_cmd(cmd)

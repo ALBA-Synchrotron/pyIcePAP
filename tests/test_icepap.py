@@ -2,7 +2,7 @@ import pytest
 import random
 
 from pyIcePAP.communication import CommType
-from pyIcePAP import EthIcePAPController, State
+from pyIcePAP import EthIcePAPController
 
 from patch_socket import protect_socket, patch_socket, socket_context
 
@@ -84,6 +84,48 @@ def confirm_m1(m1):
     pos = get_random_pos()
     m1.pos_sync = pos
     assert m1.pos_sync == pos
+
+    pos = get_random_pos()
+    m1.enc = pos
+    assert m1.enc == pos
+    pos = get_random_pos()
+    m1.enc_shftenc = pos
+    assert m1.enc_shftenc == pos
+    pos = get_random_pos()
+    m1.enc_tgtenc = pos
+    assert m1.enc_tgtenc == pos
+    pos = get_random_pos()
+    m1.enc_ctrlenc = pos
+    assert m1.enc_ctrlenc == pos
+    pos = get_random_pos()
+    m1.enc_encin = pos
+    assert m1.enc_encin == pos
+    pos = get_random_pos()
+    m1.enc_inpos = pos
+    assert m1.enc_inpos == pos
+    # TODO implement exception to configuration mode
+    pos = get_random_pos()
+    m1.enc_absenc = pos
+    assert m1.enc_absenc == pos
+    pos = get_random_pos()
+    m1.enc_motor = pos
+    assert m1.enc_motor == pos
+    pos = get_random_pos()
+    m1.enc_sync = pos
+    assert m1.enc_sync == pos
+
+    m1.velocity = 200
+    assert m1.velocity == 200
+    assert m1.velocity_default == 50
+    assert m1.velocity_max == 3000
+    assert m1.velocity_min == 2
+
+    with pytest.raises(AttributeError):
+        m1.velocity_default = 100
+    with pytest.raises(AttributeError):
+        m1.velocity_min = 100
+    with pytest.raises(AttributeError):
+        m1.velocity_max = 100
 
 
 def ice_auto_axes(f):
