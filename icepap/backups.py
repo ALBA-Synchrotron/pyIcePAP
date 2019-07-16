@@ -52,7 +52,7 @@ def dict_cfg(first, second):
     return diff
 
 
-class IcePAPBackup(object):
+class IcePAPBackup():
     """
     Class to create/restore IcePAP backups based on Ethernet communication.
     """

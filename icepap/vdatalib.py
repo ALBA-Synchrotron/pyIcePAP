@@ -44,7 +44,7 @@ ADDRUNSET = 0xFF
 # Class definition
 #
 
-class vdata(object):
+class vdata():
     """IcePAP data vector
 
     # object creation
