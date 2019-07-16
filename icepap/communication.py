@@ -49,7 +49,7 @@ def comm_error_handler(f):
     return new_func
 
 
-class CommType():
+class CommType:
     """
     Class that defines the communication class implemented.
     Currently supported communication layers: Serial and Socket.
@@ -58,7 +58,7 @@ class CommType():
     Socket = 2
 
 
-class IcePAPCommunication():
+class IcePAPCommunication:
     """
     This abstract class provides an abstraction of the communication layer
     for the IcePAP motion controller by defining a common API.
@@ -207,7 +207,7 @@ class SerialCom(Serial):
 # -----------------------------------------------------------------------------
 #                           Socket Communication
 # -----------------------------------------------------------------------------
-class SocketCom():
+class SocketCom:
     """
     Class which implements the Socket communication layer with ASCii interface
     for IcePAP motion controllers.

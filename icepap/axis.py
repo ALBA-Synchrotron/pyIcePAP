@@ -22,7 +22,7 @@ from .fwversion import FirmwareVersion
 __all__ = ['IcePAPAxis']
 
 
-class IcePAPAxis():
+class IcePAPAxis:
     """
     The IcePAP axis class contains the common IcePAP ASCii API for any
     IcePAP axis. The methods here implemented correspond to those

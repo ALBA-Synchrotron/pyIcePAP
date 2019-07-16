@@ -49,35 +49,35 @@ def deprecated(alt=None):
     return _deprecated
 
 
-class Mode():
+class Mode:
     """
     Icepap modes (IcePAP user manual pag. 22).
     """
     CONFIG, OPER, PROG, TEST, FAIL = 'CONFIG', 'OPER', 'PROG', 'TEST', 'FAIL'
 
 
-class Answers():
+class Answers:
     """
     Icepap answers values (str)
     """
     ON, OFF = "ON", "OFF"
 
 
-class TrackMode():
+class TrackMode:
     """
     Track modes (IcePAP user manual pag. 139).
     """
     SIMPLE, SMART, FULL = 'SIMPLE', 'SMART', 'FULL'
 
 
-class EdgeType():
+class EdgeType:
     """
     Edge type used on search routines. IcePAP user manual pag. 124
     """
     POSEDGE, NEGEDGE = 'POSEDGE', 'NEGEDGE'
 
 
-class Info():
+class Info:
     """
     Icepap general namespace values.
     """
@@ -99,7 +99,7 @@ class Info():
     SearchSignals = [LIMP, LIMN, HOME, ENCAUX, INPAUX]
 
 
-class Registers():
+class Registers:
     """
     Icepap register namespace values.
     """
@@ -118,7 +118,7 @@ class Registers():
                            ENCIN, INPOS, ABSENC, MOTOR]
 
 
-class State():
+class State:
     """
     Class to evaluate the status register.
 

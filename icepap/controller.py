@@ -42,7 +42,7 @@ from .utils import State
 from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
-class IcePAPController():
+class IcePAPController:
     """
     Base class for IcePAP motor controller.
     """

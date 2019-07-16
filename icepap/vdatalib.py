@@ -7,7 +7,7 @@ import struct
 import numpy
 
 
-class LibDeepDeepLogMock():
+class LibDeepDeepLogMock:
     DBG_DATA = 0
 
     def level(self):
@@ -44,7 +44,7 @@ ADDRUNSET = 0xFF
 # Class definition
 #
 
-class vdata():
+class vdata:
     """IcePAP data vector
 
     # object creation
