@@ -311,6 +311,3 @@ class SocketCom:
             self._start_thread()
             raise RuntimeError('Communication error: Error sending command to '
                                'the IcePAP ({0})'.format(e))
-
-
-
