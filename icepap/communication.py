@@ -18,15 +18,7 @@ import time
 import array
 import logging
 
-_imported_serial = False
-try:
-    from serial import Serial
-    _imported_serial = True
-except ImportError:
-    Serial = object
-
-
-__all__ = ['CommType', 'IcePAPCommunication', 'EthIcePAPCommunication']
+__all__ = ['IcePAPCommunication', 'EthIcePAPCommunication']
 
 ICEPAP_ENCODING = 'latin-1'
 
@@ -65,8 +57,7 @@ class IcePAPCommunication:
     """
     def __init__(self, comm_type, *args, **kwargs):
         if comm_type == CommType.Serial:
-            self._comm = SerialCom(*args, **kwargs)
-            self._comm_type = CommType.Serial
+            pass
         elif comm_type == CommType.Socket:
             self._comm = SocketCom(*args, **kwargs)
             self._comm_type = CommType.Socket
@@ -146,62 +137,6 @@ class IcePAPCommunication:
         Method to close the communication
         """
         self._comm.disconnect()
-
-
-# -----------------------------------------------------------------------------
-#                           Serial Communication
-# -----------------------------------------------------------------------------
-class SerialCom(Serial):
-    """
-    Class which implements the Serial communication layer with ASCII interface
-    for IcePAP motion controllers.
-    """
-    def __init__(self, timeout=2):
-        if not _imported_serial:
-            raise RuntimeError('The serial module was not imported.')
-        Serial.__init__(self, timeout=timeout)
-
-    @comm_error_handler
-    def send_cmd(self, cmd):
-        """
-        Implementation of the API send command via Serial communication layer.
-
-        :param cmd: string Icepap command
-        :return: Raw string answer for the requested commmand.
-        """
-        self.flush()
-        self.write(cmd)
-        time.sleep(0.02)
-        # TODO investigate why we need to read two times
-        newdata = self.readline()
-        newdata = self.readline()
-        return newdata
-
-    # TODO analise the code
-    # def readline(self, maxsize=None, timeout=2):
-    #     """maxsize is ignored, timeout in seconds is the max time that is
-    #     way for a complete line"""
-    #     tries = 0
-    #
-    #     while True:
-    #         self.buf += self.tty.read()
-    #         pos = self.buf.find('\n')
-    #         if pos >= 0:
-    #             line, self.buf = self.buf[:pos + 1], self.buf[pos + 1:]
-    #             return line
-    #         tries += 1
-    #         # if tries * self.timeout > timeout:
-    #     # print 'exit bucle'
-    #     #       break
-    #     line, self.buf = self.buf, ''
-    #     return line
-
-    @comm_error_handler
-    def send_binary(self, ushort_data):
-        raise NotImplementedError
-
-    def disconnect(self):
-        self.close()
 
 
 # -----------------------------------------------------------------------------
