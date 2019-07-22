@@ -1,8 +1,7 @@
 import pytest
 import random
 
-from icepap.communication import CommType
-from icepap import EthIcePAPController
+from icepap import IcePAPController
 
 from patch_socket import protect_socket, patch_socket, socket_context
 
@@ -147,7 +146,7 @@ def ice_auto_axes(f):
     def wrapper(auto_axes):
         with socket_context() as mock_sock:
             patch_socket(mock_sock)
-            pap = EthIcePAPController('icepap1', auto_axes=auto_axes)
+            pap = IcePAPController('icepap1', auto_axes=auto_axes)
             return f(pap)
     return wrapper
 
@@ -158,16 +157,15 @@ def test_create_eth_icepap(auto_axes):
     with socket_context() as mock_sock:
         patch_socket(mock_sock)
         with pytest.raises(RuntimeError):
-            EthIcePAPController('weirdhost')
+            IcePAPController('weirdhost')
         with pytest.raises(RuntimeError):
-            EthIcePAPController('icepap1', 5001)
-        ice = EthIcePAPController('icepap1', 5000)
+            IcePAPController('icepap1', 5001)
+        ice = IcePAPController('icepap1', 5000)
         assert ice is not None
 
 
 @ice_auto_axes
 def test_connection(pap):
-    assert pap.comm_type == CommType.Socket
     assert pap.connected
 
     pap.disconnect()

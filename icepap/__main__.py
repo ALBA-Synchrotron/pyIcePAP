@@ -19,7 +19,7 @@ import time
 import os
 import sys
 from .backups import IcePAPBackup
-from .communication import EthIcePAPCommunication
+from .communication import IcePAPCommunication
 from .programming import firmware_update
 from .__init__ import version
 
@@ -211,8 +211,8 @@ def main():
 
     # Send Command
     elif args.which == 'send':
-        ipap_com = EthIcePAPCommunication(host=args.host, port=args.port,
-                                          timeout=args.timeout)
+        ipap_com = IcePAPCommunication(host=args.host, port=args.port,
+                                       timeout=args.timeout)
         log.info(ipap_com.send_cmd(args.command))
 
     # Update Command

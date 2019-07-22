@@ -13,7 +13,7 @@
 import sys
 import time
 import array
-from icepap import EthIcePAPController
+from icepap import IcePAPController
 
 __all__ = ['firmware_update']
 
@@ -109,7 +109,7 @@ def firmware_update(hostname, filename, log):
     :param filename: Firmware filename
     :param log: Logger object
     """
-    ice = EthIcePAPController(hostname)
+    ice = IcePAPController(hostname)
 
     try:
         curr_ver = ice.ver['SYSTEM']['VER'][0]
@@ -147,7 +147,7 @@ def firmware_update(hostname, filename, log):
         _progress_bar(i+1, 120, 'Rebooting IcePAP')
         time.sleep(1)
     print('')
-    ice = EthIcePAPController(hostname)
+    ice = IcePAPController(hostname)
     ice.mode = 'oper'
     if ice.mode.lower() != 'oper':
         log.error('[ERROR: It was not possible to set mode oper!!!]')

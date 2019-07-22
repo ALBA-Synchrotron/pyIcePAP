@@ -17,7 +17,7 @@ import configparser
 import time
 import logging
 import os
-from icepap import EthIcePAPController
+from icepap import IcePAPController
 
 
 KEYNOTFOUNDIN1 = 'KeyNotFoundInBackup'       # KeyNotFound for dictDiff
@@ -70,7 +70,7 @@ class IcePAPBackup:
             port = int(self._cfg_bkp.get('SYSTEM', 'PORT'))
         self._host = host
         self._port = port
-        self._ipap = EthIcePAPController(host, port, timeout, auto_axes=True)
+        self._ipap = IcePAPController(host, port, timeout, auto_axes=True)
 
     def _add_axis(self, axis):
         """

@@ -18,7 +18,7 @@ import time
 import array
 import logging
 
-__all__ = ['IcePAPCommunication', 'EthIcePAPCommunication']
+__all__ = ['IcePAPCommunication']
 
 ICEPAP_ENCODING = 'latin-1'
 
@@ -41,28 +41,26 @@ def comm_error_handler(f):
     return new_func
 
 
-class CommType:
-    """
-    Class that defines the communication class implemented.
-    Currently supported communication layers: Serial and Socket.
-    """
-    Serial = 1
-    Socket = 2
-
-
 class IcePAPCommunication:
     """
-    This abstract class provides an abstraction of the communication layer
-    for the IcePAP motion controller by defining a common API.
+    Class implementing the communication layer for IcePAP motion controller.
+    It bases on the socket communication. For the Serial communication see
+    manual.
     """
-    def __init__(self, comm_type, *args, **kwargs):
-        if comm_type == CommType.Serial:
-            pass
-        elif comm_type == CommType.Socket:
-            self._comm = SocketCom(*args, **kwargs)
-            self._comm_type = CommType.Socket
-        else:
-            raise ValueError()
+    def __init__(self, host, port=5000, timeout=3):
+        self._comm = SocketCom(host=host, port=port, timeout=timeout)
+
+    @property
+    def host(self):
+        return self._comm.host
+
+    @property
+    def port(self):
+        return self._comm.port
+
+    @property
+    def timout(self):
+        return self._comm.timeout
 
     def send_cmd(self, cmd):
         """
@@ -124,19 +122,14 @@ class IcePAPCommunication:
         """
         self._comm.send_binary(ushort_data=ushort_data)
 
-    def get_comm_type(self):
-        """
-        Returns the communication type implemented in the controller.
-
-        :return: `CommType` object according to the communicationlayer defined.
-        """
-        return self._comm_type
-
     def disconnect(self):
         """
         Method to close the communication
         """
         self._comm.disconnect()
+
+    def is_conneted(self):
+        return self._comm.connected
 
 
 # -----------------------------------------------------------------------------
@@ -151,13 +144,15 @@ class SocketCom:
         log_name = '{0}.SocketCom'.format(__name__)
         self.log = logging.getLogger(log_name)
         self._socket = None
-        self._host = host
-        self._port = port
-        self._timeout = timeout
-        self._connected = False
         self._lock = Lock()
         self._stop_thread = False
         self._connect_thread = None
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+        self.connected = False
+
+        # Start the connection thread
         self._start_thread(wait=False)
         self._connect_thread.join()
 
@@ -166,7 +161,7 @@ class SocketCom:
 
     def disconnect(self):
         self._socket.close()
-        self._connected = False
+        self.connected = False
         self._stop_thread = True
         self._connect_thread.join()
 
@@ -212,8 +207,8 @@ class SocketCom:
         self._connect_thread.start()
 
     def _try_to_connect(self, wait=True):
-        self._connected = False
-        sleep_time = self._timeout / 10.0
+        self.connected = False
+        sleep_time = self.timeout / 10.0
         if self._socket is not None:
             try:
                 self._socket.close()
@@ -221,13 +216,13 @@ class SocketCom:
                 pass
         while not self._stop_thread:
             self._socket = socket(AF_INET, SOCK_STREAM)
-            self._socket.settimeout(self._timeout)
+            self._socket.settimeout(self.timeout)
             NOLINGER = struct.pack('ii', 1, 0)
             # TODO: protect EBADF [Errno 9] during reboot
             self._socket.setsockopt(SOL_SOCKET, SO_LINGER, NOLINGER)
             try:
-                self._socket.connect((self._host, self._port))
-                self._connected = True
+                self._socket.connect((self.host, self.port))
+                self.connected = True
                 break
             except Exception:
                 self.log.debug('Fail to connect', exc_info=True)
@@ -241,7 +236,7 @@ class SocketCom:
         else:
             raw_data = data
 
-        if not self._connected:
+        if not self.connected:
             self._start_thread()
             raise RuntimeError('Connection error: No connection with the '
                                'Icepap sytem')
@@ -306,11 +301,4 @@ class SocketCom:
                                'the IcePAP ({0})'.format(e))
 
 
-class EthIcePAPCommunication(IcePAPCommunication):
-    """
-    Class implementating the socket communication layer for the Base Icepap
-    motor controller class.
-    """
-    def __init__(self, host, port=5000, timeout=3):
-        IcePAPCommunication.__init__(self, CommType.Socket, host=host,
-                                     port=port, timeout=timeout)
+

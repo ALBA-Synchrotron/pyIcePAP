@@ -32,11 +32,11 @@
 # TODO: export memory
 
 
-__all__ = ['EthIcePAPController']
+__all__ = ['IcePAPController']
 
 import time
 import logging
-from .communication import IcePAPCommunication, CommType
+from .communication import IcePAPCommunication
 from .axis import IcePAPAxis
 from .utils import State
 from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
@@ -44,27 +44,15 @@ from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 class IcePAPController:
     """
-    Base class for IcePAP motor controller.
+    IcePAP motor controller class.
     """
     ALL_AXES_VALID = set([r * 10 + i for r in range(16) for i in range(1, 9)])
 
-    def __init__(self, comm_type, *args, **kwargs):
+    def __init__(self, host, port=5000, timeout=3, auto_axes=False, **kwargs):
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
 
-        auto_axes = kwargs.pop('auto_axes', False)
-
-        self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
-        # TODO: Find solution for serial communication.
-        if not self.connected:
-            if 'host' in kwargs:
-                host = kwargs['host']
-            else:
-                host = args[0]
-            error_msg = 'Can not connect to {0}. Check if the IcePAP ' \
-                        'is ON.'.format(host)
-            self.log.error(error_msg)
-            raise RuntimeError(error_msg)
+        self._comm = IcePAPCommunication(host, port, timeout)
 
         self._aliases = {}
         self._axes = {}
@@ -82,13 +70,6 @@ class IcePAPController:
             self._axes[item] = IcePAPAxis(self, item)
         return self._axes[item]
 
-    def _get_axis_for_alias(self, alias):
-        if alias not in self._aliases:
-            msg = 'There is not any motor with name {0}'.format(alias)
-            raise ValueError(msg)
-        alias = self._aliases[alias]
-        return alias
-
     def __iter__(self):
         return self._axes.__iter__()
 
@@ -100,6 +81,22 @@ class IcePAPController:
                 aliases_to_remove.append(alias)
         for alias in aliases_to_remove:
             self._aliases.pop(alias)
+
+    def __repr__(self):
+        return '{}({}:{})'.format(type(self).__name__,
+                                  self._com.host, self._com.port)
+
+    def __str__(self):
+        msg = 'IcePAPController connected ' \
+              'to {}:{}'.format(self._com.host, self._com.port)
+        return msg
+
+    def _get_axis_for_alias(self, alias):
+        if alias not in self._aliases:
+            msg = 'There is not any motor with name {0}'.format(alias)
+            raise ValueError(msg)
+        alias = self._aliases[alias]
+        return alias
 
     def _alias2axisstr(self, alias):
         """
@@ -163,15 +160,6 @@ class IcePAPController:
         return list(self._axes.values())
 
     @property
-    def comm_type(self):
-        """
-        Get the communication type for this controller.
-
-        :return: communication type
-        """
-        return self._comm.get_comm_type()
-
-    @property
     def ver(self):
         """
         Get the version of the all driver modules: Driver, DSP, FPGA, PCB, IO
@@ -194,8 +182,7 @@ class IcePAPController:
 
     @property
     def connected(self):
-        # TODO: make this method public
-        return self._comm._comm._connected
+        return self._comm.is_conneted()
 
     @property
     def mode(self):
@@ -747,23 +734,3 @@ class IcePAPController:
         """
 
         self._comm.disconnect()
-
-
-class EthIcePAPController(IcePAPController):
-    """
-    This class implements the sockry communication layer for the IcePAP motor
-    controller inhereted from IcePAPController class.
-    """
-    def __init__(self, host, port=5000, timeout=3, **kwargs):
-        self._host = host
-        self._port = port
-        IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
-                                  timeout=timeout, **kwargs)
-
-    def __repr__(self):
-        return '{}({}:{})'.format(type(self).__name__, self._host, self._port)
-
-    def __str__(self):
-        msg = 'EthIcePAPController connected to {}:{}'.format(self._host,
-                                                              self._port)
-        return msg

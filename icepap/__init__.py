@@ -12,13 +12,10 @@
 # -----------------------------------------------------------------------------
 
 # TODO: better use the __all__ = [...] structure
-from .communication import EthIcePAPCommunication
-from .controller import EthIcePAPController
-# from .programming import *
+from .communication import IcePAPCommunication
+from .controller import IcePAPController
 from .fwversion import *
 from .utils import *
-# from .backups import *
-# from .__main__ import get_parser
 
 # The version is updated automatically with bumpversion
 # Do not update manually

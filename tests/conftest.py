@@ -11,7 +11,7 @@ def smart_pap():
     """Smart IcePAP => auto_axes = True"""
     with mock.patch('icepap.communication.socket') as mock_sock:
         patch_socket(mock_sock)
-        ice = icepap.EthIcePAPController('icepaptest', auto_axes=True)
+        ice = icepap.IcePAPController('icepaptest', auto_axes=True)
         yield ice
 
 
@@ -20,5 +20,5 @@ def expert_pap():
     """Expert IcePAP => auto_axes = False"""
     with mock.patch('icepap.communication.socket') as mock_sock:
         patch_socket(mock_sock)
-        ice = icepap.EthIcePAPController('icepaptest', auto_axes=False)
+        ice = icepap.IcePAPController('icepaptest', auto_axes=False)
         yield ice
