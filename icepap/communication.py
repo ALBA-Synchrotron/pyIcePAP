@@ -11,7 +11,7 @@
 # along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_LINGER
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_LINGER, timeout
 from threading import Thread, Lock
 import struct
 import time
@@ -147,6 +147,7 @@ class SocketCom:
         self._lock = Lock()
         self._stop_thread = False
         self._connect_thread = None
+        self._connection_error = ''
         self.host = host
         self.port = port
         self.timeout = timeout
@@ -155,6 +156,8 @@ class SocketCom:
         # Start the connection thread
         self._start_thread(wait=False)
         self._connect_thread.join()
+        if not self.connected and self._connection_error != '':
+            raise RuntimeError(self._connection_error)
 
     def __del__(self):
         self.disconnect()
@@ -208,6 +211,7 @@ class SocketCom:
 
     def _try_to_connect(self, wait=True):
         self.connected = False
+        self._connection_error = ''
         sleep_time = self.timeout / 10.0
         if self._socket is not None:
             try:
@@ -224,11 +228,18 @@ class SocketCom:
                 self._socket.connect((self.host, self.port))
                 self.connected = True
                 break
-            except Exception:
+            except timeout:
                 self.log.debug('Fail to connect', exc_info=True)
                 if not wait:
+                    self._connection_error = \
+                        'Timeout error! Check if {} is ON'.format(self.host)
                     break
                 time.sleep(sleep_time)
+            except OSError as e:
+                self._connection_error = \
+                    'Fail to connect {}:{}. ' \
+                    'Error: {}'.format(self.host, self.port, e.strerror)
+                break
 
     def _send_data(self, data, wait_answer=True, size=8192, encoding=True):
         if encoding:
