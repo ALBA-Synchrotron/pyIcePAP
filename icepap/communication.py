@@ -11,8 +11,8 @@
 # along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_LINGER, timeout
-from threading import Thread, Lock
+import socket
+import threading
 import struct
 import time
 import array
@@ -144,7 +144,7 @@ class SocketCom:
         log_name = '{0}.SocketCom'.format(__name__)
         self.log = logging.getLogger(log_name)
         self._socket = None
-        self._lock = Lock()
+        self._lock = threading.Lock()
         self._stop_thread = False
         self._connect_thread = None
         self._connection_error = ''
@@ -204,8 +204,8 @@ class SocketCom:
 
     def _start_thread(self, wait=True):
         self.log.debug('Start thread {0}'.format(self._connect_thread))
-        self._connect_thread = Thread(target=self._try_to_connect,
-                                      args=[wait])
+        self._connect_thread = threading.Thread(target=self._try_to_connect,
+                                                args=[wait])
         self._connect_thread.setDaemon(True)
         self._connect_thread.start()
 
@@ -219,16 +219,17 @@ class SocketCom:
             except Exception:
                 pass
         while not self._stop_thread:
-            self._socket = socket(AF_INET, SOCK_STREAM)
+            self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._socket.settimeout(self.timeout)
             NOLINGER = struct.pack('ii', 1, 0)
             # TODO: protect EBADF [Errno 9] during reboot
-            self._socket.setsockopt(SOL_SOCKET, SO_LINGER, NOLINGER)
+            self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER,
+                                    NOLINGER)
             try:
                 self._socket.connect((self.host, self.port))
                 self.connected = True
                 break
-            except timeout:
+            except socket.timeout:
                 self.log.debug('Fail to connect', exc_info=True)
                 if not wait:
                     self._connection_error = \
