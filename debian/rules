@@ -6,9 +6,9 @@ export PYBUILD_NAME=pyicepap
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
-override_dh_fixperms:
-	chmod 0644 debian/python-pyicepap/usr/lib/python3.5/dist-packages/pyIcePAP-*.egg-info/dependency_links.txt
-	chmod 0644 debian/python-pyicepap/usr/lib/python3.5/dist-packages/pyIcePAP-*.egg-info/PKG-INFO
-	chmod 0644 debian/python-pyicepap/usr/lib/python3.5/dist-packages/pyIcePAP-*.egg-info/top_level.txt
-	dh_fixperms
+#override_dh_fixperms:
+#	chmod 0644 debian/python-pyicepap/usr/lib/python3.5/dist-packages/icepap-*.egg-info/dependency_links.txt
+#	chmod 0644 debian/python-pyicepap/usr/lib/python3.5/dist-packages/icepap-*.egg-info/PKG-INFO
+#	chmod 0644 debian/python-pyicepap/usr/lib/python3.5/dist-packages/icepap-*.egg-info/top_level.txt
+#	dh_fixperms
 
