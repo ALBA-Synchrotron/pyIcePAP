@@ -1,5 +1,7 @@
 [run]
-omit=pyIcePAP/legacy/*
+omit=
+    icepap/programming.py
+    icepap/backups.py
 
 [report]
 exclude_lines =

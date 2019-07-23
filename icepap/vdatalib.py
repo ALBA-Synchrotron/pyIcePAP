@@ -7,7 +7,7 @@ import struct
 import numpy
 
 
-class LibDeepDeepLogMock():
+class LibDeepDeepLogMock:
     DBG_DATA = 0
 
     def level(self):
@@ -44,7 +44,7 @@ ADDRUNSET = 0xFF
 # Class definition
 #
 
-class vdata(object):
+class vdata:
     """IcePAP data vector
 
     # object creation
@@ -154,7 +154,7 @@ class vdata(object):
             firstval = 0
 
         if format not in [FLOAT, DFLOAT]:
-            data = map(long, data)
+            data = list(map(int, data))
 
         header_size = struct.calcsize(self.__header_format)
         full_size = header_size + struct.calcsize(dformat)

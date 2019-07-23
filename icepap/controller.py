@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 # General additions
@@ -32,55 +32,27 @@
 # TODO: export memory
 
 
-__all__ = ['EthIcePAPController']
+__all__ = ['IcePAPController']
 
 import time
 import logging
-from .communication import IcePAPCommunication, CommType
+from .communication import IcePAPCommunication
 from .axis import IcePAPAxis
-from .utils import State, deprecated
+from .utils import State
 from .fwversion import SUPPORTED_VERSIONS, FirmwareVersion
 
 
-class IcePAPController(object):
+class IcePAPController:
     """
-    Base class for IcePAP motor controller.
+    IcePAP motor controller class.
     """
     ALL_AXES_VALID = set([r * 10 + i for r in range(16) for i in range(1, 9)])
 
-    def __init__(self, comm_type, *args, **kwargs):
+    def __init__(self, host, port=5000, timeout=3, auto_axes=False, **kwargs):
         log_name = '{0}.IcePAPController'.format(__name__)
         self.log = logging.getLogger(log_name)
 
-        # TODO: Remove on version 3.x
-        if 'auto_axes' not in kwargs:
-            import warnings
-            warnings.simplefilter("once")
-            # Force warnings.warn() to omit the source code line in the message
-            formatwarning_orig = warnings.formatwarning
-            warnings.formatwarning = \
-                lambda msg, cat, fname, lineno, line=None: \
-                formatwarning_orig(msg, cat, fname, lineno, line='')
-            msg = 'On version 3.x the constructor is lazy and it is up to ' \
-                  'the user of the object to request specific axes and ' \
-                  'manage their destruction. Use explicit auto_axes=True to ' \
-                  'create the axes on the EthIcePAPController creation.'
-            warnings.warn(msg, PendingDeprecationWarning, stacklevel=0)
-
-        # TODO: Set to False on version 3.x
-        auto_axes = kwargs.pop('auto_axes', True)
-
-        self._comm = IcePAPCommunication(comm_type, *args, **kwargs)
-        # TODO: Find solution for serial communication.
-        if not self.connected:
-            if 'host' in kwargs:
-                host = kwargs['host']
-            else:
-                host = args[0]
-            error_msg = 'Can not connect to {0}. Check if the IcePAP ' \
-                        'is ON.'.format(host)
-            self.log.error(error_msg)
-            raise RuntimeError(error_msg)
+        self._comm = IcePAPCommunication(host, port, timeout)
 
         self._aliases = {}
         self._axes = {}
@@ -98,13 +70,6 @@ class IcePAPController(object):
             self._axes[item] = IcePAPAxis(self, item)
         return self._axes[item]
 
-    def _get_axis_for_alias(self, alias):
-        if alias not in self._aliases:
-            msg = 'There is not any motor with name {0}'.format(alias)
-            raise ValueError(msg)
-        alias = self._aliases[alias]
-        return alias
-
     def __iter__(self):
         return self._axes.__iter__()
 
@@ -116,6 +81,22 @@ class IcePAPController(object):
                 aliases_to_remove.append(alias)
         for alias in aliases_to_remove:
             self._aliases.pop(alias)
+
+    def __repr__(self):
+        return '{}({}:{})'.format(type(self).__name__,
+                                  self._com.host, self._com.port)
+
+    def __str__(self):
+        msg = 'IcePAPController connected ' \
+              'to {}:{}'.format(self._com.host, self._com.port)
+        return msg
+
+    def _get_axis_for_alias(self, alias):
+        if alias not in self._aliases:
+            msg = 'There is not any motor with name {0}'.format(alias)
+            raise ValueError(msg)
+        alias = self._aliases[alias]
+        return alias
 
     def _alias2axisstr(self, alias):
         """
@@ -140,11 +121,11 @@ class IcePAPController(object):
             raise ValueError()
         return result
 
-    def _axesvalues2str(self, axes_values, cast_type=long):
+    def _axesvalues2str(self, axes_values, cast_type=int):
         """
         Method to convert a list of tuples (axis, pos) to a string.
 
-        :param axes_values: [[str/int, float/long]]
+        :param axes_values: [[str/int, float/int]]
 
         :return: str
         """
@@ -176,16 +157,7 @@ class IcePAPController(object):
 
         :return: [IcePAPAxis]
         """
-        return self._axes.values()
-
-    @property
-    def comm_type(self):
-        """
-        Get the communication type for this controller.
-
-        :return: communication type
-        """
-        return self._comm.get_comm_type()
+        return list(self._axes.values())
 
     @property
     def ver(self):
@@ -210,8 +182,7 @@ class IcePAPController(object):
 
     @property
     def connected(self):
-        # TODO: make this method public
-        return self._comm._comm._connected
+        return self._comm.is_conneted()
 
     @property
     def mode(self):
@@ -243,23 +214,7 @@ class IcePAPController(object):
         :return: [(axis, IcePAPAxis),]
         """
 
-        return self._axes.items()
-
-    @deprecated('controller.axes')
-    def keys(self):
-        """
-        Backward compatibility
-        :return:
-        """
-        return self._axes.keys()
-
-    @deprecated('controller.drivers')
-    def values(self):
-        """
-        Backward compatibility
-        :return:
-        """
-        return self._axes.values()
+        return list(self._axes.items())
 
     def find_axes(self, only_alive=False):
 
@@ -440,7 +395,7 @@ class IcePAPController(object):
         """
         cmd = '?FPOS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return list(map(float, ans))
 
     def get_fstatus(self, axes):
         """
@@ -483,7 +438,7 @@ class IcePAPController(object):
         :return: system version number, -1 if not consistent.
         """
         sys_ver = str(self.ver['SYSTEM']['VER'][0])
-        if sys_ver in SUPPORTED_VERSIONS.keys():
+        if sys_ver in list(SUPPORTED_VERSIONS.keys()):
             if self.ver.is_supported():
                 return self.ver['SYSTEM']['VER'][0]
             else:
@@ -533,7 +488,7 @@ class IcePAPController(object):
             rack_nrs = [rack_nrs]
         racks_str = ' '.join(['{}'.format(i) for i in rack_nrs])
         cmd = '?RTEMP {0}'.format(racks_str)
-        return map(float, self.send_cmd(cmd))
+        return list(map(float, self.send_cmd(cmd)))
 
     def set_power(self, axes, power_on=True):
         """
@@ -574,7 +529,7 @@ class IcePAPController(object):
         """
         cmd = '?POS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(long, ans)
+        return list(map(int, ans))
 
     def set_pos(self, axes_pos, register='AXIS'):
         """
@@ -596,7 +551,7 @@ class IcePAPController(object):
         """
         cmd = '?ENC {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(long, ans)
+        return list(map(int, ans))
 
     def set_enc(self, axes_pos, register='AXIS'):
         """
@@ -628,7 +583,7 @@ class IcePAPController(object):
         """
         cmd = '?VELOCITY {0} {1}'.format(vtype, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return list(map(float, ans))
 
     def set_velocity(self, axes_vel):
         """
@@ -649,7 +604,7 @@ class IcePAPController(object):
         """
         cmd = '?ACCTIME {0} {1}'.format(atype, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return map(float, ans)
+        return list(map(float, ans))
 
     def set_acctime(self, axes_acc):
         """
@@ -779,23 +734,3 @@ class IcePAPController(object):
         """
 
         self._comm.disconnect()
-
-
-class EthIcePAPController(IcePAPController):
-    """
-    This class implements the sockry communication layer for the IcePAP motor
-    controller inhereted from IcePAPController class.
-    """
-    def __init__(self, host, port=5000, timeout=3, **kwargs):
-        self._host = host
-        self._port = port
-        IcePAPController.__init__(self, CommType.Socket, host=host, port=port,
-                                  timeout=timeout, **kwargs)
-
-    def __repr__(self):
-        return '{}({}:{})'.format(type(self).__name__, self._host, self._port)
-
-    def __str__(self):
-        msg = 'EthIcePAPController connected to {}:{}'.format(self._host,
-                                                              self._port)
-        return msg
