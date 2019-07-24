@@ -1838,7 +1838,9 @@ class IcePAPAxis:
         nr_points = int(self.send_cmd('?PARDAT NPTS')[0])
         if nr_points < MAX_SUBSET_SIZE:
             MAX_SUBSET_SIZE = nr_points
-
+        if MAX_SUBSET_SIZE == 0:
+            raise RuntimeError('There are not vlaues loaded on the '
+                               'parametric table')
         lparam = []
         lpos = []
         lslope = []
