@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [2.9.X] 
+## [3.0.x] 
+
+### Added
+- Migrate to python 3.5: Methods will return 'int' instead of 'long'
+- Rename module to "icepap". 
+- Add IcePAPController and IcePAPCommunication classes.
+- Allow to use the controller without axes created by default. 
+- Add more test cases.
+- Configure travis to run the test cases.
+ 
+### Removed
+- Remove serial communication and support only ethernet communication.
+- Remove EthIcePAPController and EthIcePAPCommunication classes.
+- Remove deprecated method.
+- Remove legacy module (API 1.X).
+- Remove ipython script.
+
+### Fixed
+- Return a string instead of list on Mode property.
+- Fix mistake on the name of 'verserr' axis method.
+- Fix error on get_indexer_str.
+
+
+## [2.9.0] 
 
 ### Added
 - Optimize EthIcePAPController to do not create unused axes. 
@@ -123,7 +146,9 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.8.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...HEAD
+[2.3.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...HEAD
+[2.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.8.1...2.9.0
+[2.8.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...2.8.1
 [2.7.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...2.7.2
 [2.6.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.5.0...2.6.1
 [2.5.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.4.1...2.5.0

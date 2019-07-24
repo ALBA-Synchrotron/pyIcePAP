@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 __all__ = ['IcePAPBackup']
@@ -17,7 +17,7 @@ import configparser
 import time
 import logging
 import os
-from pyIcePAP import EthIcePAPController
+from icepap import IcePAPController
 
 
 KEYNOTFOUNDIN1 = 'KeyNotFoundInBackup'       # KeyNotFound for dictDiff
@@ -52,7 +52,7 @@ def dict_cfg(first, second):
     return diff
 
 
-class IcePAPBackup(object):
+class IcePAPBackup:
     """
     Class to create/restore IcePAP backups based on Ethernet communication.
     """
@@ -70,7 +70,7 @@ class IcePAPBackup(object):
             port = int(self._cfg_bkp.get('SYSTEM', 'PORT'))
         self._host = host
         self._port = port
-        self._ipap = EthIcePAPController(host, port, timeout)
+        self._ipap = IcePAPController(host, port, timeout, auto_axes=True)
 
     def _add_axis(self, axis):
         """
@@ -88,7 +88,7 @@ class IcePAPBackup(object):
                              'some commands will fail.'.format(axis))
         # Version
         ver = self._ipap[axis].ver
-        keys = ver['SYSTEM']['DRIVER'].keys()
+        keys = list(ver['SYSTEM']['DRIVER'].keys())
         keys.sort()
         for key in keys:
             option = 'VER_{0}'.format(key)
@@ -101,7 +101,7 @@ class IcePAPBackup(object):
                           'messages'.format(ver.driver))
         # Configuration
         ipap_cfg = self._ipap[axis].get_cfg()
-        keys = ipap_cfg.keys()
+        keys = list(ipap_cfg.keys())
         keys.sort()
         for key in keys:
             option = 'CFG_{0}'.format(key)
@@ -172,7 +172,7 @@ class IcePAPBackup(object):
         self._cfg_ipap.add_section(section_name)
         # Version
         ver = self._ipap.ver
-        keys = ver['SYSTEM']['CONTROLLER'].keys()
+        keys = list(ver['SYSTEM']['CONTROLLER'].keys())
         keys.sort()
         for key in keys:
             option = 'VER_{0}'.format(key)
@@ -186,7 +186,7 @@ class IcePAPBackup(object):
         self._add_system()
         self._add_controller()
         if len(axes) == 0:
-            axes = self._ipap.keys()
+            axes = self._ipap.axes
             axes.sort()
         for axis in axes:
             self._add_axis(axis)

@@ -23,7 +23,7 @@ if TESTING:
 test_requirements = ['pytest', 'pytest-cov']
 
 setup(
-    name="pyIcePAP",
+    name="icepap",
     description="Python IcePAP Extension",
     version=__version,
     author="Guifre Cuni et al.",
@@ -42,16 +42,16 @@ setup(
         'Natural Language :: English',
         'Operating System :: POSIX',
         'Operating System :: Microsoft :: Windows',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Communications',
         'Topic :: Software Development :: Libraries',
     ],
     entry_points={
         'console_scripts': [
-            'pyIcePAP = pyIcePAP.__main__:main',
+            'icepap = icepap.__main__:main',
         ]
     },
-    install_requires=['numpy', 'configparser'],
+    install_requires=['numpy'],
     setup_requires=setup_requirements,
     tests_require=test_requirements
 )

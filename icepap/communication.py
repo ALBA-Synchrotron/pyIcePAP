@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,25 +8,19 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_LINGER
-from threading import Thread, Lock
+import socket
+import threading
 import struct
 import time
 import array
 import logging
 
-_imported_serial = False
-try:
-    from serial import Serial
-    _imported_serial = True
-except ImportError:
-    Serial = object
+__all__ = ['IcePAPCommunication']
 
-
-__all__ = ['CommType', 'IcePAPCommunication', 'EthIcePAPCommunication']
+ICEPAP_ENCODING = 'latin-1'
 
 
 def comm_error_handler(f):
@@ -47,29 +41,26 @@ def comm_error_handler(f):
     return new_func
 
 
-class CommType(object):
+class IcePAPCommunication:
     """
-    Class that defines the communication class implemented.
-    Currently supported communication layers: Serial and Socket.
+    Class implementing the communication layer for IcePAP motion controller.
+    It bases on the socket communication. For the Serial communication see
+    manual.
     """
-    Serial = 1
-    Socket = 2
+    def __init__(self, host, port=5000, timeout=3):
+        self._comm = SocketCom(host=host, port=port, timeout=timeout)
 
+    @property
+    def host(self):
+        return self._comm.host
 
-class IcePAPCommunication(object):
-    """
-    This abstract class provides an abstraction of the communication layer
-    for the IcePAP motion controller by defining a common API.
-    """
-    def __init__(self, comm_type, *args, **kwargs):
-        if comm_type == CommType.Serial:
-            self._comm = SerialCom(*args, **kwargs)
-            self._comm_type = CommType.Serial
-        elif comm_type == CommType.Socket:
-            self._comm = SocketCom(*args, **kwargs)
-            self._comm_type = CommType.Socket
-        else:
-            raise ValueError()
+    @property
+    def port(self):
+        return self._comm.port
+
+    @property
+    def timout(self):
+        return self._comm.timeout
 
     def send_cmd(self, cmd):
         """
@@ -131,81 +122,20 @@ class IcePAPCommunication(object):
         """
         self._comm.send_binary(ushort_data=ushort_data)
 
-    def get_comm_type(self):
-        """
-        Returns the communication type implemented in the controller.
-
-        :return: `CommType` object according to the communicationlayer defined.
-        """
-        return self._comm_type
-
     def disconnect(self):
         """
         Method to close the communication
         """
         self._comm.disconnect()
 
-
-# -----------------------------------------------------------------------------
-#                           Serial Communication
-# -----------------------------------------------------------------------------
-class SerialCom(Serial):
-    """
-    Class which implements the Serial communication layer with ASCII interface
-    for IcePAP motion controllers.
-    """
-    def __init__(self, timeout=2):
-        if not _imported_serial:
-            raise RuntimeError('The serial module was not imported.')
-        Serial.__init__(self, timeout=timeout)
-
-    @comm_error_handler
-    def send_cmd(self, cmd):
-        """
-        Implementation of the API send command via Serial communication layer.
-
-        :param cmd: string Icepap command
-        :return: Raw string answer for the requested commmand.
-        """
-        self.flush()
-        self.write(cmd)
-        time.sleep(0.02)
-        # TODO investigate why we need to read two times
-        newdata = self.readline()
-        newdata = self.readline()
-        return newdata
-
-    # TODO analise the code
-    # def readline(self, maxsize=None, timeout=2):
-    #     """maxsize is ignored, timeout in seconds is the max time that is
-    #     way for a complete line"""
-    #     tries = 0
-    #
-    #     while True:
-    #         self.buf += self.tty.read()
-    #         pos = self.buf.find('\n')
-    #         if pos >= 0:
-    #             line, self.buf = self.buf[:pos + 1], self.buf[pos + 1:]
-    #             return line
-    #         tries += 1
-    #         # if tries * self.timeout > timeout:
-    #     # print 'exit bucle'
-    #     #       break
-    #     line, self.buf = self.buf, ''
-    #     return line
-
-    @comm_error_handler
-    def send_binary(self, ushort_data):
-        raise NotImplementedError
-
-    def disconnect(self):
-        self.close()
+    def is_conneted(self):
+        return self._comm.connected
 
 
 # -----------------------------------------------------------------------------
 #                           Socket Communication
 # -----------------------------------------------------------------------------
-class SocketCom(object):
+class SocketCom:
     """
     Class which implements the Socket communication layer with ASCii interface
     for IcePAP motion controllers.
@@ -214,22 +144,27 @@ class SocketCom(object):
         log_name = '{0}.SocketCom'.format(__name__)
         self.log = logging.getLogger(log_name)
         self._socket = None
-        self._host = host
-        self._port = port
-        self._timeout = timeout
-        self._connected = False
-        self._lock = Lock()
+        self._lock = threading.Lock()
         self._stop_thread = False
         self._connect_thread = None
+        self._connection_error = ''
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+        self.connected = False
+
+        # Start the connection thread
         self._start_thread(wait=False)
         self._connect_thread.join()
+        if not self.connected and self._connection_error != '':
+            raise RuntimeError(self._connection_error)
 
     def __del__(self):
         self.disconnect()
 
     def disconnect(self):
         self._socket.close()
-        self._connected = False
+        self.connected = False
         self._stop_thread = True
         self._connect_thread.join()
 
@@ -263,43 +198,57 @@ class SocketCom(object):
         str_nworddata = struct.pack('L', nworddata)[:4]
         str_maskedchksum = struct.pack('L', maskedchksum)[:4]
         str_data = data.tostring()
-        str_bin = '{0}{1}{2}{3}\r'.format(str_startmark, str_nworddata,
-                                          str_maskedchksum, str_data)
-        self._send_data(str_bin, wait_answer=False)
+        str_bin = str_startmark + str_nworddata + str_maskedchksum + str_data
+        str_bin += b'\r'
+        self._send_data(str_bin, wait_answer=False, encoding=False)
 
     def _start_thread(self, wait=True):
         self.log.debug('Start thread {0}'.format(self._connect_thread))
-        self._connect_thread = Thread(target=self._try_to_connect,
-                                      args=[wait])
+        self._connect_thread = threading.Thread(target=self._try_to_connect,
+                                                args=[wait])
         self._connect_thread.setDaemon(True)
         self._connect_thread.start()
 
     def _try_to_connect(self, wait=True):
-        self._connected = False
-        sleep_time = self._timeout / 10.0
+        self.connected = False
+        self._connection_error = ''
+        sleep_time = self.timeout / 10.0
         if self._socket is not None:
             try:
                 self._socket.close()
             except Exception:
                 pass
         while not self._stop_thread:
-            self._socket = socket(AF_INET, SOCK_STREAM)
-            self._socket.settimeout(self._timeout)
+            self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._socket.settimeout(self.timeout)
             NOLINGER = struct.pack('ii', 1, 0)
             # TODO: protect EBADF [Errno 9] during reboot
-            self._socket.setsockopt(SOL_SOCKET, SO_LINGER, NOLINGER)
+            self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER,
+                                    NOLINGER)
             try:
-                self._socket.connect((self._host, self._port))
-                self._connected = True
+                self._socket.connect((self.host, self.port))
+                self.connected = True
                 break
-            except Exception:
+            except socket.timeout:
                 self.log.debug('Fail to connect', exc_info=True)
                 if not wait:
+                    self._connection_error = \
+                        'Timeout error! Check if {} is ON'.format(self.host)
                     break
                 time.sleep(sleep_time)
+            except OSError as e:
+                self._connection_error = \
+                    'Fail to connect {}:{}. ' \
+                    'Error: {}'.format(self.host, self.port, e.strerror)
+                break
 
-    def _send_data(self, raw_data, wait_answer=True, size=8192):
-        if not self._connected:
+    def _send_data(self, data, wait_answer=True, size=8192, encoding=True):
+        if encoding:
+            raw_data = data.encode(ICEPAP_ENCODING)
+        else:
+            raw_data = data
+
+        if not self.connected:
             self._start_thread()
             raise RuntimeError('Connection error: No connection with the '
                                'Icepap sytem')
@@ -323,7 +272,7 @@ class SocketCom(object):
                     self._socket.sendall(raw_data)
                 if wait_answer:
                     answer = self._socket.recv(size)
-                    if answer.count("$") > 0:
+                    if answer.count(b'$') > 0:
                         # -----------------------------------------------------
                         # WORKAROUND
                         # -----------------------------------------------------
@@ -354,21 +303,11 @@ class SocketCom(object):
                         #
                         # WE SHOULD WAIT UNTIL THE TERMINATOR CHAR '$' IS
                         # FOUND
-                        while answer.count('$') < 2:
+                        while answer.count(b'$') < 2:
                             answer = answer + self._socket.recv(size)
                     self.log.debug('RAW_DATA read: {0}'.format(repr(answer)))
-                    return answer
+                    return answer.decode(ICEPAP_ENCODING)
         except Exception as e:
             self._start_thread()
             raise RuntimeError('Communication error: Error sending command to '
                                'the IcePAP ({0})'.format(e))
-
-
-class EthIcePAPCommunication(IcePAPCommunication):
-    """
-    Class implementating the socket communication layer for the Base Icepap
-    motor controller class.
-    """
-    def __init__(self, host, port=5000, timeout=3):
-        IcePAPCommunication.__init__(self, CommType.Socket, host=host,
-                                     port=port, timeout=timeout)

@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 import weakref
@@ -22,7 +22,7 @@ from .fwversion import FirmwareVersion
 __all__ = ['IcePAPAxis']
 
 
-class IcePAPAxis(object):
+class IcePAPAxis:
     """
     The IcePAP axis class contains the common IcePAP ASCii API for any
     IcePAP axis. The methods here implemented correspond to those
@@ -130,7 +130,7 @@ class IcePAPAxis(object):
 
         :return: str
         """
-        return self.send_cmd('?MODE')
+        return self.send_cmd('?MODE')[0]
 
     @property
     def status(self):
@@ -229,7 +229,7 @@ class IcePAPAxis(object):
 
         :return: str
         """
-        return self.state.get_disable_str()
+        return self.state.get_indexer_str()
 
     @property
     def state_moving(self):
@@ -331,7 +331,7 @@ class IcePAPAxis(object):
         return self.state.is_5vpower()
 
     @property
-    def state_vererr(self):
+    def state_verserr(self):
         """
         Check if the vererr flag is active.
 
@@ -673,7 +673,7 @@ class IcePAPAxis(object):
         """
         Read the axis nominal position pointer (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('AXIS')
 
@@ -682,7 +682,7 @@ class IcePAPAxis(object):
         """
         Set the axis nominal position value (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('AXIS', value)
 
@@ -691,7 +691,7 @@ class IcePAPAxis(object):
         """
         Read the shftenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('SHFTENC')
 
@@ -700,16 +700,16 @@ class IcePAPAxis(object):
         """
         Set the shftenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
-        self.set_pos('SFHTENC', value)
+        self.set_pos('SHFTENC', value)
 
     @property
     def pos_tgtenc(self):
         """
         Read the tgtenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('TGTENC')
 
@@ -718,7 +718,7 @@ class IcePAPAxis(object):
         """
         Set the tgtenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('TGTENC', value)
 
@@ -727,7 +727,7 @@ class IcePAPAxis(object):
         """
         Read the ctrlenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('CTRLENC')
 
@@ -736,7 +736,7 @@ class IcePAPAxis(object):
         """
         Set the ctrlenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('CTRLENC', value)
 
@@ -745,7 +745,7 @@ class IcePAPAxis(object):
         """
         Read the encin register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('ENCIN')
 
@@ -754,7 +754,7 @@ class IcePAPAxis(object):
         """
         Set the encin register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('ENCIN', value)
 
@@ -763,7 +763,7 @@ class IcePAPAxis(object):
         """
         Read the inpos register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('INPOS')
 
@@ -772,7 +772,7 @@ class IcePAPAxis(object):
         """
         Set the inpos register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('INPOS', value)
 
@@ -781,7 +781,7 @@ class IcePAPAxis(object):
         """
         Read the absenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('ABSENC')
 
@@ -790,7 +790,7 @@ class IcePAPAxis(object):
         """
         Set the absenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('ABSENC', value)
 
@@ -799,7 +799,7 @@ class IcePAPAxis(object):
         """
         Read the motor register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('MOTOR')
 
@@ -808,7 +808,7 @@ class IcePAPAxis(object):
         """
         Set the motor register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('MOTOR', value)
 
@@ -817,7 +817,7 @@ class IcePAPAxis(object):
         """
         Read the sync register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_pos('SYNC')
 
@@ -826,7 +826,7 @@ class IcePAPAxis(object):
         """
         Set the sync register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_pos('SYNC', value)
 
@@ -835,7 +835,7 @@ class IcePAPAxis(object):
         """
         Read the axis nominal position pointer (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('AXIS')
 
@@ -844,7 +844,7 @@ class IcePAPAxis(object):
         """
         Set the axis nominal position value (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('AXIS', value)
 
@@ -853,7 +853,7 @@ class IcePAPAxis(object):
         """
         Read the shftenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('SHFTENC')
 
@@ -862,16 +862,16 @@ class IcePAPAxis(object):
         """
         Set the shftenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
-        self.set_enc('SFHTENC', value)
+        self.set_enc('SHFTENC', value)
 
     @property
     def enc_tgtenc(self):
         """
         Read the tgtenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('TGTENC')
 
@@ -880,7 +880,7 @@ class IcePAPAxis(object):
         """
         Set the tgtenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('TGTENC', value)
 
@@ -889,7 +889,7 @@ class IcePAPAxis(object):
         """
         Read the ctrlenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('CTRLENC')
 
@@ -898,7 +898,7 @@ class IcePAPAxis(object):
         """
         Set the ctrlenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('CTRLENC', value)
 
@@ -907,7 +907,7 @@ class IcePAPAxis(object):
         """
         Read the encin register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('ENCIN')
 
@@ -916,7 +916,7 @@ class IcePAPAxis(object):
         """
         Set the encin register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('ENCIN', value)
 
@@ -925,7 +925,7 @@ class IcePAPAxis(object):
         """
         Read the inpos register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('INPOS')
 
@@ -934,7 +934,7 @@ class IcePAPAxis(object):
         """
         Set the inpos register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('INPOS', value)
 
@@ -943,7 +943,7 @@ class IcePAPAxis(object):
         """
         Read the absenc register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('ABSENC')
 
@@ -952,7 +952,7 @@ class IcePAPAxis(object):
         """
         Set the absenc register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('ABSENC', value)
 
@@ -961,7 +961,7 @@ class IcePAPAxis(object):
         """
         Read the motor register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('MOTOR')
 
@@ -970,7 +970,7 @@ class IcePAPAxis(object):
         """
         Set the motor register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('MOTOR', value)
 
@@ -979,7 +979,7 @@ class IcePAPAxis(object):
         """
         Read the sync register (IcePAP user manual pag. 108).
 
-        :return: long
+        :return: int
         """
         return self.get_enc('SYNC')
 
@@ -988,7 +988,7 @@ class IcePAPAxis(object):
         """
         Set the sync register (IcePAP user manual pag. 108).
 
-        :param value: long
+        :param value: int
         """
         self.set_enc('SYNC', value)
 
@@ -1065,7 +1065,7 @@ class IcePAPAxis(object):
         self.set_acceleration(value)
 
     @property
-    def acctime_step(self):
+    def acctime_steps(self):
         """
         Get the acceleration in steps distances (see get_acceleration method).
 
@@ -1458,19 +1458,19 @@ class IcePAPAxis(object):
         Read the position register in axis units (IcePAP user manual pag. 108).
 
         :param register: str
-        :return: long
+        :return: int
         """
         cmd = '?POS {0}'.format(register)
-        return long(self.send_cmd(cmd)[0])
+        return int(self.send_cmd(cmd)[0])
 
     def set_pos(self, register, value):
         """
         Set the position register in axis units (IcePAP user manual pag. 108).
 
         :param register: str
-        :param value: long
+        :param value: int
         """
-        cmd = 'POS {0} {1}'.format(register, long(value))
+        cmd = 'POS {0} {1}'.format(register, int(value))
         self.send_cmd(cmd)
 
     def get_enc(self, register):
@@ -1479,19 +1479,19 @@ class IcePAPAxis(object):
         pag. 68).
 
         :param register: str
-        :return: long
+        :return: int
         """
         cmd = '?ENC {0}'.format(register)
-        return long(self.send_cmd(cmd)[0])
+        return int(self.send_cmd(cmd)[0])
 
     def set_enc(self, register, value):
         """
         Set the position register in encoder step (IcePAP user manual pag. 68).
 
         :param register: str
-        :param value: long
+        :param value: int
         """
-        cmd = 'ENC {0} {1}'.format(register, long(value))
+        cmd = 'ENC {0} {1}'.format(register, int(value))
         self.send_cmd(cmd)
 
     def get_velocity(self, vtype=''):
@@ -1538,10 +1538,10 @@ class IcePAPAxis(object):
         (IcePAP user manual page 83, v1.0c).
 
         :param register: str
-        :return: long
+        :return: int
         """
         cmd = '?HOMEPOS {0}'.format(register)
-        return long(self.send_cmd(cmd)[0])
+        return int(self.send_cmd(cmd)[0])
 
     def get_home_encoder(self, register='AXIS'):
         """
@@ -1549,10 +1549,10 @@ class IcePAPAxis(object):
         (IcePAP user manual page 82, v1.0c).
 
         :param register: str
-        :return: long
+        :return: int
         """
         cmd = '?HOMEENC {0}'.format(register)
-        return long(self.send_cmd(cmd)[0])
+        return int(self.send_cmd(cmd)[0])
 
     def get_srch_position(self, register='AXIS'):
         """
@@ -1560,10 +1560,10 @@ class IcePAPAxis(object):
         (IcePAP user manual page 131, v1.0c).
 
         :param register: str
-        :return: long
+        :return: int
         """
         cmd = '?SRCHPOS {0}'.format(register)
-        return long(self.send_cmd(cmd)[0])
+        return int(self.send_cmd(cmd)[0])
 
     def get_srch_encoder(self, register='AXIS'):
         """
@@ -1571,36 +1571,36 @@ class IcePAPAxis(object):
         (IcePAP user manual page 130, v1.0c).
 
         :param register: str
-        :return: long
+        :return: int
         """
         cmd = '?SRCHENC {0}'.format(register)
-        return long(self.send_cmd(cmd)[0])
+        return int(self.send_cmd(cmd)[0])
 
     def move(self, position):
         """
         Start absolute movement (IcePAP user manual pag. 92).
 
-        :param position: long
+        :param position: int
         """
-        cmd = 'MOVE {0}'.format(long(position))
+        cmd = 'MOVE {0}'.format(int(position))
         self.send_cmd(cmd)
 
     def umove(self, position):
         """
         Start absolute updated movement (IcePAP user manual pag. 140).
 
-        :param position: long
+        :param position: int
         """
-        cmd = 'UMOVE {0}'.format(long(position))
+        cmd = 'UMOVE {0}'.format(int(position))
         self.send_cmd(cmd)
 
     def rmove(self, position):
         """
         Start absolute relative movement (IcePAP user manual pag. 140).
 
-        :param position: long
+        :param position: int
         """
-        cmd = 'RMOVE {0}'.format(long(position))
+        cmd = 'RMOVE {0}'.format(int(position))
         self.send_cmd(cmd)
 
     def esync(self):
@@ -1803,12 +1803,12 @@ class IcePAPAxis(object):
         pag. 100).
 
         :param lparam: [float]
-        :param lpos: [long]
+        :param lpos: [int]
         :param lslope: [float]
         :param mode: str [Linear, Spline, Cyclic]'
-        :param param_type: str (Global Definitions in pyIcePAP.vdatalib)
-        :param pos_type: str (Global Definitions in pyIcePAP.vdatalib)
-        :param slope_type: str (Global Definitions in pyIcePAP.vdatalib)
+        :param param_type: str (Global Definitions in icepap.vdatalib)
+        :param pos_type: str (Global Definitions in icepap.vdatalib)
+        :param slope_type: str (Global Definitions in icepap.vdatalib)
         """
         data = vdata()
         data.append(lparam, ADDRUNSET, PARAMETER, format=param_type)
@@ -1838,13 +1838,16 @@ class IcePAPAxis(object):
         nr_points = int(self.send_cmd('?PARDAT NPTS')[0])
         if nr_points < MAX_SUBSET_SIZE:
             MAX_SUBSET_SIZE = nr_points
-
+        if MAX_SUBSET_SIZE == 0:
+            raise RuntimeError('There are not vlaues loaded on the '
+                               'parametric table')
         lparam = []
         lpos = []
         lslope = []
         start_pos = 0
         cmd = '?PARDAT {0} {1}'
-        for i in range(nr_points / MAX_SUBSET_SIZE):
+        packages = nr_points // MAX_SUBSET_SIZE
+        for i in range(packages):
             raw_values = self.send_cmd(cmd.format(start_pos, MAX_SUBSET_SIZE))
             start_pos += MAX_SUBSET_SIZE
             for raw_value in raw_values:
@@ -1878,4 +1881,4 @@ class IcePAPAxis(object):
         Get the allows commands (IcePAP user manual pag. 75).
         """
         ans = self.send_cmd('?HELP')
-        print('\n'.join(ans))
+        print(('\n'.join(ans)))
