@@ -1,3 +1,15 @@
+pyicepap (2.9.0+git20190724.1662.6376b1-0~bpo9+0~alba+1) stretch-backports; urgency=medium
+
+  [ cfalcon ]
+  * Adapt debian files to create Py3 package instead
+  * Do not do override_dh_fixperms
+  * Fix package name
+
+  [ root ]
+  * Merge upstream/2.9.0+git20190724.1662.6376b1 into debian/stretch
+
+ -- CI Boot <controls.cells.es>  Wed, 24 Jul 2019 07:09:36 +0000
+
 pyicepap (2.9.0+git20190711.1604.41fec0-0~bpo9+0~alba+1) stretch-backports; urgency=medium
 
   [ root ]
