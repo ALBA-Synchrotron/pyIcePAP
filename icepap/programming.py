@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,12 +8,12 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 import sys
 import time
 import array
-from pyIcePAP import EthIcePAPController
+from icepap import IcePAPController
 
 __all__ = ['firmware_update']
 
@@ -109,7 +109,7 @@ def firmware_update(hostname, filename, log):
     :param filename: Firmware filename
     :param log: Logger object
     """
-    ice = EthIcePAPController(hostname)
+    ice = IcePAPController(hostname)
 
     try:
         curr_ver = ice.ver['SYSTEM']['VER'][0]
@@ -147,7 +147,7 @@ def firmware_update(hostname, filename, log):
         _progress_bar(i+1, 120, 'Rebooting IcePAP')
         time.sleep(1)
     print('')
-    ice = EthIcePAPController(hostname)
+    ice = IcePAPController(hostname)
     ice.mode = 'oper'
     if ice.mode.lower() != 'oper':
         log.error('[ERROR: It was not possible to set mode oper!!!]')

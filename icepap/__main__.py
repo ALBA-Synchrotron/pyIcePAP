@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -9,7 +9,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 import argparse
@@ -19,7 +19,7 @@ import time
 import os
 import sys
 from .backups import IcePAPBackup
-from .communication import EthIcePAPCommunication
+from .communication import IcePAPCommunication
 from .programming import firmware_update
 from .__init__ import version
 
@@ -56,7 +56,7 @@ LOGGING_CONFIG = {
             'propagate': True,
             'level': 'INFO',
         },
-        'pyIcePAP': {
+        'icepap': {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': True,
@@ -211,8 +211,8 @@ def main():
 
     # Send Command
     elif args.which == 'send':
-        ipap_com = EthIcePAPCommunication(host=args.host, port=args.port,
-                                          timeout=args.timeout)
+        ipap_com = IcePAPCommunication(host=args.host, port=args.port,
+                                       timeout=args.timeout)
         log.info(ipap_com.send_cmd(args.command))
 
     # Update Command

@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 from functools import wraps
 
@@ -150,7 +150,7 @@ class FirmwareVersion(dict):
 
     def _is_valid_system(self):
         # print('supported system', str(self['SYSTEM']['VER'][0]))
-        return str(self['SYSTEM']['VER'][0]) in SUPPORTED_VERSIONS.keys()
+        return str(self['SYSTEM']['VER'][0]) in list(SUPPORTED_VERSIONS.keys())
 
     @key_error
     def _is_valid_ctrl(self):

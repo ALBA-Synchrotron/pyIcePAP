@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# This file is part of pyIcePAP (https://github.com/ALBA-Synchrotron/pyIcePAP)
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
 # Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
 #
@@ -8,7 +8,7 @@
 # See LICENSE.txt for more info.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyIcePAP. If not, see <http://www.gnu.org/licenses/>.
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
 __all__ = ['Info', 'Registers', 'State', 'TrackMode', 'Answers', 'Mode',
@@ -49,35 +49,35 @@ def deprecated(alt=None):
     return _deprecated
 
 
-class Mode(object):
+class Mode:
     """
     Icepap modes (IcePAP user manual pag. 22).
     """
     CONFIG, OPER, PROG, TEST, FAIL = 'CONFIG', 'OPER', 'PROG', 'TEST', 'FAIL'
 
 
-class Answers(object):
+class Answers:
     """
     Icepap answers values (str)
     """
     ON, OFF = "ON", "OFF"
 
 
-class TrackMode(object):
+class TrackMode:
     """
     Track modes (IcePAP user manual pag. 139).
     """
     SIMPLE, SMART, FULL = 'SIMPLE', 'SMART', 'FULL'
 
 
-class EdgeType(object):
+class EdgeType:
     """
     Edge type used on search routines. IcePAP user manual pag. 124
     """
     POSEDGE, NEGEDGE = 'POSEDGE', 'NEGEDGE'
 
 
-class Info(object):
+class Info:
     """
     Icepap general namespace values.
     """
@@ -99,7 +99,7 @@ class Info(object):
     SearchSignals = [LIMP, LIMN, HOME, ENCAUX, INPAUX]
 
 
-class Registers(object):
+class Registers:
     """
     Icepap register namespace values.
     """
@@ -118,7 +118,7 @@ class Registers(object):
                            ENCIN, INPOS, ABSENC, MOTOR]
 
 
-class State(object):
+class State:
     """
     Class to evaluate the status register.
 

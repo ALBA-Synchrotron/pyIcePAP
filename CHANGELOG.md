@@ -123,7 +123,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.8.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...HEAD
+[2.9.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.8.1...2.9.0
+[2.8.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...2.8.1
 [2.7.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...2.7.2
 [2.6.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.5.0...2.6.1
 [2.5.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.4.1...2.5.0
