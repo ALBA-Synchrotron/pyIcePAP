@@ -169,8 +169,8 @@ class vdata:
             0,
             self.__signature,  # vdata signature
             0,                 # Version = 0
-            header_size / 4,   # Data offset in dwords
-            full_size / 4,     # Full vector size in dwords
+            header_size // 4,   # Data offset in dwords
+            full_size // 4,     # Full vector size in dwords
             len(data),         # number of values in the vector
             dtype,             # Data type
             0,                 # no compression
