@@ -3,13 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pyIcePAP's documentation!
+Welcome to IcePAP's documentation!
 =====================================
 
 .. image:: _static/IcePAP_3D.png
    :scale: 50%
 
-**pyIcePAP** is python library (written in python 2.7) that provides access
+**icepap** is python library (written in python 3.5) that provides access
 control and monitor to IcePAP systems.
 
 ----

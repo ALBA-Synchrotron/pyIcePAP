@@ -2,5 +2,5 @@
 Backups
 *************************************************************************
 
-.. automodule:: pyIcePAP.backups
+.. automodule:: icepap.backups
    :members:
