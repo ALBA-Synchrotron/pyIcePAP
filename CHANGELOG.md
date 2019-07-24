@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix mistake on the name of 'verserr' axis method.
 - Fix error on get_indexer_str.
 - Fix documentation. 
+- Fix installation requirements.
 
 
 ## [2.9.0] 
