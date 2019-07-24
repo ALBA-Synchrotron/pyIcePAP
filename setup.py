@@ -42,7 +42,7 @@ setup(
         'Natural Language :: English',
         'Operating System :: POSIX',
         'Operating System :: Microsoft :: Windows',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Communications',
         'Topic :: Software Development :: Libraries',
     ],
@@ -51,7 +51,7 @@ setup(
             'icepap = icepap.__main__:main',
         ]
     },
-    install_requires=['numpy', 'configparser'],
+    install_requires=['numpy'],
     setup_requires=setup_requirements,
     tests_require=test_requirements
 )
