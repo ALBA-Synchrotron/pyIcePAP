@@ -16,11 +16,17 @@ __version = '3.0.0'
 # ipython profile magic commands implementation
 package_list = ['*ipy']
 
-TESTING = any(x in sys.argv for x in ["test", "pytest"])
 setup_requirements = []
+
+TESTING = any(x in sys.argv for x in ["test", "pytest"])
 if TESTING:
     setup_requirements += ['pytest-runner']
 test_requirements = ['pytest', 'pytest-cov']
+
+SPHINX = any(x in sys.argv for x in ["build_sphinx"])
+if SPHINX:
+    setup_requirements += ['sphinx', 'sphinx-argparse', 'sphinx_rtd_theme']
+
 
 setup(
     name="icepap",
