@@ -2,6 +2,6 @@
 Controller layer
 *************************************************************************
 
-.. automodule:: pyIcePAP.controller
-   :members: EthIcePAPController, IcePAPController
+.. automodule:: icepap.controller
+   :members: IcePAPController
 

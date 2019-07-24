@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow to use the controller without axes created by default. 
 - Add more test cases.
 - Configure travis to run the test cases.
+- Add requirements to build the documentation
  
 ### Removed
 - Remove serial communication and support only ethernet communication.
@@ -28,6 +29,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Return a string instead of list on Mode property.
 - Fix mistake on the name of 'verserr' axis method.
 - Fix error on get_indexer_str.
+- Fix documentation. 
+- Fix installation requirements.
 
 
 ## [2.9.0] 

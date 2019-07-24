@@ -1,8 +1,8 @@
 *************************************************************************
-PyIcepPAP console application
+IcepPAP console application
 *************************************************************************
 
 .. argparse::
-   :module: pyIcePAP.__main__
+   :module: icepap.__main__
    :func: get_parser
-   :prog: pyIcePAP
+   :prog: icepap
