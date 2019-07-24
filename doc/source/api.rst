@@ -10,4 +10,3 @@ API v3.0
    axis
    fwversion
    utils
-   legacy
