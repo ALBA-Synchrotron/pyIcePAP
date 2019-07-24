@@ -1844,7 +1844,8 @@ class IcePAPAxis:
         lslope = []
         start_pos = 0
         cmd = '?PARDAT {0} {1}'
-        for i in range(nr_points / MAX_SUBSET_SIZE):
+        packages = nr_points // MAX_SUBSET_SIZE
+        for i in range(packages):
             raw_values = self.send_cmd(cmd.format(start_pos, MAX_SUBSET_SIZE))
             start_pos += MAX_SUBSET_SIZE
             for raw_value in raw_values:
