@@ -59,5 +59,6 @@ setup(
     },
     install_requires=['numpy'],
     setup_requires=setup_requirements,
-    tests_require=test_requirements
+    tests_require=test_requirements,
+    python_requires='>=3.5',
 )
