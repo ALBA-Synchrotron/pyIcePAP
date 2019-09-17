@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.0.x] 
+## [3.1.X] 
+### Added
+ - Allow to do not pass polarity for commands: infoX, outpos, outpaux, syncpos 
+ and syncaux
+
+### Removed
+
+### Fixed
+
+
+## [3.0.1] 
 
 ### Added
 - Migrate to python 3.5: Methods will return 'int' instead of 'long'
@@ -149,7 +159,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.3.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...HEAD
+[3.1.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[3.0.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...3.0.1
 [2.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...2.8.1
 [2.7.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...2.7.2
