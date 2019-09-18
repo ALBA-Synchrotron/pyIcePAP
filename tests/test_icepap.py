@@ -138,6 +138,21 @@ def confirm_m1(m1):
 
     assert m1.indexer == 'INTERNAL'
 
+    m1.infoa = ['LOW']
+    assert set(m1.infoa) == {'LOW', 'NORMAL'}
+    m1.infob = ['HIGH', 'NORMAL']
+    assert set(m1.infob) == {'HIGH', 'NORMAL'}
+    m1.infoc = ['LOW']
+    assert set(m1.infoc) == {'LOW', 'NORMAL'}
+    m1.outpaux = ['HIGH', 'NORMAL']
+    assert set(m1.outpaux) == {'HIGH', 'NORMAL'}
+    m1.outpos = ['MOTOR']
+    assert set(m1.outpos) == {'MOTOR', 'NORMAL'}
+    m1.syncpos = ['AXIS']
+    assert set(m1.syncpos) == {'AXIS', 'NORMAL'}
+    m1.syncaux = ['ENABLED', 'INVERTED']
+    assert set(m1.syncaux) == {'ENABLED', 'INVERTED'}
+
 
 def ice_auto_axes(f):
     """A helper which provides parametrized auto_axes version of icepap"""

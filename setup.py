@@ -5,7 +5,7 @@ from setuptools import find_packages
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-__version = '3.0.0'
+__version = '3.1.0'
 
 # windows installer:
 # python setup.py bdist_wininst
@@ -16,11 +16,17 @@ __version = '3.0.0'
 # ipython profile magic commands implementation
 package_list = ['*ipy']
 
-TESTING = any(x in sys.argv for x in ["test", "pytest"])
 setup_requirements = []
+
+TESTING = any(x in sys.argv for x in ["test", "pytest"])
 if TESTING:
     setup_requirements += ['pytest-runner']
 test_requirements = ['pytest', 'pytest-cov']
+
+SPHINX = any(x in sys.argv for x in ["build_sphinx"])
+if SPHINX:
+    setup_requirements += ['sphinx', 'sphinx-argparse', 'sphinx_rtd_theme']
+
 
 setup(
     name="icepap",
@@ -53,5 +59,6 @@ setup(
     },
     install_requires=['numpy'],
     setup_requires=setup_requirements,
-    tests_require=test_requirements
+    tests_require=test_requirements,
+    python_requires='>=3.5',
 )

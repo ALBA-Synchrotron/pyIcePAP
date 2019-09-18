@@ -2,8 +2,8 @@
 Programming
 *************************************************************************
 
-.. autofunction:: pyIcePAP.programming.firmware_update
-.. autofunction:: pyIcePAP.programming.load_firmware
-.. autofunction:: pyIcePAP.programming.install_firmware
+.. autofunction:: icepap.programming.firmware_update
+.. autofunction:: icepap.programming.load_firmware
+.. autofunction:: icepap.programming.install_firmware
 
 

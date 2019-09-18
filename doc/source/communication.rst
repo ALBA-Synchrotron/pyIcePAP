@@ -2,6 +2,6 @@
 Communication layer
 *************************************************************************
 
-.. automodule:: pyIcePAP.communication
-   :members: EthIcePAPCommunication, IcePAPCommunication
+.. automodule:: icepap.communication
+   :members: IcePAPCommunication
 

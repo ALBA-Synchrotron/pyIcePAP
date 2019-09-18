@@ -2,5 +2,5 @@
 Utils
 *************************************************************************
 
-.. automodule:: pyIcePAP.utils
+.. automodule:: icepap.utils
    :members:

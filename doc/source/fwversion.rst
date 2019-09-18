@@ -2,5 +2,5 @@
 Firmware version
 *************************************************************************
 
-.. automodule:: pyIcePAP.fwversion
+.. automodule:: icepap.fwversion
    :members:
