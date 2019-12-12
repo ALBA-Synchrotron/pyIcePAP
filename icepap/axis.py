@@ -104,6 +104,16 @@ class IcePAPAxis:
         return table
 
     @property
+    def axis(self):
+        """
+        Get the axis number (IcePAP user manual pag. 49).
+        Local internal address (no communication with the IcePAP)
+
+        :return: int
+        """
+        return self._axis_nr
+
+    @property
     def addr(self):
         """
         Get the axis number (IcePAP user manual pag. 49).
