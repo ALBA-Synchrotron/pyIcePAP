@@ -1241,7 +1241,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'INFOA {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'INFOA {0}'.format(cfg)
         self.send_cmd(cmd)
 
     @property
@@ -1260,7 +1261,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'INFOB {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'INFOB {0}'.format(cfg)
         self.send_cmd(cmd)
 
     @property
@@ -1279,7 +1281,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'INFOC {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'INFOC {0}'.format(cfg)
         self.send_cmd(cmd)
 
     @property
@@ -1298,7 +1301,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'OUTPOS {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'OUTPOS {0}'.format(cfg)
         self.send_cmd(cmd)
 
     @property
@@ -1317,7 +1321,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'OUTPAUX {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'OUTPAUX {0}'.format(cfg)
         self.send_cmd(cmd)
 
     @property
@@ -1336,7 +1341,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'SYNCPOS {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'SYNCPOS {0}'.format(cfg)
         self.send_cmd(cmd)
 
     @property
@@ -1355,7 +1361,8 @@ class IcePAPAxis:
 
         :param cfg: (str, str) [Signal, Polarity]
         """
-        cmd = 'SYNCAUX {0} {1}'.format(*cfg)
+        cfg = ' '.join(cfg)
+        cmd = 'SYNCAUX {0}'.format(cfg)
         self.send_cmd(cmd)
 
 # ------------------------------------------------------------------------

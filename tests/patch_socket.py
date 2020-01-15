@@ -35,7 +35,11 @@ def patch_socket(mock):
                   enc_axis=100, velocity=100, velocity_max=3000,
                   velocity_min=2, velocity_default=50, acctime=0.1,
                   acctime_default=0.01, acctime_steps=30, pcloop='ON',
-                  indexer='INTERNAL'),
+                  indexer='INTERNAL',
+                  infoa='HIGH NORMAL', infob='HIGH NORMAL',
+                  infoc='HIGH INVERTED', outpos='MOTOR NORMAL',
+                  outpaux='LOW NORMAL', syncpos='AXIS NORMAL',
+                  syncaux='ENABLED NORMAL'),
         '5': dict(addr='5', name='tth', pos_axis=-3, fpos_axis=-3,
                   status='0x00205013', fstatus='0x00205013', power='ON'),
         '151': dict(addr='151', name='chi', pos_axis=-1000, fpos_axis=-1000,
@@ -96,9 +100,16 @@ def patch_socket(mock):
 
     def set_axis(cmd):
         axis, cmd = cmd.split(':', 1)
-        register, value = cmd.split()
+        register, value = cmd.split(' ', 1)
+        register = register.lower()
+        if register in ['infoa', 'infob', 'infoc', 'outpos', 'outpaux',
+                        'syncpos', 'syncaux']:
+            value = value.split()
+            if len(value) == 1:
+                value.append('NORMAL')
+            value = ' '.join(value)
         if axis in axes:
-            axes[axis][register.lower()] = value
+            axes[axis][register] = value
             msg = 'OK'
         else:
             msg = 'ERROR Board is not present in the system'
@@ -135,15 +146,16 @@ def patch_socket(mock):
         cmd = cmd.upper().strip()
 
         # Position registers
-        cmd = cmd.replace('POS AXIS', 'POS_AXIS')
-        cmd = cmd.replace('POS SHFTENC', 'POS_AXIS')
-        cmd = cmd.replace('POS TGTENC', 'POS_AXIS')
-        cmd = cmd.replace('POS CTRLENC', 'POS_AXIS')
-        cmd = cmd.replace('POS ENCIN', 'POS_AXIS')
-        cmd = cmd.replace('POS INPOS', 'POS_AXIS')
-        cmd = cmd.replace('POS ABSENC', 'POS_AXIS')
-        cmd = cmd.replace('POS MOTOR', 'POS_AXIS')
-        cmd = cmd.replace('POS SYNC', 'POS_AXIS')
+        if 'OUTPOS' not in cmd and 'SYNCPOS' not in cmd:
+            cmd = cmd.replace('POS AXIS', 'POS_AXIS')
+            cmd = cmd.replace('POS SHFTENC', 'POS_AXIS')
+            cmd = cmd.replace('POS TGTENC', 'POS_AXIS')
+            cmd = cmd.replace('POS CTRLENC', 'POS_AXIS')
+            cmd = cmd.replace('POS ENCIN', 'POS_AXIS')
+            cmd = cmd.replace('POS INPOS', 'POS_AXIS')
+            cmd = cmd.replace('POS ABSENC', 'POS_AXIS')
+            cmd = cmd.replace('POS MOTOR', 'POS_AXIS')
+            cmd = cmd.replace('POS SYNC', 'POS_AXIS')
 
         # Encoder registers
         cmd = cmd.replace('ENC AXIS', 'ENC_AXIS')

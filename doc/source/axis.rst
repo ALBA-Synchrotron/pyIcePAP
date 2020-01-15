@@ -2,5 +2,5 @@
 Axis layer
 *************************************************************************
 
-.. automodule:: pyIcePAP.axis
+.. automodule:: icepap.axis
    :members:

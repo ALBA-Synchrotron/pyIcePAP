@@ -7,7 +7,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.0.x] 
+## [3.2.X] 
+### Added
+ - Allow to force the posicion/encoder register on the autofix script from
+  the backup file.
+ - Allow to skip register by the user on the autofix script. 
+
+### Removed
+
+### Fixed
+
+
+## [3.1.0] 
+### Added
+ - Allow to do not pass polarity for commands: infoX, outpos, outpaux, syncpos 
+ and syncaux
+
+### Removed
+
+### Fixed
+
+
+## [3.0.1] 
 
 ### Added
 - Migrate to python 3.5: Methods will return 'int' instead of 'long'
@@ -16,6 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow to use the controller without axes created by default. 
 - Add more test cases.
 - Configure travis to run the test cases.
+- Add requirements to build the documentation
  
 ### Removed
 - Remove serial communication and support only ethernet communication.
@@ -28,6 +50,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Return a string instead of list on Mode property.
 - Fix mistake on the name of 'verserr' axis method.
 - Fix error on get_indexer_str.
+- Fix documentation. 
+- Fix installation requirements.
 
 
 ## [2.9.0] 
@@ -146,7 +170,9 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[2.3.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...HEAD
+[3.2.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[3.1.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[3.0.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...3.0.1
 [2.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...2.8.1
 [2.7.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.6.1...2.7.2
