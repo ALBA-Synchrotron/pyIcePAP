@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.1.X] 
+## [3.2.X] 
+### Added
+ - Allow to force the posicion/encoder register on the autofix script from
+  the backup file.
+ - Allow to skip register by the user on the autofix script. 
+
+### Removed
+
+### Fixed
+
+
+## [3.1.0] 
 ### Added
  - Allow to do not pass polarity for commands: infoX, outpos, outpaux, syncpos 
  and syncaux
@@ -159,7 +170,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[3.1.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[3.2.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[3.1.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
 [3.0.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...3.0.1
 [2.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...2.8.1
