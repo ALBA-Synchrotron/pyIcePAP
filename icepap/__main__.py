@@ -137,6 +137,9 @@ def get_parser():
                             help='Avoid the checking procedure after the '
                                  'update',
                             dest='nocheck')
+    update_cmd.add_argument('--force',
+                            help='Force overwrite of enc/pos registers',
+                            action='store_true')
     update_cmd.add_argument('fwfile', help='Firmware binary file')
     update_cmd.add_argument('-d', '--debug', action='store_true',
                             help='Activate log level DEBUG')
@@ -155,6 +158,13 @@ def get_parser():
                              help='Avoid the checking procedure after the '
                                   'update',
                              dest='nocheck')
+    autofix_cmd.add_argument('--force',
+                             help='Force overwrite of enc/pos registers',
+                             action='store_true')
+    autofix_cmd.add_argument('--skip-registers', nargs='*',
+                             help='Registers will be skipped',
+                             type=str, default=[],
+                             dest='skip_registers')
     autofix_cmd.add_argument('loadfile', help='backup to load')
     autofix_cmd.add_argument('-d', '--debug', action='store_true',
                              help='Activate log level DEBUG')
@@ -242,7 +252,10 @@ def main():
             end(log)
 
         log.info('Fixing differences')
-        ipap_bkp.do_autofix(diff)
+        if args.force:
+            log.info('Warning: Overwrite current enc/pos registers with saved'
+                     ' values')
+        ipap_bkp.do_autofix(diff, force=args.force)
         end(log)
 
     elif args.which == 'autofix':
@@ -260,7 +273,11 @@ def main():
             end(log)
 
         log.info('Fixing differences')
-        ipap_bkp.do_autofix(args.axes)
+        if args.force:
+            log.info('Warning: Overwrite current enc/pos registers with saved'
+                     ' values')
+        ipap_bkp.do_autofix(diff, force=args.force,
+                            skip_registers=args.skip_registers)
         end(log)
 
 

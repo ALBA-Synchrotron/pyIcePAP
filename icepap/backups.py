@@ -228,11 +228,14 @@ class IcePAPBackup:
             self.log.info('Differences found: {0}'.format(repr(total_diff)))
         return total_diff
 
-    def do_autofix(self, diff):
+    def do_autofix(self, diff, force=False, skip_registers=[]):
         """
         Solve inconsistencies in IcePAP configuration registers.
 
-        :param diff: Differences dictiomnary.
+        :param diff: Differences dictionary.
+        :param force: Force overwrite of `enc` and `pos` register values.
+        :param skip_registers: List of registers to do not overwrite
+            when loading a saved configuration.
         :return:
         """
         self.active_axes(force=True)
@@ -297,7 +300,13 @@ class IcePAPBackup:
                 if 'KeyNot' in value_ipap or 'KeyNot' in value_bkp:
                     continue
 
-                if register.startswith('enc') and register != 'enc_encin':
+                if register in skip_registers:
+                    self.log.warning('Skip register by user '
+                                     '{0}'.format(register))
+                    continue
+
+                if register.startswith('enc') and not force:
+
                     self.log.warning('Skip axis {0} {1}: bkp({2}) '
                                      'icepap({3})'.format(axis, register,
                                                           value_bkp,
