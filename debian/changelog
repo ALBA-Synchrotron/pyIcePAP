@@ -1,3 +1,10 @@
+pyicepap (3.2.0+git20200115.3437.f9d62e-0~bpo9+0~alba+1) stretch-backports; urgency=medium
+
+  [ root ]
+  * Merge upstream/3.2.0+git20200115.3437.f9d62e into debian/stretch
+
+ -- CI Boot <controls.cells.es>  Wed, 15 Jan 2020 08:19:46 +0000
+
 pyicepap (3.0.0+git20190724.1666.728bc8-0~bpo9+0~alba+1) stretch-backports; urgency=medium
 
   [ root ]
