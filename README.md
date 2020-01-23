@@ -37,3 +37,6 @@ python setup.py test
 ## Contribute
 
 You can find how to contribute to this project on CONTRIBUTING.md file.
+
+
+[pypi]: https://img.shields.io/pypi/pyversions/icepap.svg
