@@ -84,11 +84,11 @@ class IcePAPController:
 
     def __repr__(self):
         return '{}({}:{})'.format(type(self).__name__,
-                                  self._com.host, self._com.port)
+                                  self._comm.host, self._comm.port)
 
     def __str__(self):
         msg = 'IcePAPController connected ' \
-              'to {}:{}'.format(self._com.host, self._com.port)
+              'to {}:{}'.format(self._comm.host, self._comm.port)
         return msg
 
     def _get_axis_for_alias(self, alias):
