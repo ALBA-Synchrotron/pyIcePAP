@@ -20,7 +20,6 @@ import os
 import sys
 from .backups import IcePAPBackup
 from .communication import IcePAPCommunication
-from .programming import firmware_update
 from .__init__ import version
 
 
@@ -120,29 +119,6 @@ def get_parser():
 
     # -------------------------------------------------------------------------
     #                           Firmware commands
-    # -------------------------------------------------------------------------
-    # Update
-    update_cmd = subps.add_parser('update', help='Change the '
-                                                 'firmware version. It '
-                                                 'creates a backup before to '
-                                                 'change the FW')
-    update_cmd.set_defaults(which='update')
-    update_cmd.add_argument('host', help='IcePAP Host')
-    update_cmd.add_argument('-p', '--port', default=5000, help='IcePAP port')
-    update_cmd.add_argument('-t', '--timeout', default=3,
-                            help='Socket timeout')
-    update_cmd.add_argument('--bkpfile', help='Output backup filename',
-                            default='')
-    update_cmd.add_argument('--no-check',
-                            help='Avoid the checking procedure after the '
-                                 'update',
-                            dest='nocheck')
-    update_cmd.add_argument('--force',
-                            help='Force overwrite of enc/pos registers',
-                            action='store_true')
-    update_cmd.add_argument('fwfile', help='Firmware binary file')
-    update_cmd.add_argument('-d', '--debug', action='store_true',
-                            help='Activate log level DEBUG')
 
     # Autofix
     autofix_cmd = subps.add_parser('autofix', help='Autofix a driver '
@@ -224,39 +200,6 @@ def main():
         ipap_com = IcePAPCommunication(host=args.host, port=args.port,
                                        timeout=args.timeout)
         log.info(ipap_com.send_cmd(args.command))
-
-    # Update Command
-    elif args.which == 'update':
-        abspath = get_filename(args.host, args.which, args.bkpfile)
-        log.info('Updating {0} with firmware file {1}'.format(args.host,
-                                                              args.fwfile))
-        log.info('Saving backup on: {0}'.format(abspath))
-        ipap_bkp = IcePAPBackup(host=args.host, port=args.port,
-                                timeout=args.timeout)
-        ipap_bkp.do_backup(abspath)
-        if not firmware_update(args.host, args.fwfile, log):
-            log.error('Errors on update firmware. Skipping active and check '
-                      'driver procedure.')
-            end(log, -1)
-
-        log.info('Restore active drivers...')
-        ipap_bkp = IcePAPBackup(cfg_file=abspath)
-        ipap_bkp.active_axes()
-        if args.nocheck:
-            end(log)
-
-        log.info('Checking registers....')
-        diff = ipap_bkp.do_check()
-        if len(diff) == 0:
-            log.info('No differences found')
-            end(log)
-
-        log.info('Fixing differences')
-        if args.force:
-            log.info('Warning: Overwrite current enc/pos registers with saved'
-                     ' values')
-        ipap_bkp.do_autofix(diff, force=args.force)
-        end(log)
 
     elif args.which == 'autofix':
         abspath = get_filename(args.host, args.which, args.bkpfile)
