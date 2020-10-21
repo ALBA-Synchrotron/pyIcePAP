@@ -36,6 +36,7 @@ __all__ = ['IcePAPController']
 
 import time
 import logging
+import array
 from .communication import IcePAPCommunication
 from .axis import IcePAPAxis
 from .utils import State
@@ -84,11 +85,11 @@ class IcePAPController:
 
     def __repr__(self):
         return '{}({}:{})'.format(type(self).__name__,
-                                  self._com.host, self._com.port)
+                                  self._comm.host, self._comm.port)
 
     def __str__(self):
         msg = 'IcePAPController connected ' \
-              'to {}:{}'.format(self._com.host, self._com.port)
+              'to {}:{}'.format(self._comm.host, self._comm.port)
         return msg
 
     def _get_axis_for_alias(self, alias):
@@ -672,15 +673,17 @@ class IcePAPController:
         """
         return self.send_cmd('?PMUX')
 
-    def sprog(self, component=None, force=False, saving=False):
+    def sprog(self, filename, component=None, force=False, saving=False,
+              options=''):
         """
         Firmware programming command. This command assumes that the firmware
         code will be transferred as a binary data block (IcePAP user manual,
         page 112).
-
+        :param filename: firmware filename
         :param component: { NONE | board adress | DRIVERS | CONTROLLERS| ALL }
         :param force: Force overwrite regardless of being idential versions.
         :param saving: Saves firmware into master board flash.
+        :param options: extra options
         """
         force_str = ''
         if component:
@@ -693,8 +696,14 @@ class IcePAPController:
             save_str = 'NOSAVE'
         else:
             save_str = 'SAVE'
-        cmd = '*PROG {} {} {}'.format(comp_str, force_str, save_str)
+        cmd = '*PROG {} {} {} {}'.format(comp_str, force_str, save_str,
+                                         options)
         self.send_cmd(cmd)
+
+        with open(filename, 'rb') as f:
+            data = f.read()
+        data = array.array('H', data)
+        self._comm.send_binary(ushort_data=data)
 
     def prog(self, component, force=False):
         """

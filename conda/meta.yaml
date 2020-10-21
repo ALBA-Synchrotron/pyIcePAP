@@ -1,0 +1,45 @@
+{% set data = load_setup_py_data(setup_file="../setup.py",
+  from_recipe_dir=True) %}
+
+package:
+  name: {{ data.get('name') }}
+  version: {{ data.get('version') }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: python
+  script: "{{PYTHON}} -m pip install . -vv"
+  entry_points:
+    - icepap = icepap.__main__:main
+
+requirements:
+  host:
+    - python {{data['python_requires']}}
+    - setuptools
+  run:
+    - python {{data['python_requires']}}
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower()}}
+    {% endfor %}
+
+test:
+  imports:
+    - {{data.get('name')}}
+
+  requires:
+    {% for dep in data['tests_require'] %}
+    - {{ dep.lower()}}
+    {% endfor %}
+
+about:
+  home: {{ data.get('url')}}
+  license: {{ data.get('license')}}
+  summary: {{ data.get('description')}}
+  author: {{ data.get('author')}}
+  description: {{ data.get('long_description')}}
+
+
+
