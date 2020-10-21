@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.2.X] 
+## [3.3.x] 
+### Added
+ - Add firmware file as sprog parameter
+
+### Removed
+- Script to do update and backups features. All of them are moved to IcepapCMS
+
+### Fixed
+
+## [3.2.1] 
 ### Added
  - Allow to force the posicion/encoder register on the autofix script from
   the backup file.
@@ -170,8 +179,9 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[3.2.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
-[3.1.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.1...HEAD
+[3.3.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...HEAD
+[3.2.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.1.0...3.2.2
+[3.1.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...3.0.1
 [2.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.7.2...2.8.1
