@@ -37,6 +37,7 @@ __all__ = ['IcePAPController']
 import time
 import logging
 import array
+import urllib.parse
 import collections.abc
 from .communication import IcePAPCommunication
 from .axis import IcePAPAxis
@@ -138,6 +139,13 @@ class IcePAPController:
             result += '{0} {1} '.format(self._alias2axisstr(axis),
                                         cast_type(value))
         return result
+
+    @classmethod
+    def from_url(cls, url):
+        if "://" not in url:
+            url = "tcp://" + url
+        addr = urllib.parse.urlparse(url)
+        return cls(addr.hostname, addr.port or 5000)
 
 # -----------------------------------------------------------------------------
 #                       Properties
