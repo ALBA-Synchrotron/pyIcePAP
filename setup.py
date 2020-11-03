@@ -55,9 +55,10 @@ setup(
     entry_points={
         'console_scripts': [
             'icepap = icepap.__main__:main',
+            'icepapctl = icepap.cli:cli'
         ]
     },
-    install_requires=['numpy'],
+    install_requires=['numpy', 'click>=7', 'prompt_toolkit>=3', 'beautifultable>=1'],
     setup_requires=setup_requirements,
     tests_require=test_requirements,
     python_requires='>=3.5',

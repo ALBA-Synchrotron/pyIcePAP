@@ -64,6 +64,10 @@ class Group:
         args = [[mot.addr, pos] for mot, pos in zip(self._motors, positions)]
         self._controller.move(args, **kwargs)
 
+    def start_rmove(self, positions, **kwargs):
+        args = [[mot.addr, pos] for mot, pos in zip(self._motors, positions)]
+        self._controller.rmove(args, **kwargs)
+
     def wait_stopped(self, timeout=None, interval=10e-3):
         """Helper loop to wait for group to finish moving"""
 

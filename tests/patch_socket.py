@@ -4,18 +4,23 @@ import socket
 import errno
 import contextlib
 
+from icepap import FirmwareVersion
+
+
 VER = '''\
 0:?VER $
-SYSTEM       :  3.17 : Tue Feb 16 10:57:37 2016
-   CONTROLLER:  3.17
-      DSP    :  3.67 : Mon Dec 14 13:22:03 2015
-      FPGA   :  1.00 : Tue Jan 21 19:33:00 2014
+SYSTEM       :  3.23 : Mon Feb 17 12:44:04 2020
+   CONTROLLER:  3.23
+      DSP    :  3.89 : Mon Feb 17 12:42:47 2020
+      FPGA   :  2.00 : Thu Nov 29 17:07:00 2018
       PCB    :  1.00
-      MCPU0  :  1.19
-      MCPU1  :  1.19
+      MCPU0  :  0.20
+      MCPU1  :  0.20
       MCPU2  :  1.125
-   DRIVER    :  3.17
+   DRIVER    :  3.23
 $'''
+
+EXPECTED_VER = FirmwareVersion(VER.split("\n")[1:-1])
 
 ENCODING = 'latin-1'
 
