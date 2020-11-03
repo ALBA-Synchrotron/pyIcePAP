@@ -37,6 +37,7 @@ __all__ = ['IcePAPController']
 import time
 import logging
 import array
+import collections.abc
 from .communication import IcePAPCommunication
 from .axis import IcePAPAxis
 from .utils import State
@@ -65,6 +66,8 @@ class IcePAPController:
     def __getitem__(self, item):
         if isinstance(item, str):
             item = self._get_axis_for_alias(item)
+        elif isinstance(item, collections.abc.Sequence):
+            return [self[i] for i in item]
         if item not in self._axes:
             if item not in self.ALL_AXES_VALID:
                 raise ValueError('Bad axis value.')
