@@ -19,35 +19,41 @@ $'''
 
 ENCODING = 'latin-1'
 
+STD_AXIS = dict(
+    pos_axis=55, fpos_axis=55,
+    status='0x00205013', fstatus='0x00205013', power='ON',
+    active='YES', mode='OPER', alarm='NO',
+    config='toto@pc1_2019/06/17_12:51:24',
+    stopcode='0x0000', vstopcode='No abnormal stop condition',
+    warning='NONE', wtemp='45', cswitch='NORMAL',
+    id_hw='0008.028E.EB82', id_sn='4960', post='0', auxps='ON',
+    meas_vcc='80.2165', meas_i='0.00545881',
+    meas_ia='-0.00723386', meas_ib='-0.000653267',
+    meas_ic='0', meas_r='-6894.35', meas_ra='-3797.74',
+    meas_rb='-3797.74',
+    meas_rc='ERROR Current too low to take the measure',
+    enc_axis=100, velocity=100, velocity_max=3000,
+    velocity_min=2, velocity_default=50, acctime=0.1,
+    acctime_default=0.01, acctime_steps=30, pcloop='ON',
+    indexer='INTERNAL',
+    infoa='HIGH NORMAL', infob='HIGH NORMAL',
+    infoc='HIGH INVERTED', outpos='MOTOR NORMAL',
+    outpaux='LOW NORMAL', syncpos='AXIS NORMAL',
+    syncaux='ENABLED NORMAL'
+)
+
 
 def patch_socket(mock):
     axes = {
-        '1': dict(addr='1', name='th', pos_axis=55, fpos_axis=55,
-                  status='0x00205013', fstatus='0x00205013', power='ON',
-                  active='YES', mode='OPER', alarm='NO',
-                  config='toto@pc1_2019/06/17_12:51:24',
-                  stopcode='0x0000', vstopcode='No abnormal stop condition',
-                  warning='NONE', wtemp='45', cswitch='NORMAL',
-                  id_hw='0008.028E.EB82', id_sn='4960', post='0', auxps='ON',
-                  meas_vcc='80.2165', meas_i='0.00545881',
-                  meas_ia='-0.00723386', meas_ib='-0.000653267',
-                  meas_ic='0', meas_r='-6894.35', meas_ra='-3797.74',
-                  meas_rb='-3797.74',
-                  meas_rc='ERROR Current too low to take the measure',
-                  enc_axis=100, velocity=100, velocity_max=3000,
-                  velocity_min=2, velocity_default=50, acctime=0.1,
-                  acctime_default=0.01, acctime_steps=30, pcloop='ON',
-                  indexer='INTERNAL',
-                  infoa='HIGH NORMAL', infob='HIGH NORMAL',
-                  infoc='HIGH INVERTED', outpos='MOTOR NORMAL',
-                  outpaux='LOW NORMAL', syncpos='AXIS NORMAL',
-                  syncaux='ENABLED NORMAL'),
-        '5': dict(addr='5', name='tth', pos_axis=-3, fpos_axis=-3,
-                  status='0x00205013', fstatus='0x00205013', power='ON'),
-        '151': dict(addr='151', name='chi', pos_axis=-1000, fpos_axis=-1000,
-                    status='0x00205013', fstatus='0x00205013', power='OFF'),
-        '152': dict(addr='152', name='phi', pos_axis=1000, fpos_axis=1000,
-                    status='0x00205013', fstatus='0x00205013', power='OFF')
+        '1': dict(STD_AXIS, addr='1', name='th'),
+        '5': dict(STD_AXIS, addr='5', name='tth', pos_axis=-3, fpos_axis=-3),
+        '151': dict(STD_AXIS, addr='151', name='chi',
+                    pos_axis=-1000, fpos_axis=-1000, power='OFF',
+                    velocity=1002, acctime=0.25),
+        '152': dict(STD_AXIS, addr='152', name='phi',
+                    pos_axis=1000, fpos_axis=1000, power='OFF'),
+        '153': dict(STD_AXIS, addr='153', name='mu',
+                    pos_axis=1000, fpos_axis=1000)
     }
     racks = {
         '0': dict(rid='0008.0153.F797', stat='0x11 0x11', rtemp='30.1'),
@@ -68,7 +74,11 @@ def patch_socket(mock):
     def get_multi_axis_question(cmd):
         args = cmd.split()
         cmd = args[0][1:]
-        pos = [str(axes[axis][cmd.lower()]) for axis in args[1:]]
+        if cmd.upper() in {'ACCTIME', 'VELOCITY'}:
+            axes_list = args[2:]
+        else:
+            axes_list = args[1:]
+        pos = [str(axes[axis][cmd.lower()]) for axis in axes_list]
         cmd_reply = cmd.split('_')[0]
         return '?{} {}\n'.format(cmd_reply, ' '.join(pos))
 
@@ -223,8 +233,10 @@ def patch_socket(mock):
     mock.return_value.recv = recv
     mock.return_value.sendall = sendall
     mock.return_value.connect = connect
-    mock.return_value.connect_ex = lambda *a: connect_ex(mock.socket.return_value, *a)
-    mock.return_value.getsockopt = lambda *a: getsockopt(mock.socket.return_value, *a)
+    mock.return_value.connect_ex = lambda *a: connect_ex(
+        mock.socket.return_value, *a)
+    mock.return_value.getsockopt = lambda *a: getsockopt(
+        mock.socket.return_value, *a)
 
 
 def patch_select(mock):
