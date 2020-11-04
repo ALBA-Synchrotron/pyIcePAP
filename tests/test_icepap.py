@@ -3,7 +3,7 @@ import random
 
 from icepap import IcePAPController
 
-from patch_socket import protect_socket, patch_socket, socket_context
+from patch_socket import mock_socket
 
 
 def get_random_pos():
@@ -159,21 +159,19 @@ def ice_auto_axes(f):
     @pytest.mark.parametrize('auto_axes', [True, False],
                              ids=['smart', 'expert'])
     def wrapper(auto_axes):
-        with socket_context() as mock_sock:
-            patch_socket(mock_sock)
+        with mock_socket():
             pap = IcePAPController('icepap1', auto_axes=auto_axes)
             return f(pap)
     return wrapper
 
 
-@pytest.mark.parametrize('auto_axes', [True, False],
-                         ids=['smart', 'expert'])
+@pytest.mark.parametrize('auto_axes', [False, True],
+                         ids=['expert', 'smart'])
 def test_create_eth_icepap(auto_axes):
-    with socket_context() as mock_sock:
-        patch_socket(mock_sock)
-        with pytest.raises(RuntimeError):
+    with mock_socket():
+        with pytest.raises(OSError):
             IcePAPController('weirdhost')
-        with pytest.raises(RuntimeError):
+        with pytest.raises(OSError):
             IcePAPController('icepap1', 5001)
         ice = IcePAPController('icepap1', 5000)
         assert ice is not None

@@ -1,6 +1,8 @@
 import functools
 import unittest.mock as mock
 import socket
+import errno
+import contextlib
 
 VER = '''\
 0:?VER $
@@ -129,10 +131,23 @@ def patch_socket(mock):
 
     def connect(addr):
         host, port = addr
-        if not host.startswith('icepap'):
+        if not host.startswith('127.0.0.1'):
             raise socket.gaierror(-2, 'Name or service not known')
         if port != 5000:
             raise socket.error(111, 'Connection refused')
+
+    def connect_ex(sock, addr):
+        host, port = addr
+        if not host.startswith('icepap'):
+            raise socket.gaierror(-2, 'Name or service not known')
+        sock._addr = addr
+        return errno.EINPROGRESS
+
+    def getsockopt(sock, level, option):
+        if level == socket.SOL_SOCKET and option == socket.SO_ERROR:
+            if sock._addr[1] != 5000:
+                return errno.ECONNREFUSED
+            return 0
 
     def sendall(data):
         # sockets receive bytes
@@ -205,20 +220,30 @@ def patch_socket(mock):
 
         process_read_cmd()
 
-
     mock.return_value.recv = recv
     mock.return_value.sendall = sendall
     mock.return_value.connect = connect
+    mock.return_value.connect_ex = lambda *a: connect_ex(mock.socket.return_value, *a)
+    mock.return_value.getsockopt = lambda *a: getsockopt(mock.socket.return_value, *a)
+
+
+def patch_select(mock):
+    def select(r, w, e, timeout=None):
+        return r, w, e
+    mock.select = select
+
+
+def select_context():
+    return mock.patch('icepap.tcp.select')
 
 
 def socket_context():
-    return mock.patch('icepap.communication.socket.socket')
+    return mock.patch('icepap.tcp.socket.socket')
 
 
-def protect_socket(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        with socket_context() as mock_sock:
-            patch_socket(mock_sock)
-            return f(*args, **kwargs)
-    return wrapper
+@contextlib.contextmanager
+def mock_socket():
+    with socket_context() as mock_sock, select_context() as mock_sel:
+        patch_socket(mock_sock)
+        patch_select(mock_sel)
+        yield mock_sock, mock_sel
