@@ -34,34 +34,48 @@ class Position(Formatter):
 
     moving = "<moving>{}</moving>"
     stopped = "<stopped>{}</stopped>"
+    pos_format = ">{width}g"
 
     def format(self, progress_bar, progress, width):
         state = progress.state
         template = self.moving if state.is_moving() else self.stopped
-        pos = "{{:>{}g}}".format(width).format(progress.position)
+        fmt = "{{:{}}}".format(self.pos_format.format(width=width)).format
+        pos = fmt(progress.position)
         return HTML(template).format(pos)
 
     def get_width(self, progress_bar):
-        lengths = [len(str(c.initial_position)) for c in progress_bar.counters]
-        lengths += [len(str(c.final_position)) for c in progress_bar.counters]
-        return D.exact(max(lengths))
+        fmt = "{{:{}}}".format(self.pos_format.format(width='')).format
+        lengths = [len(fmt(c.initial_position)) for c in progress_bar.counters]
+        lengths += [len(fmt(c.final_position)) for c in progress_bar.counters]
+        # +2 to account for - sign and space
+        return D.exact(max(lengths) + 2)
 
 
 class InitialPosition(Formatter):
+
+    pos_format = ">{width}g"
+
     def format(self, progress_bar, progress, width):
-        return "{{:>{}g}}".format(width).format(progress.initial_position)
+        fmt = "{{:{}}}".format(self.pos_format.format(width=width)).format
+        return fmt(progress.initial_position)
 
     def get_width(self, progress_bar):
-        lengths = (len(str(c.initial_position)) for c in progress_bar.counters)
+        fmt = "{{:{}}}".format(self.pos_format.format(width='')).format
+        lengths = (len(fmt(c.initial_position)) for c in progress_bar.counters)
         return D.exact(max(lengths))
 
 
 class TargetPosition(Formatter):
+
+    pos_format = ">{width}g"
+
     def format(self, progress_bar, progress, width):
-        return "{{:>{}g}}".format(width).format(progress.final_position)
+        fmt = "{{:{}}}".format(self.pos_format.format(width=width)).format
+        return fmt(progress.final_position)
 
     def get_width(self, progress_bar):
-        lengths = (len(str(c.final_position)) for c in progress_bar.counters)
+        fmt = "{{:{}}}".format(self.pos_format.format(width='')).format
+        lengths = (len(fmt(c.final_position)) for c in progress_bar.counters)
         return D.exact(max(lengths))
 
 
