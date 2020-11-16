@@ -71,6 +71,11 @@ class IcePAPCommunication:
             cmd = '#{0}\r'.format(cmd)
             use_ack = True
 
+        if '?' in cmd or '#' in cmd:
+            wait_ans = True
+        else:
+            wait_ans = False
+
         with self._lock:
             # The write command is inside the lock on purpose. The issue is, if
             # two threads write very close in time, the OS might join the two
@@ -79,10 +84,15 @@ class IcePAPCommunication:
             # (TCP_NODELAY) so there should be no problem putting write outside
             # the lock. But it was decided to be conservative anyway
             self._sock.write(cmd.encode())
-            ans = self._sock.read(8096).decode()
-            nb_dollars = ans.count("$")
-            if nb_dollars == 1:
-                ans += self._sock.readline(eol=b"$").decode()
+            if wait_ans:
+                ans = self._sock.read(8096).decode()
+                nb_dollars = ans.count("$")
+                if nb_dollars == 1:
+                    ans += self._sock.readline(eol=b"$").decode()
+
+            else:
+                ans = None
+
         msg = 'Error sending command, IcePAP answered {0}'
         if use_ack:
             if 'OK' not in ans:
