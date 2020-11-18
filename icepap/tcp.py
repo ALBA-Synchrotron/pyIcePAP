@@ -12,6 +12,9 @@ Timeout = socket.timeout
 OPENING, OPEN, CLOSED = range(3)
 
 
+BLOCK_SIZE = 9096
+
+
 ERR_MAP = {
     errno.ECONNREFUSED: ConnectionRefusedError,
     errno.ECONNRESET: ConnectionResetError,
@@ -51,7 +54,7 @@ def wait_open(sock, timeout=None):
         raise Timeout("timeout trying to connect")
 
 
-def stream(sock, buffer_size=8096, timeout=None):
+def stream(sock, buffer_size=BLOCK_SIZE, timeout=None):
     readers = sock,
     while True:
         start = time.monotonic()
@@ -130,7 +133,7 @@ class RawTCP:
         timeout = self.timeout if timeout is None else timeout
         r, _, _ = select.select((self._sock,), (), (), timeout)
         if r:
-            data = self._sock.recv(8096)
+            data = self._sock.recv(BLOCK_SIZE)
             if not data:
                 raise ConnectionError("remote end closed")
             return data
