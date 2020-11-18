@@ -123,7 +123,8 @@ class RawTCP:
 
     @close_on_error
     def _write(self, data):
-        self._sock.sendall(data)
+        for start in range(0, len(data), BLOCK_SIZE):
+            self._sock.sendall(data[start: start + BLOCK_SIZE])
 
     @close_on_error
     def _read(self, n, timeout=None):
