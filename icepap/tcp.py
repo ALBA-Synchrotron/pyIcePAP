@@ -12,7 +12,7 @@ Timeout = socket.timeout
 OPENING, OPEN, CLOSED = range(3)
 
 
-BLOCK_SIZE = 9096
+BLOCK_SIZE = 8192
 
 
 ERR_MAP = {
