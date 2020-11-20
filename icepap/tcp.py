@@ -124,6 +124,9 @@ class RawTCP:
     @close_on_error
     def _write(self, data):
         for start in range(0, len(data), BLOCK_SIZE):
+            _, w, _ = select.select((), (self._sock,), (), self.timeout)
+            if not w:
+                raise to_error(errno.EPIPE)
             self._sock.sendall(data[start: start + BLOCK_SIZE])
 
     @close_on_error
