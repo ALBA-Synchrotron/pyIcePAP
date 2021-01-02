@@ -60,6 +60,9 @@ setup(
         'Topic :: Communications',
         'Topic :: Software Development :: Libraries',
     ],
+    extras_require={
+        'simulator': ['sinstruments>=1']
+    },
     entry_points={
         'console_scripts': [
             'icepap = icepap.__main__:main',
