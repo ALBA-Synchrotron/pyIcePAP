@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 
 ### Fixed
-
+- TCP communication problems:
+    - Handle asynchronous exception (ex: Keyboard Interrupt)
+    - Masked errors: Some OSError and even a BaseException is being masked to RuntimeError
 
 ## [3.3.0] 
 ### Added
