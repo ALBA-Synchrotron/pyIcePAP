@@ -194,7 +194,7 @@ class IcePAPController:
 
     @property
     def connected(self):
-        return self._comm.is_conneted()
+        return self._comm.is_connected()
 
     @property
     def mode(self):
