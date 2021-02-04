@@ -2,13 +2,16 @@ import sys
 import pytest
 from click.testing import CliRunner
 from patch_socket import mock_socket, EXPECTED_VER
-from icepap.cli import cli
 
+min_requirement = sys.version_info >= (3, 6)
 
 pytestmark = pytest.mark.skipif(
-    sys.version_info < (3, 6),
+    not min_requirement,
     reason="requires python3.6 or higher"
 )
+
+if min_requirement:
+    from icepap.cli import cli
 
 
 def test_mode():

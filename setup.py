@@ -32,8 +32,8 @@ requires = [
     'numpy',
     'click<8  ;python_version<"3.6"',
     'click>=7 ;python_version>="3.6"',
-    'prompt_toolkit>=3',
-    'beautifultable>=1'
+    'prompt_toolkit>=3 ;python_version>="3.6"',
+    'beautifultable>=1 ;python_version>="3.6"'
 ]
 
 setup(
