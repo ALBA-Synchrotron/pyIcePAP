@@ -13,6 +13,15 @@ From within your favourite python environment:
 pip install icepap
 ```
 
+Additionally, if you want to use `icepapctl` (the icepap CLI), you need some
+extra dependencies which can be installed with:
+
+```console
+pip install icepap[cli]
+```
+
+*Note:* The CLI requires a python >= 3.6 environment.
+
 ## Usage
 
 ![spec in action](./demo.svg)
