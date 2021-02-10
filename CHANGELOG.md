@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.4.x] 
+## [3.5.x] 
+### Added
+ - Add CLI application
+
+### Removed
+
+### Fixed
+
+
+## [3.4.1] 
 ### Added
  - Add axis property to IcepapAxis class
  - Allow to get more than one IcePAPAxis objects from the IcePAPController
@@ -193,7 +202,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[3.4.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.3.0...HEAD
+[3.5.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...HEAD
+[3.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.3.0...3.4.1
 [3.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...3.3.0
 [3.2.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.1.0...3.2.2
 [3.1.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.0.1...3.1.0
