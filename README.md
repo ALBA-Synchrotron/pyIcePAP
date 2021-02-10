@@ -24,8 +24,13 @@ pip install icepap[cli]
 
 ## Usage
 
+The icepap python library in action:
+
 ![spec in action](./demo.svg)
 
+The icepapctl command line tool in action:
+
+![spec in action](./icepapctl.svg)
 
 ## Documentation
 
