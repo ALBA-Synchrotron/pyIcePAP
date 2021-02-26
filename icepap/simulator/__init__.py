@@ -3,7 +3,6 @@
 
     devices:
     - class: IcePAP
-      package: icepap.simulator
       transports:
       - type: tcp
         url: 0:5000

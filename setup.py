@@ -61,12 +61,15 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     extras_require={
-        'simulator': ['sinstruments>=1']
+        'simulator': ['sinstruments>=1.3']
     },
     entry_points={
         'console_scripts': [
             'icepap = icepap.__main__:main',
             'icepapctl = icepap.cli:cli'
+        ],
+        "sinstruments.device": [
+            "IcePAP = icepap.simulator:IcePAP [simulator]"
         ]
     },
     install_requires=requires,
