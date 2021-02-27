@@ -61,7 +61,7 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     extras_require={
-        'simulator': ['sinstruments>=1.3']
+        'simulator': ['sinstruments>=1.3', 'motorlib>=0.1']
     },
     entry_points={
         'console_scripts': [

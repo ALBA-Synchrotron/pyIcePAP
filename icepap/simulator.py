@@ -1,3 +1,24 @@
+"""
+.. code-block:: yaml
+
+    devices:
+    - class: IcePAP
+      transports:
+      - type: tcp
+        url: 0:5000
+      axes:
+      - address: 1
+        velocity: 100
+        name: th
+      - address: 2
+        name: tth
+        acctime: 0.125
+      - address: 11
+        name: phi
+      - address: 12
+        name: chi
+"""
+
 import re
 import enum
 import time
@@ -8,9 +29,8 @@ import weakref
 import functools
 import collections
 
+from motorlib import Motion, Jog
 from sinstruments.simulator import BaseDevice
-
-from .motion import Motion, Jog
 
 
 MAX_AXIS = 128
