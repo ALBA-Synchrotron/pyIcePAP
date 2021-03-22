@@ -88,8 +88,7 @@ class IcePAPCommunication:
                 ans = self._sock.read(8096).decode()
                 nb_dollars = ans.count("$")
                 if nb_dollars == 1:
-                    ans += self._sock.readline(eol=b"$").decode()
-
+                    ans += self._sock.readline(eol=b"$\n").decode()
             else:
                 ans = None
 
