@@ -272,3 +272,7 @@ class TCP:
         reply = self._sock.write_readline(data, eol=eol, timeout=timeout)
         self._log.debug("write_readline <- %r", reply)
         return reply
+
+    @ensure_connection
+    def readline(self, eol=None, timeout=None):
+        return self._sock.readline(eol=eol, timeout=timeout)
