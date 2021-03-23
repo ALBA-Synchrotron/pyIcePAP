@@ -183,6 +183,17 @@ class IcePAPController:
         return FirmwareVersion(ans)
 
     @property
+    def fver(self):
+        """
+        Get the only system version '?VER'
+        (IcePAP user manual pag. 144).
+
+        :return: float
+        """
+        ans = self.send_cmd('?VER')[0]
+        return float(ans)
+
+    @property
     def ver_saved(self):
         """
         Returns the firmware version stored in the master flash memory.
