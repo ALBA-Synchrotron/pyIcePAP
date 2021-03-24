@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.5.x] 
+## [3.6.x] 
+### Added
+ - Add fver property to read only the driver and the system version instead 
+   of reading all modules versions
+
+### Removed
+
+### Fixed
+- Change TCP class logger name to use logging filtering on IcepapCMS
+
+## [3.5.1] 
 ### Added
  - Add CLI application
 
@@ -202,7 +212,8 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[3.5.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...HEAD
+[3.6.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...HEAD
+[3.5.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...3.5.1
 [3.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.3.0...3.4.1
 [3.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...3.3.0
 [3.2.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.1.0...3.2.2
