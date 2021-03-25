@@ -106,10 +106,10 @@ class IcePAPController:
     def _alias2axisstr(self, alias):
         """
         Method to get the axis motor number. The input can be: string or a
-        number or a list with combination of strings and numbers. The result
-        depends of the number of inputs.
+        number or IcePAPAxis or a list with combination of strings and
+        numbers. The result depends of the number of inputs.
 
-        :param alias: str or int or [str, int, ...]
+        :param alias: IcePAPAxis or str or int or [str, int, IcePAPAxis, ...]
 
         :return: str
         """
@@ -117,6 +117,8 @@ class IcePAPController:
             result = str(alias)
         elif isinstance(alias, str):
             result = str(self._get_axis_for_alias(alias))
+        elif isinstance(alias, IcePAPAxis):
+            result = str(alias.axis)
         elif isinstance(alias, list):
             result = []
             for i in alias:
