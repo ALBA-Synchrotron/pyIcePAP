@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Allow to use IcePAPAxis object as parameter of IcePAPController commands. 
 
 ### Removed
-
+- Remove axis name size protection, if the size is bigger than the allowed 
+  the icepap saves up to the maximum size without errors.
+  
 ### Fixed
 - Change TCP class logger name to use logging filtering on IcepapCMS
 
