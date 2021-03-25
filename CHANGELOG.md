@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [3.6.x] 
 ### Added
  - Add fver property to read only the driver and the system version instead 
-   of reading all modules versions
+   of reading all modules versions.
+ - Allow to use IcePAPAxis object as parameter of IcePAPController commands. 
 
 ### Removed
 
