@@ -225,7 +225,8 @@ class TCP:
         self.timeout = timeout
         self.connection_counter = 0
         self._sock = None
-        self._log = logging.getLogger("icepap.TCP({})".format(host))
+        logger_name = "{}.TCP.{}".format(__name__, host)
+        self._log = logging.getLogger(logger_name)
 
     def connected(self):
         return self._sock is not None and self._sock.state() is OPEN

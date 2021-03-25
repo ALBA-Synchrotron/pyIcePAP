@@ -485,6 +485,17 @@ class IcePAPAxis:
         return FirmwareVersion(ans, True)
 
     @property
+    def fver(self):
+        """
+        Get the only driver version 'axis:?VER'
+        (IcePAP user manual pag. 144).
+
+        :return: float
+        """
+        ans = self.send_cmd('?VER')[0]
+        return float(ans)
+
+    @property
     def name(self):
         """
         Get the axis name (Icepap user manual pag. 95).
