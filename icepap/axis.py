@@ -510,13 +510,11 @@ class IcePAPAxis:
     @name.setter
     def name(self, value):
         """
-        Set the axis name. It must lower than 20 characters (Icepap user manual
-        pag. 95).
+        Set the axis name. (Icepap user manual pag. 95).
 
         :param value: str
         """
-        if len(value) >= 20:
-            raise ValueError('Name too long, max size 20 characters')
+
         cmd = 'NAME {0}'.format(value)
         self.send_cmd(cmd)
 
