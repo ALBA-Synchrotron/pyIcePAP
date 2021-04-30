@@ -540,9 +540,9 @@ def cli_rmove(
         _rmove(group, deltas, bar_options=bar_options)
 
 
-opt_url = click.option(
-    "-u", "--url", "icepap", type=IcePAPController.from_url, required=True,
-    help="hardware url (ex: 'ipap.acme.org' or 'tcp://ipap13:5001')"
+opt_url = click.argument(
+    "icepap", type=IcePAPController.from_url,
+    #help="hardware url (ex: 'ipap.acme.org' or 'tcp://ipap13:5001')"
 )
 
 opt_pb_format = click.option(
