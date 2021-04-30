@@ -548,7 +548,7 @@ def cli_rmove(
 
 
 opt_url = click.option(
-    "-u", "--url", "icepap", type=IcePAPController.from_url, required=True,
+    "-u", "--url", "icepap", type=IcePAPController.from_url,
     help="hardware url (ex: 'ipap.acme.org' or 'tcp://ipap13:5001')"
 )
 
