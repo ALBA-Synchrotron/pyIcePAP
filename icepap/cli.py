@@ -14,17 +14,10 @@ from prompt_toolkit.shortcuts.progress_bar.formatters import (
     Formatter, Label, Text, Percentage, Progress, Bar, TimeLeft
 )
 
-from .group import Group
+from .group import Group, gen_move, gen_rmove, gen_motion, ensure_power
 from .controller import IcePAPController
-from .tools import (
-    ensure_power,
-    interrupt_myself,
-    is_moving,
-    calc_deltas,
-    gen_move,
-    gen_rmove,
-    gen_motion,
-    gen_rate_limiter)
+from .utils import is_moving, gen_rate_limiter, interrupt_myself
+
 
 # -----------------------------------------------------------------------------
 # Progress bar stuff
@@ -38,7 +31,7 @@ class Position(Formatter):
 
     def format(self, progress_bar, progress, width):
         state = progress.state
-        template = self.moving if state.is_moving() else self.stopped
+        template = self.moving if is_moving() else self.stopped
         fmt = "{{:{}}}".format(self.pos_format.format(width=width)).format
         pos = fmt(progress.position)
         return HTML(template).format(pos)

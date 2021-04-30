@@ -16,6 +16,10 @@ __all__ = ['Info', 'Registers', 'State', 'TrackMode', 'Answers', 'Mode',
 
 # TODO: Check the Mode, Answers, TrackMode, Info and Register classes.
 
+import os
+import signal
+import time
+
 
 def deprecated(alt=None):
     """
@@ -441,3 +445,51 @@ class State:
         val = self._status_reg >> 24
         val = val & 255
         return val
+
+
+def is_moving(states):
+    return any(state.is_moving() for state in states)
+
+
+def calc_deltas(p1, p2):
+    return [abs(a - b) for a, b in zip(p1, p2)]
+
+
+def gen_rate_limiter(generator, period=0.1):
+    last_update = 0
+    for event in generator:
+        nap = period - (time.monotonic() - last_update)
+        if nap > 0:
+            time.sleep(nap)
+        yield event
+        last_update = time.monotonic()
+
+
+def interrupt_myself():
+    os.kill(os.getpid(), signal.SIGINT)
+
+
+def get_ctrl_item(f, axes, default=None):
+    try:
+        return f(axes)
+    except Exception:
+        pass
+    values = []
+    for axis in axes:
+        try:
+            value = f(axis)[0]
+        except RuntimeError:
+            value = default
+        values.append(value)
+    return values
+
+
+def get_item(motors, name, default=None):
+    values = []
+    for motor in motors:
+        try:
+            value = getattr(motor, name)
+        except RuntimeError:
+            value = default
+        values.append(value)
+    return values
