@@ -288,5 +288,19 @@ def rinfo(ctx, racks, table_style):
     click.echo(table)
 
 
+@cli.command()
+@click.argument("cmd", nargs=-1, type=str, required=True)
+@click.pass_context
+def raw(ctx, cmd):
+    """Send raw command to the icepap"""
+    pap = ctx.obj['icepap']
+    cmd = ' '.join(cmd)
+    output = pap.send_cmd(cmd)
+    if output is not None:
+        for line in output:
+            click.echo(line)
+    else:
+        click.echo('Done')
+
 if __name__ == "__main__":
     cli()
