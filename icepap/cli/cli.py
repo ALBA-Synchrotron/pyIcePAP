@@ -137,7 +137,7 @@ opt_racks = click.option(
 )
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @opt_url
 @click.pass_context
 def cli(ctx, icepap):
@@ -149,6 +149,9 @@ def cli(ctx, icepap):
     """
     ctx.ensure_object(dict)
     ctx.obj["icepap"] = icepap
+    if ctx.invoked_subcommand is None:
+        from .repl import run
+        run(ctx)
 
 
 @cli.command()
