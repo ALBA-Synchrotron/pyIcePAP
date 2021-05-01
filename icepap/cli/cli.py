@@ -143,6 +143,9 @@ opt_racks = click.option(
 def cli(ctx, icepap):
     """
     High level command line interface for IcePAP
+
+    Connects to the given ICEPAP (a url in format [tcp://]<host/ip>[:<port=5000])
+    (ex: 'ice1', 'tcp://ice1' and 'tcp://ice1:5000' all mean the same)
     """
     ctx.ensure_object(dict)
     ctx.obj["icepap"] = icepap
