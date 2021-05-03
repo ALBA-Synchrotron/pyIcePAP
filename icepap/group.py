@@ -66,7 +66,7 @@ class Group:
         return get_ctrl_item(self.controller.get_states, self.axes, State(0))
 
     def is_moving(self):
-        return any(is_moving() for state in self.get_states())
+        return is_moving(self.get_states())
 
     def get_power(self):
         return get_ctrl_item(self.controller.get_power, self.axes)
