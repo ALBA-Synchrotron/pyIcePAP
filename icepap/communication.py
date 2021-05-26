@@ -133,7 +133,7 @@ class IcePAPCommunication:
         str_startmark = struct.pack('L', startmark)[:4]
         str_nworddata = struct.pack('L', nworddata)[:4]
         str_maskedchksum = struct.pack('L', maskedchksum)[:4]
-        str_data = data.tostring()
+        str_data = data.tobytes()
         str_bin = str_startmark + str_nworddata + str_maskedchksum + str_data
         str_bin += b'\r'
 
