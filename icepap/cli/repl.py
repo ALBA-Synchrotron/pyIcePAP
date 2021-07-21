@@ -168,15 +168,30 @@ def command(text, context):
         print("Unexpected error: {!r}".format(error))
 
 
-def step(prompt, context):
+def step_raw(prompt, context):
     while True:
-        text = prompt.prompt()
+        text = prompt.prompt('raw mode> ')
+        # empty text would create a sub-repl.
+        # Avoid it by returning to the prompt
+        if not text:
+            continue
+        elif text == "exit":
+           return
+        text = 'raw {}'.format(text)
+        command(text, context)
+
+
+def step(prompt, context):
+   while True:
+        text = prompt.prompt('> ')
         # empty text would create a sub-repl.
         # Avoid it by returning to the prompt
         if not text:
             continue
         elif text == "exit":
             raise EOFError
+        elif text == "raw":
+            return step_raw(prompt, context)
         return command(text, context)
 
 
