@@ -5,7 +5,7 @@ from prompt_toolkit.formatted_text import HTML
 
 from .progress_bar import DEFAULT_FORMATTERS, PLAIN_FORMATTERS, \
     SIMPLE_FORMATTERS, _move, _rmove, _rmove_multiple
-from .tables import Table, StateTable, StatusTable, PositionTable
+from .tables import Table, StateTable, StatusTable, PositionTable, VersionTable
 from ..group import Group
 from ..controller import IcePAPController
 
@@ -239,12 +239,31 @@ def pos(motors, table_style):
     click.echo(PositionTable(group, style=table_style))
 
 
-@cli.command()
+@cli.group()
+def ver():
+    """
+    Subcommands to check the version: system, axes"
+    """
+    pass
+
+
+@ver.command('system')
 @click.pass_context
-def ver(ctx):
+def ver_system(ctx):
     """Prints a summary of icepap version"""
     pap = ctx.obj["icepap"]
     click.echo(pap.ver)
+
+
+@ver.command('axes')
+@click.pass_context
+@opt_axes
+@click.option('-i', '--info', is_flag=True, default=False, help='Get all info')
+@opt_table_style
+def ver_axes(ctx, motors, info, table_style):
+    """Prints a summary of axes version. Use -i to see all info"""
+    group = Group(motors)
+    click.echo(VersionTable(group, info, style=table_style))
 
 
 @cli.command()
@@ -279,7 +298,7 @@ def reboot(ctx):
 
 
 @cli.command()
-@opt_racks
+@opt_mandatory_racks
 @opt_table_style
 @click.pass_context
 def rinfo(ctx, racks, table_style):
@@ -307,6 +326,7 @@ def raw(ctx, cmd):
             click.echo(line)
     else:
         click.echo('Done')
+
 
 if __name__ == "__main__":
     cli()

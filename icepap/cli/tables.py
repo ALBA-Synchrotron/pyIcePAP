@@ -85,3 +85,49 @@ def PositionTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     for row in zip(axes, *cols):
         table.rows.append(row)
     return table
+
+
+def VersionTable(group, info=True,
+                 style=beautifultable.Style.STYLE_BOX_ROUNDED):
+    table = Table(style=style)
+    master_ver = group.controller.fver
+
+    if not info:
+        header = 'Axis', 'VER'
+        for motor in group.motors:
+            diff = False
+            motor_ver = motor.fver
+            if master_ver != motor_ver:
+                diff = True
+
+            data = [motor.addr, motor_ver]
+            if diff:
+                color = 'bright_red'
+            else:
+                color = 'green'
+            row = [click.style(str(v), fg=color) for v in data]
+            table.rows.append(row)
+    else:
+        print('Reading...')
+        header = "Axis", "SYSTEM", "DRIVER", "DSP", "FPGA"
+        for motor in group.motors:
+            axis_ver = motor.ver
+            diff = False
+            if master_ver != axis_ver.driver[0]:
+                diff = True
+
+            data = [motor.addr, axis_ver.system[0], axis_ver.driver[0],
+                    axis_ver.driver_dsp[0], axis_ver.driver_fpga[0]]
+
+            if diff:
+                color = 'bright_red'
+            else:
+                color = 'green'
+            row = [click.style(str(v), fg=color) for v in data]
+
+            table.rows.append(row)
+
+    table.columns.header = header
+
+
+    return table
