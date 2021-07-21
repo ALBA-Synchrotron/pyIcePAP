@@ -112,7 +112,7 @@ opt_title = click.option(
 )
 
 opt_table_style = click.option(
-    "--table-style", type=TableStyles(), default="box_rounded",
+    "--table-style", type=TableStyles(), default="compact",
     show_default=True, help="table style"
 )
 
