@@ -3,14 +3,17 @@ import shutil
 import beautifultable
 import click
 
+ERROR_COLOR = "bright_red"
+OK_COLOR = "green"
+WARNING_COLOR = "bright_yellow"
 
 def bool_text(data, false="NO", true="YES"):
     return true if data else false
 
 
 def bool_text_color(data, text_false="NO", text_true="YES",
-                    color_false="bright_red",
-                    color_true="green"):
+                    color_false=ERROR_COLOR,
+                    color_true=OK_COLOR):
     color = color_true if data else color_false
     text = bool_text(data, text_false, text_true)
     text = click.style(text, fg=color)
@@ -18,9 +21,10 @@ def bool_text_color(data, text_false="NO", text_true="YES",
 
 
 def bool_text_color_inv(data, text_false="NO", text_true="YES"):
-    return bool_text_color(data, text_false, text_true,
-                           "green",
-                           "bright_red")
+    return bool_text_color(data, text_false, text_true, OK_COLOR,
+                           ERROR_COLOR)
+
+
 
 
 def Table(**kwargs):
@@ -78,6 +82,8 @@ def PositionTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     table = Table(style=style)
     header = "Axis", "AXIS", "MEASURE", "ENCIN", "INPOS", "ABSENC", "MOTOR"
     table.columns.header = header
+
+
     cols = [
         ctrl.get_pos(axes, register=register)
         for i, register in enumerate(header[1:])
@@ -102,9 +108,9 @@ def VersionTable(group, info=True,
 
             data = [motor.addr, motor_ver]
             if diff:
-                color = 'bright_red'
+                color = ERROR_COLOR
             else:
-                color = 'green'
+                color = OK_COLOR
             row = [click.style(str(v), fg=color) for v in data]
             table.rows.append(row)
     else:
@@ -120,14 +126,13 @@ def VersionTable(group, info=True,
                     axis_ver.driver_dsp[0], axis_ver.driver_fpga[0]]
 
             if diff:
-                color = 'bright_red'
+                color = ERROR_COLOR
             else:
-                color = 'green'
+                color = OK_COLOR
             row = [click.style(str(v), fg=color) for v in data]
 
             table.rows.append(row)
 
     table.columns.header = header
-
 
     return table
