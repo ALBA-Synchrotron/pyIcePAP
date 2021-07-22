@@ -5,7 +5,8 @@ from prompt_toolkit.formatted_text import HTML
 
 from .progress_bar import DEFAULT_FORMATTERS, PLAIN_FORMATTERS, \
     SIMPLE_FORMATTERS, _move, _rmove, _rmove_multiple
-from .tables import Table, StateTable, StatusTable, PositionTable, VersionTable
+from .tables import Table, StateTable, StatusTable, PositionTable, \
+    VersionTable, EncoderTable
 from ..group import Group
 from ..controller import IcePAPController
 
@@ -238,6 +239,14 @@ def pos(motors, table_style):
     group = Group(motors)
     click.echo(PositionTable(group, style=table_style))
 
+
+@cli.command()
+@opt_axes
+@opt_table_style
+def enc(motors, table_style):
+    """Prints a summary of each axis detailed position in form of table"""
+    group = Group(motors)
+    click.echo(EncoderTable(group, style=table_style))
 
 @cli.group()
 def ver():

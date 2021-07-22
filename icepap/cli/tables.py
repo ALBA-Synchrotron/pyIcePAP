@@ -140,6 +140,20 @@ def PositionTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     return table
 
 
+def EncoderTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
+    ctrl, axes = group.controller, group.axes
+    table = Table(style=style)
+    header = "Axis", "AXIS", "MEASURE", "ENCIN", "INPOS", "ABSENC", "MOTOR"
+    table.columns.header = header
+    cols = [
+        ctrl.get_enc(axes, register=register)
+        for i, register in enumerate(header[1:])
+    ]
+    for row in zip(axes, *cols):
+        table.rows.append(row)
+    return table
+
+
 def VersionTable(group, info=True,
                  style=beautifultable.Style.STYLE_BOX_ROUNDED):
     table = Table(style=style)
