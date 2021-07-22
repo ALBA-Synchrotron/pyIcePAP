@@ -39,7 +39,7 @@ def Table(**kwargs):
     return table
 
 
-def StateTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
+def StatusTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     table = Table(style=style)
     table.columns.header = (
         "Axis", "Name", "Pos.", "Ready", "Alive", "Pres.", "Enab.",
@@ -65,7 +65,7 @@ def StateTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     return table
 
 
-def StatusTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
+def StateTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     table = Table(style=style)
     table.columns.header = ('Axis', 'Name', 'Pos.', 'Ready', 'Vel.', 'Acc. T.')
     args = (group.motors, group.names, group.get_states(), group.get_fpos(),
