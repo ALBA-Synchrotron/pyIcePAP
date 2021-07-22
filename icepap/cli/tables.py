@@ -25,6 +25,51 @@ def bool_text_color_inv(data, text_false="NO", text_true="YES"):
                            ERROR_COLOR)
 
 
+def stop_code_text_color(state):
+    if state.get_stop_code() == 0:
+        color = OK_COLOR
+    elif state.get_stop_code() in [1, 2, 3, 4, 5]:
+        color = WARNING_COLOR
+    else:
+        color = ERROR_COLOR
+
+    return click.style(str(state.get_stop_code()), fg=color)
+
+
+def mode_text_color(motor):
+    mode = motor.mode
+    if mode == 'OPER':
+        color = OK_COLOR
+    else:
+        color = ERROR_COLOR
+    return click.style(mode, fg=color)
+
+
+def limits_text_color(state):
+    if state.is_limit_negative() and state.is_limit_positive():
+        text = 'BOTH'
+        color = ERROR_COLOR
+    elif state.is_limit_positive():
+        text = 'Lim+'
+        color = WARNING_COLOR
+    elif state.is_limit_negative():
+        text = 'Lim-'
+        color = WARNING_COLOR
+    else:
+        text = 'NO'
+        color = OK_COLOR
+    return click.style(text, fg=color)
+
+
+def disable_text_color(state):
+    if state.get_disable_code() == 0:
+        color = OK_COLOR
+    elif state.get_disable_code() == 7:
+        color = WARNING_COLOR
+    else:
+        color = ERROR_COLOR
+
+    return click.style(str(state.get_disable_code()), fg=color)
 
 
 def Table(**kwargs):
@@ -42,26 +87,28 @@ def Table(**kwargs):
 def StatusTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     table = Table(style=style)
     table.columns.header = (
-        "Axis", "Name", "Pos.", "Ready", "Alive", "Pres.", "Enab.",
-        "Power", "5V", "Lim-", "Lim+", "Warn")
+        "Axis", "Name", "Alive", "Mode", "Ready", "Power", "Disab.",
+        "StopC.", "Limits")
     args = (
         group.motors,
         group.names,
         group.get_states(),
-        group.get_fpos()
     )
-    for motor, name, state, pos in zip(*args):
-        row = (motor.axis, name, pos,
-               bool_text_color(state.is_ready()),
+    stop_codes = set()
+    disable_codes = set()
+    for motor, name, state in zip(*args):
+        stop_codes.add(state.get_stop_code())
+        disable_codes.add(state.get_disable_code())
+        row = (motor.axis, name,
                bool_text_color(state.is_alive()),
-               bool_text_color(state.is_present()),
-               bool_text_color(not state.is_disabled()),
+               mode_text_color(motor),
+               bool_text_color(state.is_ready()),
                bool_text_color(state.is_poweron(), "OFF", "ON"),
-               bool_text_color(state.is_5vpower()),
-               bool_text_color_inv(state.is_limit_negative(), "OFF", "ON"),
-               bool_text_color_inv(state.is_limit_positive(), "OFF", "ON"),
-               bool_text_color_inv(state.is_warning()))
+               disable_text_color(state),
+               stop_code_text_color(state),
+               limits_text_color(state))
         table.rows.append(row)
+
     return table
 
 
