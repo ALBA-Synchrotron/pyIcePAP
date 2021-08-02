@@ -126,6 +126,77 @@ class State:
     """
     Class to evaluate the status register.
 
+    From firmware code:
+    0xXXXXXXXX
+    .......3 - PRESENCE =
+                 0: Board is not present
+                 1: Board is not alive
+                 2: Board is in configuration mode
+                 3: Board is alive
+    .......C - MODE =
+                 0: Board mode is OPER
+                 1: Board mode is PROG
+                 2: Board mode is TEST
+                 3: Board mode is FAIL
+    .....2.. - READY =
+                 0: Board is NOT READY
+                 1: Board is READY
+    ..8..... - POWERON =
+                 0: Motor power is OFF
+                 1: Motor power is ON
+    ......7. - DISABLE =
+                 0: Motor power NOT DISABLED
+                 1: Motor power is DISABLED because axis is NOT ACTIVE
+                 2: Motor power is DISABLED by HARDWARE ALARM
+                 3: Motor power is DISABLED due to external RACK DISABLE SIGNAL
+                 4: Motor power is DISABLED by the RACK DISABLE SWITCH
+                 5: Motor power is DISABLED due to external AXIS DISABLE signal
+                 6: Motor power is DISABLED by the AXIS DISABLE SWITCH
+                 7: Motor power is DISABLED by SOFTWARE
+    .....18. - INDEXER =
+                 0: Indexer source is INTERNAL
+                 1: Indexer source is INSYSTEM
+                 2: Indexer source is EXTERNAL
+                 3: Indexer source is LINKED
+    .....4.. - MOVING =
+                 0: Motor is not moving
+                 1: Motor is MOVING
+    ...3C... - STOPCODE =
+                 0: No abnormal stop condition
+                 1: Last motion stopped by a STOP command
+                 2: Last motion stopped by an ABORT command or condition
+                 3: Last motion stopped when the LIMIT+ was reached
+                 4: Last motion stopped when the LIMIT- was reached
+                 5: Last motion stopped by a configured stop condition
+                 6: Last motion stopped because the axis power was DISABLED
+                 7: Last motion stopped ERROR: movement in progress?
+    .....8.. - SETTLING =
+                 0: Closed loop is idle
+                 1: Closed loop is SETTLING
+    ....1... - OUTOFWIN =
+                 0: Axis is in target window
+                 1: Axis is OUT OF target window
+    ...4.... - LIMITPOS =
+                 0: Limit+ signal is not active
+                 1: Limit+ signal is ACTIVE
+    ...8.... - LIMITNEG =
+                 0: Limit- signal is not active
+                 1: Limit- signal is ACTIVE
+    ..1..... -  HSIGNAL =
+                 0: Home signal is LOW
+                 1: Home signal is HIGH
+    ....2... -  WARNING =
+                 0: Warning flag is off
+                 1: Warning flag is ACTIVE
+    ..2..... -  5VPOWER =
+                 0: Aux 5V power supply is OFF
+                 1: Aux 5V power supply is ON
+    ..4..... -  VERSERR =
+                 0: Firmware versions are consistent
+                 1: Firmware versions are INCONSISTENT
+    FF...... - PROGPROG =
+                 XX: Info value is XX:
+
     Table from Icepap User Manual - Section `Board Status Register`
 
     ========== ============ ===============================================
@@ -178,39 +249,44 @@ class State:
                             In OPER mode: master indexer
     ========== ============ ===============================================
     """
-    status_meaning = {'mode': {0: Mode.OPER,
-                               1: Mode.PROG,
-                               2: Mode.TEST,
-                               3: Mode.FAIL},
-                      'disable': {0: 'Enable',
-                                  1: 'Axis not active',
-                                  2: 'Hardware alarm',
-                                  3: 'Remote rack disable input signal',
-                                  4: 'Local rack disable switch',
-                                  5: 'Remote axis disable input signal',
-                                  6: 'Local axis disable switch',
-                                  7: 'Software disable'},
-                      'indexer': {0: 'Internal indexer',
-                                  1: 'In-system indexer',
-                                  2: 'External indexer',
-                                  3: 'N/A'},
-                      'stopcode': {0: 'End of movement',
-                                   1: 'Stop',
-                                   2: 'Abort',
-                                   3: 'Limit+ reached',
-                                   4: 'Limit- reached',
-                                   5: 'Settling timeout',
-                                   6: 'Axis disabled',
-                                   7: 'N/A',
-                                   8: 'Internal failure',
-                                   9: 'Motor failure',
-                                   10: 'Power overload',
-                                   11: 'Driver overheating',
-                                   12: 'Close loop error',
-                                   13: 'Control encoder error',
-                                   14: 'N/A',
-                                   15: 'External alarm'},
-                      'info': {}}
+    status_meaning = {
+        'mode': {
+            0: Mode.OPER,
+            1: Mode.PROG,
+            2: Mode.TEST,
+            3: Mode.FAIL},
+        'disable': {
+            0: 'Motor power NOT DISABLED',
+            1: 'Motor power is DISABLED because axis is NOT ACTIVE',
+            2: 'Motor power is DISABLED by HARDWARE ALARM',
+            3: 'Motor power is DISABLED due to external RACK DISABLE SIGNAL',
+            4: 'Motor power is DISABLED by the RACK DISABLE SWITCH',
+            5: 'Motor power is DISABLED due to external AXIS DISABLE signal',
+            6: 'Motor power is DISABLED by the AXIS DISABLE SWITCH',
+            7: 'Motor power is DISABLED by SOFTWARE'},
+        'indexer': {
+            0: 'Indexer source is INTERNAL',
+            1: 'Indexer source is INSYSTEM',
+            2: 'Indexer source is EXTERNAL',
+            3: 'Indexer source is LINKED'},
+        'stopcode': {
+            0: 'No abnormal stop condition',
+            1: 'Last motion stopped by a STOP command',
+            2: 'Last motion stopped by an ABORT command or condition',
+            3: 'Last motion stopped when the LIMIT+ was reached',
+            4: 'Last motion stopped when the LIMIT- was reached',
+            5: 'Last motion stopped by a configured stop condition',
+            6: 'Last motion stopped because the axis power was DISABLED',
+            7: 'Last motion stopped ERROR: movement in progress?',
+            8: 'Internal failure',
+            9: 'Motor failure',
+            10: 'Power overload',
+            11: 'Driver overheating',
+            12: 'Close loop error',
+            13: 'Control encoder error',
+            14: 'N/A',
+            15: 'External alarm'},
+        'info': {}}
 
     def __init__(self, status_register):
         self._status_reg = status_register
