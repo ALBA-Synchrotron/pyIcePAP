@@ -3,9 +3,12 @@ import shutil
 import beautifultable
 import click
 
+from ..utils import State
+
 ERROR_COLOR = "bright_red"
 OK_COLOR = "green"
 WARNING_COLOR = "bright_yellow"
+
 
 def bool_text(data, false="NO", true="YES"):
     return true if data else false
@@ -25,15 +28,19 @@ def bool_text_color_inv(data, text_false="NO", text_true="YES"):
                            ERROR_COLOR)
 
 
-def stop_code_text_color(state):
-    if state.get_stop_code() == 0:
+def stop_code_text_color(code, return_msg=False):
+    if code == 0:
         color = OK_COLOR
-    elif state.get_stop_code() in [1, 2, 3, 4, 5]:
+    elif code in [1, 2, 3, 4, 5]:
         color = WARNING_COLOR
     else:
         color = ERROR_COLOR
 
-    return click.style(str(state.get_stop_code()), fg=color)
+    if return_msg:
+        output = '{}: {}'.format(code, State.status_meaning['stopcode'][code])
+    else:
+        output = '{}'.format(code)
+    return click.style(output, fg=color)
 
 
 def mode_text_color(motor):
@@ -61,16 +68,22 @@ def limits_text_color(state):
     return click.style(text, fg=color)
 
 
-def disable_text_color(state):
-    if state.get_disable_code() == 0:
+def disable_text_color(code, return_msg=False):
+    if code == 0:
         color = OK_COLOR
-    elif state.get_disable_code() == 7:
+    elif code == 7:
         color = WARNING_COLOR
     else:
         color = ERROR_COLOR
+    if return_msg:
+        output = '{}: {}'.format(code,
+                                 State.status_meaning['disable'][code])
+    else:
+        output = '{}'.format(code)
+    return click.style(output, fg=color)
 
-    return click.style(str(state.get_disable_code()), fg=color)
 
+ 
 
 def Table(**kwargs):
     style = kwargs.pop("style", beautifultable.Style.STYLE_BOX_ROUNDED)
@@ -97,19 +110,29 @@ def StatusTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
     stop_codes = set()
     disable_codes = set()
     for motor, name, state in zip(*args):
-        stop_codes.add(state.get_stop_code())
-        disable_codes.add(state.get_disable_code())
+        if state.get_stop_code() != 0:
+            stop_codes.add(state.get_stop_code())
+        if state.get_disable_code() != 0:
+            disable_codes.add(state.get_disable_code())
         row = (motor.axis, name,
                bool_text_color(state.is_alive()),
                mode_text_color(motor),
                bool_text_color(state.is_ready()),
                bool_text_color(state.is_poweron(), "OFF", "ON"),
-               disable_text_color(state),
-               stop_code_text_color(state),
+               disable_text_color(state.get_disable_code()),
+               stop_code_text_color(state.get_stop_code()),
                limits_text_color(state))
         table.rows.append(row)
-
-    return table
+    output = '{}\n\n'.format(table)
+    if disable_codes is not None:
+        output += 'Disable codes:\n'
+        for disable_code in disable_codes:
+            output += '  {}\n'.format(disable_text_color(disable_code, True))
+    if stop_codes is not None:
+        output += 'Stop codes:\n'
+        for stop_code in stop_codes:
+            output += '  {}\n'.format(stop_code_text_color(stop_code, True))
+    return output
 
 
 def StateTable(group, style=beautifultable.Style.STYLE_BOX_ROUNDED):
