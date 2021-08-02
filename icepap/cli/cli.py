@@ -58,6 +58,7 @@ class Axes(click.ParamType):
                     axes.append(int(axis))
                 except ValueError:
                     axes.append(axis.strip())
+            axes.sort()
         return pap[axes]
 
 
@@ -247,6 +248,7 @@ def enc(motors, table_style):
     """Prints a summary of each axis detailed position in form of table"""
     group = Group(motors)
     click.echo(EncoderTable(group, style=table_style))
+
 
 @cli.group()
 def ver():
