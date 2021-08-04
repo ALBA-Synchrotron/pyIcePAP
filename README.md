@@ -22,6 +22,13 @@ pip install icepap[cli]
 
 *Note:* The CLI requires a python >= 3.6 environment.
 
+icepap is also available on [conda-forge](https://github.com/conda-forge/icepap-feedstock).
+You can install it using [conda](https://docs.conda.io):
+
+```console
+conda install -c conda-forge icepap
+```
+
 ## Usage
 
 The icepap python library in action:
