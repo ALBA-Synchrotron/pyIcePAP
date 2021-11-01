@@ -34,7 +34,12 @@ def create_connection(host, port):
     sock.setblocking(False)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     res = sock.connect_ex((host, port))
-    if res not in {0, errno.EINPROGRESS}:
+    allowed_results = [0, errno.EINPROGRESS]
+    # Non-blocking sockets on Windows give the WSAEWOULDBLOCK when opening.
+    # Add this to allowed list.
+    if hasattr(errno, "WSAEWOULDBLOCK"):
+        allowed_results.append(errno.WSAEWOULDBLOCK)
+    if res not in allowed_results:
         raise to_error(res)
     return sock
 
