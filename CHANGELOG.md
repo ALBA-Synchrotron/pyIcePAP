@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Change TCP class logger name to use logging filtering on IcepapCMS
 - Remove deprecated array.tostring() and use array.tobytes() 
+- Fix socket connection on Windows.
 
 ## [3.5.1] 
 ### Added
