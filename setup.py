@@ -60,10 +60,16 @@ setup(
         'Topic :: Communications',
         'Topic :: Software Development :: Libraries',
     ],
+    extras_require={
+        'simulator': ['sinstruments>=1.3', 'motorlib>=0.1']
+    },
     entry_points={
         'console_scripts': [
             'icepap = icepap.__main__:main',
             'icepapctl = icepap.cli:cli'
+        ],
+        "sinstruments.device": [
+            "IcePAP = icepap.simulator:IcePAP [simulator]"
         ]
     },
     install_requires=requires,
