@@ -5,7 +5,7 @@ from setuptools import find_packages
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-__version = '3.3.0'
+__version = '3.6.3'
 
 # windows installer:
 # python setup.py bdist_wininst
@@ -27,6 +27,14 @@ SPHINX = any(x in sys.argv for x in ["build_sphinx"])
 if SPHINX:
     setup_requirements += ['sphinx', 'sphinx-argparse', 'sphinx_rtd_theme']
 
+
+requires = [
+    'numpy',
+    'click<8  ;python_version<"3.6"',
+    'click>=7 ;python_version>="3.6"',
+    'prompt_toolkit>=3 ;python_version>="3.6"',
+    'beautifultable>=1 ;python_version>="3.6"'
+]
 
 setup(
     name="icepap",
@@ -55,9 +63,10 @@ setup(
     entry_points={
         'console_scripts': [
             'icepap = icepap.__main__:main',
+            'icepapctl = icepap.cli:cli'
         ]
     },
-    install_requires=['numpy'],
+    install_requires=requires,
     setup_requires=setup_requirements,
     tests_require=test_requirements,
     python_requires='>=3.5',

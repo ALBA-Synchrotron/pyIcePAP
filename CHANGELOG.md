@@ -7,7 +7,45 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!--## [Unreleased] -->
 <!--### Added -->
 
-## [3.3.x] 
+## [3.6.x] 
+### Added
+ - Add fver property to read only the driver and the system version instead 
+   of reading all modules versions.
+ - Allow to use IcePAPAxis object as parameter of IcePAPController commands. 
+
+### Removed
+- Remove axis name size protection, if the size is bigger than the allowed 
+  the icepap saves up to the maximum size without errors.
+  
+### Fixed
+- Change TCP class logger name to use logging filtering on IcepapCMS
+- Remove deprecated array.tostring() and use array.tobytes() 
+- Fix socket connection on Windows.
+
+## [3.5.1] 
+### Added
+ - Add CLI application
+
+### Removed
+
+### Fixed
+ - Implemented readline method used on the TCP class introduced on 3.4.1 
+
+## [3.4.1] 
+### Added
+ - Add axis property to IcepapAxis class
+ - Allow to get more than one IcePAPAxis objects from the IcePAPController
+  at the same time
+ - Allow to create a IcePAPController from a URL
+
+### Removed
+
+### Fixed
+- TCP communication problems:
+    - Handle asynchronous exception (ex: Keyboard Interrupt)
+    - Masked errors: Some OSError and even a BaseException is being masked to RuntimeError
+
+## [3.3.0] 
 ### Added
  - Add firmware file as sprog parameter
 
@@ -179,7 +217,10 @@ Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
 [Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[3.3.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...HEAD
+[3.6.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...HEAD
+[3.5.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...3.5.1
+[3.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.3.0...3.4.1
+[3.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...3.3.0
 [3.2.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.1.0...3.2.2
 [3.1.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.9.0...3.0.1

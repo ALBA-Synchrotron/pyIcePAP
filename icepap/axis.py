@@ -104,6 +104,16 @@ class IcePAPAxis:
         return table
 
     @property
+    def axis(self):
+        """
+        Get the axis number (IcePAP user manual pag. 49).
+        Local internal address (no communication with the IcePAP)
+
+        :return: int
+        """
+        return self._axis_nr
+
+    @property
     def addr(self):
         """
         Get the axis number (IcePAP user manual pag. 49).
@@ -475,6 +485,17 @@ class IcePAPAxis:
         return FirmwareVersion(ans, True)
 
     @property
+    def fver(self):
+        """
+        Get the only driver version 'axis:?VER'
+        (IcePAP user manual pag. 144).
+
+        :return: float
+        """
+        ans = self.send_cmd('?VER')[0]
+        return float(ans)
+
+    @property
     def name(self):
         """
         Get the axis name (Icepap user manual pag. 95).
@@ -489,13 +510,11 @@ class IcePAPAxis:
     @name.setter
     def name(self, value):
         """
-        Set the axis name. It must lower than 20 characters (Icepap user manual
-        pag. 95).
+        Set the axis name. (Icepap user manual pag. 95).
 
         :param value: str
         """
-        if len(value) >= 20:
-            raise ValueError('Name too long, max size 20 characters')
+
         cmd = 'NAME {0}'.format(value)
         self.send_cmd(cmd)
 

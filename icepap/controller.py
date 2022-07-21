@@ -37,6 +37,8 @@ __all__ = ['IcePAPController']
 import time
 import logging
 import array
+import urllib.parse
+import collections.abc
 from .communication import IcePAPCommunication
 from .axis import IcePAPAxis
 from .utils import State
@@ -65,6 +67,8 @@ class IcePAPController:
     def __getitem__(self, item):
         if isinstance(item, str):
             item = self._get_axis_for_alias(item)
+        elif isinstance(item, collections.abc.Sequence):
+            return [self[i] for i in item]
         if item not in self._axes:
             if item not in self.ALL_AXES_VALID:
                 raise ValueError('Bad axis value.')
@@ -102,10 +106,10 @@ class IcePAPController:
     def _alias2axisstr(self, alias):
         """
         Method to get the axis motor number. The input can be: string or a
-        number or a list with combination of strings and numbers. The result
-        depends of the number of inputs.
+        number or IcePAPAxis or a list with combination of strings and
+        numbers. The result depends of the number of inputs.
 
-        :param alias: str or int or [str, int, ...]
+        :param alias: IcePAPAxis or str or int or [str, int, IcePAPAxis, ...]
 
         :return: str
         """
@@ -113,6 +117,8 @@ class IcePAPController:
             result = str(alias)
         elif isinstance(alias, str):
             result = str(self._get_axis_for_alias(alias))
+        elif isinstance(alias, IcePAPAxis):
+            result = str(alias.axis)
         elif isinstance(alias, list):
             result = []
             for i in alias:
@@ -135,6 +141,13 @@ class IcePAPController:
             result += '{0} {1} '.format(self._alias2axisstr(axis),
                                         cast_type(value))
         return result
+
+    @classmethod
+    def from_url(cls, url):
+        if "://" not in url:
+            url = "tcp://" + url
+        addr = urllib.parse.urlparse(url)
+        return cls(addr.hostname, addr.port or 5000)
 
 # -----------------------------------------------------------------------------
 #                       Properties
@@ -172,6 +185,17 @@ class IcePAPController:
         return FirmwareVersion(ans)
 
     @property
+    def fver(self):
+        """
+        Get the only system version '?VER'
+        (IcePAP user manual pag. 144).
+
+        :return: float
+        """
+        ans = self.send_cmd('?VER')[0]
+        return float(ans)
+
+    @property
     def ver_saved(self):
         """
         Returns the firmware version stored in the master flash memory.
@@ -183,7 +207,7 @@ class IcePAPController:
 
     @property
     def connected(self):
-        return self._comm.is_conneted()
+        return self._comm.is_connected()
 
     @property
     def mode(self):
