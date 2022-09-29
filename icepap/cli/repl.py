@@ -22,16 +22,14 @@ def human_host(host):
 class Toolbar:
     def __init__(self, icepap):
         self.icepap = icepap
-        comm = icepap._comm
-        self.host = human_host(comm.host)
-        self.addr = "{}:{}".format(self.host, comm.port)
-        self.ver = icepap.fver
-        self.mode = icepap.mode
+        self.addr = "{}:{}".format(self.icepap.host, self.icepap.port)
 
     def __call__(self):
         msg = "icepapctl {} | <b>{}</b> - {} - {} | " \
-          "<b>[F5]</b>: State <b>[F6]</b>: Status | <b>[Ctrl-D]</b>: Quit".format(
-            sw_version, self.addr, self.ver, self.mode)
+              "<b>[F5]</b>: State <b>[F6]</b>: Status | " \
+              "<b>[Ctrl-D]</b>: Quit".format(sw_version, self.addr,
+                                             self.icepap.fver,
+                                             self.icepap.mode)
         return HTML(msg)
 
 
@@ -40,7 +38,6 @@ class Completer(BaseCompleter):
     def __init__(self, ctx):
         self.ctx = ctx
         self.icepap = ctx.obj["icepap"]
-        self.host = self.icepap._comm.host
 
     def get_completions(self, document, complete_event=None):
         # Code analogous to click._bashcomplete.do_complete
@@ -64,9 +61,10 @@ class Completer(BaseCompleter):
             # command, so give all relevant completions for this context.
             incomplete = ""
 
-        # icepapctl specific: assumes a CLI: icepapctl [OPTS] ICEPAP COMMAND [ARGS]...
+        # icepapctl specific:
+        # assumes a CLI: icepapctl [OPTS] ICEPAP COMMAND [ARGS]...
         if args:
-            args.insert(0, self.host)
+            args.insert(0, self.icepap.host)
 
         ctx = click._bashcomplete.resolve_ctx(self.ctx.command, "", args)
         if ctx is None:

@@ -152,6 +152,13 @@ class IcePAPController:
 # -----------------------------------------------------------------------------
 #                       Properties
 # -----------------------------------------------------------------------------
+    @property
+    def host(self):
+        return self._comm.host
+
+    @property
+    def port(self):
+        return self._comm.port
 
     @property
     def axes(self):
