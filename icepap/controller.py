@@ -267,6 +267,15 @@ class IcePAPController:
                         axes.append(axis_nr)
         return axes
 
+    def find_racks(self):
+        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
+        racks_mask = 1
+        racks = []
+        for i in range(16):
+            if (racks_present & racks_mask << i) > 0:
+                racks.append(i)
+        return racks
+
     def update_axes(self):
         """
         Method to check if the axes created are presents. In case of no,
