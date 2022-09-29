@@ -128,7 +128,7 @@ def Prompt(context):
 
     @kb.add('c-space')
     def _(event):
-        " Initialize autocompletion, or select the next completion. "
+        """ Initialize autocompletion, or select the next completion. """
         buff = event.app.current_buffer
         if buff.complete_state:
             buff.complete_next()
@@ -190,6 +190,10 @@ def step(prompt, context):
             raise EOFError
         elif text == "raw":
             return step_raw(prompt, context)
+        elif text == "help":
+            print('Commands:')
+            print(context.get_help().split('Commands:')[1])
+            return
         return command(text, context)
 
 
