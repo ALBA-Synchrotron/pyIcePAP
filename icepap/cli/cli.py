@@ -62,9 +62,17 @@ class Axes(click.ParamType):
         return pap[axes]
 
 
-def Racks(value):
-    return [int(v) for v in value.split(",")]
+class Racks(click.ParamType):
+    name = 'racks'
 
+    def convert(self, value, param, ctx):
+        ipap = ctx.obj["icepap"]
+        if value == 'all':
+            racks = ipap.find_racks()
+        else:
+            racks = [int(v) for v in value.split(",")]
+        return racks
+    
 
 def cli_move(group, positions, format=None, bottom_toolbar=True, title=True):
     bar_options = dict(formatters=format)
@@ -136,6 +144,11 @@ opt_rack = click.option(
 opt_racks = click.option(
     "--racks", type=Racks, required=True, show_default=True,
     help="comma separated list of racks. Also supports 'all' and 'alive'"
+)
+
+opt_racks = click.option(
+    "--racks", "racks", type=Racks(), default="all", show_default=True,
+    help="comma separated list of racks. Also supports 'all'"
 )
 
 
@@ -309,7 +322,7 @@ def reboot(ctx):
 
 
 @cli.command()
-@opt_mandatory_racks
+@opt_racks
 @opt_table_style
 @click.pass_context
 def rinfo(ctx, racks, table_style):
