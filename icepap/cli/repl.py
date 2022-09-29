@@ -180,7 +180,8 @@ def step_raw(prompt, context):
 
 
 def step(prompt, context):
-   while True:
+
+    while True:
         text = prompt.prompt('> ')
         # empty text would create a sub-repl.
         # Avoid it by returning to the prompt
@@ -199,6 +200,8 @@ def step(prompt, context):
 
 def run(context):
     prompt = Prompt(context)
+    print('High Level command line interface for IcePAP\n'
+         'Type "help" for more info')
     while True:
         try:
             step(prompt, context)
