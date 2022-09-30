@@ -33,7 +33,7 @@ class Toolbar:
         self.addr = "{}:{}".format(self.icepap.host, self.icepap.port)
 
     def __call__(self):
-        msg = "icepapctl {} | <b>{}</b> - {} - {} | " \
+        msg = "icepapctl {} | {} - {} - {} | " \
               "<b>[F5]</b>: State <b>[F6]</b>: Status | " \
               "<b>[Ctrl-D]</b>: Quit".format(sw_version, self.addr,
                                              self.icepap.fver,
