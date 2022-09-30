@@ -2,7 +2,7 @@ import shlex
 import socket
 
 import click.exceptions
-import click._bashcomplete
+
 from prompt_toolkit import PromptSession, HTML
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.completion import Completer as BaseCompleter, Completion
@@ -11,6 +11,14 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.application import run_in_terminal
 
 from icepap import version as sw_version
+
+# Handle backwards compatibility between Click 7.0 and 8.0
+try:
+    import click.shell_completion
+    HAS_C8 = True
+except ImportError:
+    import click._bashcomplete
+    HAS_C8 = False
 
 
 def human_host(host):
@@ -66,7 +74,12 @@ class Completer(BaseCompleter):
         if args:
             args.insert(0, self.icepap.host)
 
-        ctx = click._bashcomplete.resolve_ctx(self.ctx.command, "", args)
+        if HAS_C8:
+            ctx = click.shell_completion._resolve_context(self.ctx.command,
+                                                          {}, "",
+                                                          args)
+        else:
+            ctx = click._bashcomplete.resolve_ctx(self.ctx.command, "", args)
         if ctx is None:
             return
 
