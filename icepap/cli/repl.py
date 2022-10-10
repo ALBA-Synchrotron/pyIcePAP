@@ -214,7 +214,8 @@ def step(prompt, context):
 def run(context):
     prompt = Prompt(context)
     print('High Level command line interface for IcePAP\n'
-         'Type "help" for more info')
+          'Type "help" for more info.\n'
+          'Type "raw" to enter in raw mode.')
     while True:
         try:
             step(prompt, context)
