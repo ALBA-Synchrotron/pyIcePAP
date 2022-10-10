@@ -48,8 +48,10 @@ class Completer(BaseCompleter):
         self.icepap = ctx.obj["icepap"]
 
     def get_completions(self, document, complete_event=None):
+        if self.ctx.obj['raw']:
+            # TODO Implement completion for raw mode
+            return
         # Code analogous to click._bashcomplete.do_complete
-
         try:
             args = shlex.split(document.text_before_cursor)
         except ValueError:
@@ -180,6 +182,7 @@ def command(text, context):
 
 
 def step_raw(prompt, context):
+    context.obj['raw'] = True
     while True:
         text = prompt.prompt('raw mode> ')
         # empty text would create a sub-repl.
@@ -187,13 +190,13 @@ def step_raw(prompt, context):
         if not text:
             continue
         elif text == "exit":
+           context.obj['raw'] = False
            return
         text = 'raw {}'.format(text)
         command(text, context)
 
 
 def step(prompt, context):
-
     while True:
         text = prompt.prompt('> ')
         # empty text would create a sub-repl.
@@ -212,6 +215,7 @@ def step(prompt, context):
 
 
 def run(context):
+    context.obj['raw'] = False
     prompt = Prompt(context)
     print('High Level command line interface for IcePAP\n'
           'Type "help" for more info.\n'
