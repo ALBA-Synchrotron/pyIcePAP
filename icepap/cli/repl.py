@@ -51,9 +51,6 @@ class Completer(BaseCompleter):
         self.icepap = ctx.obj["icepap"]
 
     def get_completions(self, document, complete_event=None):
-        if self.ctx.obj['raw']:
-            # TODO Implement completion for raw mode
-            return
         # Code analogous to click._bashcomplete.do_complete
         try:
             args = shlex.split(document.text_before_cursor)
@@ -236,7 +233,6 @@ def step(prompt, context):
 
 
 def run(context):
-    context.obj['raw'] = False
     prompt = Prompt(context)
     print('Icepap Console Application {}'.format(version))
     print('Type "help" for more information.')
