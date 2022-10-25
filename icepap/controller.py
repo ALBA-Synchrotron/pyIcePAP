@@ -152,6 +152,13 @@ class IcePAPController:
 # -----------------------------------------------------------------------------
 #                       Properties
 # -----------------------------------------------------------------------------
+    @property
+    def host(self):
+        return self._comm.host
+
+    @property
+    def port(self):
+        return self._comm.port
 
     @property
     def axes(self):
@@ -266,6 +273,15 @@ class IcePAPController:
                         axis_nr = i * 10 + j + 1
                         axes.append(axis_nr)
         return axes
+
+    def find_racks(self):
+        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
+        racks_mask = 1
+        racks = []
+        for i in range(16):
+            if (racks_present & racks_mask << i) > 0:
+                racks.append(i)
+        return racks
 
     def update_axes(self):
         """
