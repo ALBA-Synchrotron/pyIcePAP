@@ -62,7 +62,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'icepapctl = icepap.cli.__main__:main'
+            'icepapctl = icepap.cli.cli:cli'
         ]
     },
     install_requires=requires,
