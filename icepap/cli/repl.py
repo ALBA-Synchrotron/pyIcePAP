@@ -12,6 +12,9 @@ from prompt_toolkit.application import run_in_terminal
 
 from icepap import version as sw_version
 
+from .utils import get_axes
+from .. import version
+
 # Handle backwards compatibility between Click 7.0 and 8.0
 try:
     import click.shell_completion
@@ -126,11 +129,11 @@ def Prompt(context):
     kb = KeyBindings()
 
     def state():
-        command("state --table-style=compact", context)
+        command("state", context)
         print()
 
     def status():
-        command("status --table-style=compact", context)
+        command("status", context)
         print()
 
     @kb.add("f5")
@@ -168,9 +171,11 @@ def command(text, context):
     name = args[0]
     try:
         if name not in group.commands:
-            context.fail("No such command {!r}".format(name))
+            name = 'send'
+        else:
+            args = args[1:]
+
         cmd = group.commands[name]
-        args = args[1:]
         cmd.main(args, standalone_mode=False,
                  parent=context, default_map=context.params)
     except (click.exceptions.Exit, click.exceptions.Abort):
@@ -181,19 +186,26 @@ def command(text, context):
         print("Unexpected error: {!r}".format(error))
 
 
-def step_raw(prompt, context):
-    context.obj['raw'] = True
-    while True:
-        text = prompt.prompt('raw mode> ')
-        # empty text would create a sub-repl.
-        # Avoid it by returning to the prompt
-        if not text:
-            continue
-        elif text == "exit":
-           context.obj['raw'] = False
-           return
-        text = 'raw {}'.format(text)
-        command(text, context)
+def print_help(text, ctx):
+    args = shlex.split(text)
+    if len(args) == 1:
+        print('The console allows raw command (Icepap commands) \n'
+              'without using the "send" command e.g:\n\n'
+              '   "1:?vstatus" is equivalent to "send 1:?vstatus"\n\n')
+        print('Console Commands:')
+        print('  axes        Get/Set default axes used.')
+        print('  help <cmd>  Get CLI command help\n\n')
+        print('CLI Commands:')
+        print(ctx.get_help().split('Commands:')[1])
+    else:
+        cmd = args[1]
+        cmd_help = ctx.command.commands[cmd].get_help(ctx)
+        for line in cmd_help.split('\n'):
+            if line.startswith('Usage:'):
+                continue
+            if line.startswith('Options:'):
+                break
+            print(line)
 
 
 def step(prompt, context):
@@ -205,21 +217,29 @@ def step(prompt, context):
             continue
         elif text == "exit":
             raise EOFError
-        elif text == "raw":
-            return step_raw(prompt, context)
-        elif text == "help":
-            print('Commands:')
-            print(context.get_help().split('Commands:')[1])
+        elif text.startswith("help"):
+            print_help(text, context)
             return
+        elif text.startswith('axes'):
+            new_axes = text.split('axes')[1]
+            if not new_axes:
+                print(context.obj['axes_str'])
+                return
+            else:
+                context.obj['axes_str'] = new_axes
+                context.obj['axes'] = get_axes(context.obj['icepap'],
+                                               new_axes)
+                print('New axes: {}'.format(new_axes))
+                return
+
         return command(text, context)
 
 
 def run(context):
     context.obj['raw'] = False
     prompt = Prompt(context)
-    print('High Level command line interface for IcePAP\n'
-          'Type "help" for more info.\n'
-          'Type "raw" to enter in raw mode.')
+    print('Icepap Console Application {}'.format(version))
+    print('Type "help" for more information.')
     while True:
         try:
             step(prompt, context)

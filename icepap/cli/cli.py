@@ -1,7 +1,6 @@
 import click
 import beautifultable
-from prompt_toolkit import print_formatted_text
-from prompt_toolkit.formatted_text import HTML
+
 
 from .progress_bar import DEFAULT_FORMATTERS, PLAIN_FORMATTERS, \
     SIMPLE_FORMATTERS, _move, _rmove, _rmove_multiple
@@ -9,6 +8,7 @@ from .tables import Table, StateTable, StatusTable, PositionTable, \
     VersionTable, EncoderTable
 from ..group import Group
 from ..controller import IcePAPController
+from .utils import get_axes
 
 
 class ProgressBarFormats(click.Choice):
@@ -39,27 +39,6 @@ class TableStyles(click.Choice):
     def convert(self, value, param, ctx):
         result = super().convert(value, param, ctx)
         return beautifultable.Style["STYLE_" + result.upper()]
-
-
-class Axes(click.ParamType):
-
-    name = "axes"
-
-    def convert(self, value, param, ctx):
-        ipap = ctx.obj["icepap"]
-        if value == "all":
-            axes = ipap.find_axes(only_alive=False)
-        elif value == "alive":
-            axes = ipap.find_axes(only_alive=True)
-        else:
-            axes = []
-            for axis in value.split(","):
-                try:
-                    axes.append(int(axis))
-                except ValueError:
-                    axes.append(axis.strip())
-            axes.sort()
-        return ipap[axes]
 
 
 class Racks(click.ParamType):
@@ -101,41 +80,6 @@ def cli_rmove(
         _rmove(group, deltas, bar_options=bar_options)
 
 
-opt_url = click.argument(
-    "icepap", type=IcePAPController.from_url,
-    #help="hardware url (ex: 'ipap.acme.org' or 'tcp://ipap13:5001')"
-)
-
-opt_pb_format = click.option(
-    "--pb-format", type=ProgressBarFormats(),
-    default="default", show_default=True, help="progress bar style"
-)
-
-opt_toolbar = click.option(
-    "--bottom-toolbar/--no-bottom-toolbar", default=True, show_default=True,
-    help="show/hide bottom toolbar"
-)
-
-opt_title = click.option(
-    "--title/--no-title", default=True, show_default=True,
-    help="show/hide title"
-)
-
-opt_table_style = click.option(
-    "--table-style", type=TableStyles(), default="compact",
-    show_default=True, help="table style"
-)
-
-opt_axes = click.option(
-    "--axes", "motors", type=Axes(), default="all", show_default=True,
-    help="comma separated list of axes. Also supports 'all' and 'alive'"
-)
-
-opt_mandatory_axes = click.option(
-    "--axes", "motors", type=Axes(), required=True, show_default=True,
-    help="comma separated list of axes. Also supports 'all' and 'alive'"
-)
-
 opt_mandatory_rack = click.option(
     "--rack", type=int, default=None, show_default=True,
     help="rack number. Default is None, meaning the whole system"
@@ -153,52 +97,74 @@ opt_racks = click.option(
 
 
 @click.group(invoke_without_command=True)
-@opt_url
 @click.pass_context
-def cli(ctx, icepap):
+@click.argument("icepap", type=IcePAPController.from_url)
+@click.option("--axes", "axes_str", type=str, default="all", show_default=True,
+              help="comma separated list of axes. Also supports 'all' and "
+                   "'alive'")
+@click.option("--table-style", type=TableStyles(), default="compact",
+              show_default=True, help="table style")
+@click.option("--pb-format", type=ProgressBarFormats(), default="default",
+              show_default=True, help="progress bar style")
+@click.option("--title/--no-title", default=True, show_default=True,
+              help="show/hide title")
+@click.option("--bottom-toolbar/--no-bottom-toolbar", default=True,
+              show_default=True, help="show/hide bottom toolbar")
+def cli(ctx, icepap, axes_str, table_style, pb_format, title, bottom_toolbar):
     """
-    High level command line interface for IcePAP
+    High level Command Line Interface for IcePAP
 
     Connects to the given ICEPAP (a url in format [tcp://]<host/ip>[:<port=5000])
     (ex: 'ice1', 'tcp://ice1' and 'tcp://ice1:5000' all mean the same)
+
+    Runs without command will open the Console Application
+    (ex: icpapctl <url>)
     """
     ctx.ensure_object(dict)
     ctx.obj["icepap"] = icepap
+    ctx.obj["axes_str"] = axes_str
+    ctx.obj['axes'] = get_axes(icepap, axes_str)
+    ctx.obj['table_style'] = table_style
+    ctx.obj['pb_format'] = pb_format
+    ctx.obj['title'] = title
+    ctx.obj['bottom_toolbar'] = bottom_toolbar
     if ctx.invoked_subcommand is None:
         from .repl import run
         run(ctx)
 
 
 @cli.command()
-@click.argument("pairs", nargs=-1, type=str, required=True)
-@opt_pb_format
-@opt_toolbar
-@opt_title
 @click.pass_context
-def move(ctx, pairs, pb_format, bottom_toolbar, title):
+@click.argument("pairs", nargs=-1, type=str, required=True)
+def mv(ctx, pairs):
     """
     Move specified axes in pairs <axis, position> to the specified absolute
-    positions.
+    positions. If the motor is off, the command will turn ON and at the end
+    will turn OFF again
     """
     ipap = ctx.obj["icepap"]
+    pb_format = ctx.obj['pb_format']
+    title = ctx.obj['title']
+    bottom_toolbar = ctx.obj['bottom_toolbar']
     motors = [ipap[int(address)] for address in pairs[::2]]
     positions = [int(position) for position in pairs[1::2]]
     cli_move(Group(motors), positions, pb_format, bottom_toolbar, title)
 
 
 @cli.command()
-@click.argument("pairs", nargs=-1, type=str, required=True)
-@opt_pb_format
-@opt_toolbar
-@opt_title
-@click.option("-m", "--multiple", is_flag=True)
 @click.pass_context
-def rmove(ctx, pairs, pb_format, bottom_toolbar, title, multiple):
+@click.argument("pairs", nargs=-1, type=str, required=True)
+@click.option("-m", "--multiple", is_flag=True)
+def mvr(ctx, pairs, multiple):
     """
     Move specified axes in pairs <axis, position> relative to their current
-    positions.
+    positions.If the motor is off, the command will turn ON and at the end
+    will turn OFF again
     """
     ipap = ctx.obj["icepap"]
+    pb_format = ctx.obj['pb_format']
+    bottom_toolbar = ctx.obj['bottom_toolbar']
+    title = ctx.obj['title']
     motors = [ipap[int(address)] for address in pairs[::2]]
     deltas = [int(position) for position in pairs[1::2]]
     cli_rmove(
@@ -211,99 +177,76 @@ def rmove(ctx, pairs, pb_format, bottom_toolbar, title, multiple):
 
 
 @cli.command()
-@opt_mandatory_axes
-def stop(motors):
-    """Stops the given motors"""
-    group = Group(motors)
-    print_formatted_text(
-        HTML("<orange>Stopping... </orange>"),
-        end="",
-        flush=True)
-    group.start_stop()
-    group.wait_stopped()
-    print_formatted_text(HTML("[<green>DONE</green>]"))
-
-
-@cli.command()
-@opt_axes
-@opt_table_style
-def state(motors, table_style):
+@click.pass_context
+def state(ctx):
     """Prints a summary of each axis state in form of table"""
+    motors = ctx.obj['axes']
+    table_style = ctx.obj['table_style']
     group = Group(motors)
     click.echo(StateTable(group, style=table_style))
 
 
 @cli.command()
-@opt_axes
-@opt_table_style
-def status(motors, table_style):
+@click.pass_context
+def status(ctx):
     """
     Prints a summary of each axis status (position velotiy, acc. time, etc)
     in form of table
     """
+    motors = ctx.obj['axes']
+    table_style = ctx.obj['table_style']
     group = Group(motors)
     click.echo(StatusTable(group, style=table_style))
 
 
 @cli.command()
-@opt_axes
-@opt_table_style
-def pos(motors, table_style):
+@click.pass_context
+@click.option('--enc', is_flag=True, default=False,
+              help='Get encoders registers')
+def wa(ctx, enc):
     """Prints a summary of each axis detailed position in form of table"""
+    motors = ctx.obj['axes']
+    table_style = ctx.obj['table_style']
     group = Group(motors)
-    click.echo(PositionTable(group, style=table_style))
+    if not enc:
+        click.echo('Unit: Axis Steps')
+        click.echo(PositionTable(group, style=table_style))
+    else:
+        click.echo('Unit: Encoder Steps')
+        click.echo(EncoderTable(group, style=table_style))
 
 
 @cli.command()
-@opt_axes
-@opt_table_style
-def enc(motors, table_style):
-    """Prints a summary of each axis detailed position in form of table"""
-    group = Group(motors)
-    click.echo(EncoderTable(group, style=table_style))
-
-
-@cli.group()
-def ver():
-    """
-    Subcommands to check the version: system, axes"
-    """
-    pass
-
-
-@ver.command('system')
 @click.pass_context
-def ver_system(ctx):
+@click.option('-v', 'verbose', is_flag=True, default=False,
+              help='Get all info')
+@click.option('--saved', is_flag=True, default=False, help='Get saved info')
+@click.option('--axes', is_flag=True, default=False, help='Get axes version')
+def version(ctx, verbose, saved, axes):
     """Prints a summary of icepap version"""
     ipap = ctx.obj["icepap"]
-    click.echo(ipap.ver)
+    if axes and saved:
+        click.echo('Only one option is valid --axes or --saved', color='red')
+        return
+    if axes:
+        motors = ctx.obj['axes']
+        table_style = ctx.obj['table_style']
+        group = Group(motors)
+        click.echo(VersionTable(group, verbose, style=table_style))
+        return
 
-
-@ver.command('axes')
-@click.pass_context
-@opt_axes
-@click.option('-i', '--info', is_flag=True, default=False, help='Get all info')
-@opt_table_style
-def ver_axes(ctx, motors, info, table_style):
-    """Prints a summary of axes version. Use -i to see all info"""
-    group = Group(motors)
-    click.echo(VersionTable(group, info, style=table_style))
-
-
-@cli.command()
-@click.pass_context
-def mode(ctx):
-    """Prints the operation mode"""
-    ipap = ctx.obj["icepap"]
-    click.echo(ipap.mode)
+    if not saved:
+        click.echo(ipap.ver)
+    else:
+        click.echo(ipap.ver_saved)
 
 
 @cli.command()
+@click.pass_context
 @opt_mandatory_rack
 @click.confirmation_option(
     prompt="Are you sure you want to reset the rack(s)?"
 )
-@click.pass_context
 def reset(ctx, rack):
     """Resets the given rack. If no rack is given, resets the whole system"""
     ipap = ctx.obj["icepap"]
@@ -311,10 +254,10 @@ def reset(ctx, rack):
 
 
 @cli.command()
+@click.pass_context
 @click.confirmation_option(
     prompt="Are you sure you want to reboot?"
 )
-@click.pass_context
 def reboot(ctx):
     """Reboots the icepap"""
     ipap = ctx.obj["icepap"]
@@ -322,14 +265,14 @@ def reboot(ctx):
 
 
 @cli.command()
-@opt_racks
-@opt_table_style
 @click.pass_context
-def rinfo(ctx, racks, table_style):
+@opt_racks
+def rackinfo(ctx, racks):
     """Prints a summary of each rack information in form of table"""
     ipap = ctx.obj["icepap"]
     rids = ipap.get_rid(racks)
     temps = ipap.get_rtemp(racks)
+    table_style = ctx.obj['table_style']
     table = Table(style=table_style)
     table.columns.header = ("Rack #", "RID", "Temp.")
     for row in zip(racks, rids, temps):
@@ -338,9 +281,9 @@ def rinfo(ctx, racks, table_style):
 
 
 @cli.command()
-@click.argument("cmd", nargs=-1, type=str, required=True)
 @click.pass_context
-def raw(ctx, cmd):
+@click.argument("cmd", nargs=-1, type=str, required=True)
+def send(ctx, cmd):
     """Send raw command to the icepap"""
     ipap = ctx.obj['icepap']
     cmd = ' '.join(cmd)
@@ -350,6 +293,27 @@ def raw(ctx, cmd):
             click.echo(line)
     else:
         click.echo('Done')
+
+
+@cli.command()
+@click.pass_context
+@click.argument("cmd", type=str, required=True)
+def sendall(ctx, cmd):
+    """ Send raw command to selected axes with option --axes """
+    axes = ctx.obj['axes']
+    for axis in axes:
+        try:
+            output = axis.send_cmd(cmd)
+            if output is not None:
+                click.echo('Axis {} anwser:\n'.format(axis.axis))
+                for line in output:
+                    click.echo(line)
+                click.echo('-'*20)
+        except Exception as e:
+            click.echo('Error sending command to {}'.format(axis.axis),
+                       color='red')
+            click.echo(e, color='red')
+            click.echo('-' * 20)
 
 
 if __name__ == "__main__":
