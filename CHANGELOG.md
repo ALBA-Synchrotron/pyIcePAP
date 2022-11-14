@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
   
 ### Fixed
-
+ - Movement command does not accept negative values (Issue #77).
+ - Update icepapctl animation.
 
 ## [3.6.x] 
 ### Added
