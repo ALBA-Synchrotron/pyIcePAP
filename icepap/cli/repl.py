@@ -172,6 +172,21 @@ def command(text, context):
         else:
             args = args[1:]
 
+        # From click documentation:
+        # https://click.palletsprojects.com/en/8.1.x/arguments/
+        # Option-Like Arguments:
+        # To recognize negative values Click does what any POSIX style
+        # command line script does, and that is to accept the string -- as a
+        # separator for options and arguments. After the -- marker, all
+        # further parameters are accepted as arguments.
+        #
+        # This is valid for send, mv, mvr
+        if name in ['send', 'mv', 'mvr']:
+            args.insert(0, '--')
+            if name == 'mvr' and '-m' in args:
+                args.pop(args.index('-m'))
+                args.insert(0, '-m')
+
         cmd = group.commands[name]
         cmd.main(args, standalone_mode=False,
                  parent=context, default_map=context.params)
