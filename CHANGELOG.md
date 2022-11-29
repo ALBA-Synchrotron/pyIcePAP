@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Refactor icepapctl application and add a REPL.  
 
 ### Removed
-  
+ - Remove from the REPL Toolbar the mode and the port
+
 ### Fixed
  - Movement command does not accept negative values (Issue #77).
  - Update icepapctl animation.
+ - Bug on repl when the mode is not the same for all axes.
 
 ## [3.6.x] 
 ### Added

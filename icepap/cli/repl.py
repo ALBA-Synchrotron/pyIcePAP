@@ -33,14 +33,16 @@ def human_host(host):
 class Toolbar:
     def __init__(self, icepap):
         self.icepap = icepap
-        self.addr = "{}:{}".format(self.icepap.host, self.icepap.port)
+        if self.icepap.port != 5000:
+            self.addr = "{}:{}".format(self.icepap.host, self.icepap.port)
+        else:
+            self.addr = self.icepap.host
 
     def __call__(self):
-        msg = "icepapctl {} | {} - {} - {} | " \
+        msg = "icepapctl {} | {} - {}| " \
               "<b>[F5]</b>: State <b>[F6]</b>: Status | " \
               "<b>[Ctrl-D]</b>: Quit".format(sw_version, self.addr,
-                                             self.icepap.fver,
-                                             self.icepap.mode)
+                                             self.icepap.fver)
         return HTML(msg)
 
 
