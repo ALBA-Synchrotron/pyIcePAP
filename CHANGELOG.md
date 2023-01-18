@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Movement command does not accept negative values (Issue #77).
  - Update icepapctl animation.
  - Bug on repl when the mode is not the same for all axes.
+ - Communication error with multilines answers
 
 ## [3.6.x] 
 ### Added
