@@ -15,7 +15,7 @@ import array
 import struct
 import threading
 
-from .tcp import TCP
+from .tcp import TCP, Timeout
 
 
 __all__ = ['IcePAPCommunication']
@@ -88,7 +88,12 @@ class IcePAPCommunication:
                 ans = self._sock.read(8096).decode()
                 nb_dollars = ans.count("$")
                 if nb_dollars == 1:
-                    ans += self._sock.readline(eol=b"$\n").decode()
+                    ans += self._sock.readline(eol=b"$").decode()
+                    try:
+                        ans += self._sock.readline(eol=b"\n",
+                                                   timout=0.001).decode()
+                    except Timeout:
+                        ans += '\n'
             else:
                 ans = None
 
