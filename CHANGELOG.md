@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Update icepapctl animation.
  - Bug on repl when the mode is not the same for all axes.
  - Communication error with multilines answers
+ - Fix typo
 
 ## [3.6.x] 
 ### Added
