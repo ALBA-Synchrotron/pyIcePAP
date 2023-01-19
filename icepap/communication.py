@@ -91,7 +91,7 @@ class IcePAPCommunication:
                     ans += self._sock.readline(eol=b"$").decode()
                     try:
                         ans += self._sock.readline(eol=b"\n",
-                                                   timout=0.001).decode()
+                                                   timeout=0.001).decode()
                     except Timeout:
                         ans += '\n'
             else:
