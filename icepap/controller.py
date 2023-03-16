@@ -235,6 +235,9 @@ class IcePAPController:
         cmd = 'MODE {0}'.format(value)
         self.send_cmd(cmd)
 
+    @property
+    def multiline_answer(self):
+        return self._comm.multiline_answer
 # -----------------------------------------------------------------------------
 #                       Commands
 # -----------------------------------------------------------------------------

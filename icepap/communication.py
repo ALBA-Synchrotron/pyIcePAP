@@ -32,6 +32,7 @@ class IcePAPCommunication:
         self._sock = TCP(host, port, timeout=timeout)
         self._sock.connect()
         self._lock = threading.Lock()
+        self.multiline_answer = False
 
     @property
     def host(self):
@@ -53,6 +54,7 @@ class IcePAPCommunication:
         :param cmd: Command without acknowledge character and CR and/or LF.
         :return: None or list of string without the command and the CRLF.
         """
+        self.multiline_answer = False
         cmd.upper().strip()
         flg_read_cmd = '?' in cmd
         flg_ecamdat_cmd = '*ECAMDAT' in cmd
@@ -107,6 +109,7 @@ class IcePAPCommunication:
             if ans is None:
                 result = ans
             elif '$' in ans:
+                self.multiline_answer = True
                 # Multi lines
                 ans = ans.split('$')[1]
                 lines = ans.split('\n')[1:-1]
