@@ -504,7 +504,7 @@ class IcePAPAxis:
         """
         value = self.send_cmd('?NAME')
         if isinstance(value, list):
-            value = value[0]
+            value = ' '.join(value)
         return value
 
     @name.setter

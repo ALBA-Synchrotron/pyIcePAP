@@ -289,8 +289,12 @@ def send(ctx, cmd):
     cmd = ' '.join(cmd)
     output = ipap.send_cmd(cmd)
     if output is not None:
-        for line in output:
-            click.echo(line)
+        # Allow name with spaces:
+        if not ipap.multiline_answer:
+            click.echo(' '.join(output))
+        else:
+            for line in output:
+                click.echo(line)
     else:
         click.echo('Done')
 

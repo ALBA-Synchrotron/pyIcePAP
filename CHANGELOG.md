@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Add find_racks method to get activate racks on the system.
  - Add host and port public properties for the IcepapController.
  - Refactor icepapctl application and add a REPL.  
+ - Allow to identify multilines answers
 
 ### Removed
  - Remove from the REPL Toolbar the mode and the port
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Bug on repl when the mode is not the same for all axes.
  - Communication error with multilines answers
  - Fix typo
+ - Return names with spaces
 
 ## [3.6.x] 
 ### Added
