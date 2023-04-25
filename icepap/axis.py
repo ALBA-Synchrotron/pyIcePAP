@@ -526,7 +526,9 @@ class IcePAPAxis:
         :return: (str HW ID, str SN)
         """
         hw_id = self.send_cmd('?ID HW')[0]
-        sn_id = self.send_cmd('?ID SN')[0]
+        sn_id = self.send_cmd("?ID SN")
+        if sn_id is not None:
+            sn_id = sn_id[0]
         return hw_id, sn_id
 
     @property
