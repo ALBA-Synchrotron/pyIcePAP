@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Communication error with multilines answers
  - Fix typo
  - Return names with spaces
+ - Fix bug when hardware does not have serial number
 
 ## [3.6.x] 
 ### Added
