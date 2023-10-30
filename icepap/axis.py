@@ -522,18 +522,19 @@ class IcePAPAxis:
     def id(self):
         """
         Get hardware ID and the serial number (Icepap user manual pag. 80).
+        Ignoring errors from ?ID SN commands, return empty string in that case
 
         :return: (str HW ID, str SN)
         """
-        hwa = self.send_cmd("?ID HW")
-        hw_id = hwa[0]
-
-        sna = self.send_cmd("?ID SN")
-        if sna is None:
-            sn_id = ''
-        else:
-            sn_id = sna[0]
-
+        hw_id = self.send_cmd('?ID HW')[0]
+        sn_id = ''
+        try:
+            sn_ = self.send_cmd("?ID SN")
+            if sn_ is not None:
+                sn_id = sn_[0]
+        except Exception as e:
+            self.log.error(f"Cannot read axis Serial Number {str(e).strip()}")            
+    
         return hw_id, sn_id
 
     @property
