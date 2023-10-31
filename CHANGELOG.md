@@ -4,8 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.8.x] 
+### Added
+    - Add axis list track command
 
-## [3.7.x] 
+### Removed
+
+### Fixed
+
+
+## [3.7.6] 
 ### Added
  - Add find_racks method to get activate racks on the system.
  - Add host and port public properties for the IcepapController.
@@ -24,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Return names with spaces
  - Fix bug when hardware does not have serial number
 
-## [3.6.x] 
+## [3.6.3] 
 ### Added
  - Add fver property to read only the driver and the system version instead 
    of reading all modules versions.
@@ -233,8 +241,9 @@ For a full log of commits between versions run (in your git repo):
 Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
-[3.7.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.6.3...HEAD
-[3.6.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...3.6.3
+[3.8.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.6.3...HEAD
+[3.7.6]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.6.3...3.7.6
+[3.6.3]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...3.6.3
 [3.5.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...3.5.1
 [3.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.3.0...3.4.1
 [3.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...3.3.0

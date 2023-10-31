@@ -1753,6 +1753,16 @@ class IcePAPAxis:
         cmd = 'PTRACK {0} {1}'.format(signal, mode)
         self.send_cmd(cmd)
 
+    def ltrack(self, signal="", mode='CYCLIC'):
+        """
+        Start list tracking mode (IcePAP user manual pag. 88).
+
+        :param signal: str
+        :param mode: str
+        """
+        cmd = 'LTRACK {0} {1}'.format(signal, mode)
+        self.send_cmd(cmd)
+
     def set_ecam_table(self, lpos, source='AXIS', dtype='FLOAT'):
         """
         Load the position list to the electronic cam table. The maximum memory
