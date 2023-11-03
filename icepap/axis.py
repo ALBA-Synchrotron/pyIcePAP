@@ -533,7 +533,7 @@ class IcePAPAxis:
             if sn_ is not None:
                 sn_id = sn_[0]
         except Exception as e:
-            self.log.error(f"Cannot read axis Serial Number {str(e).strip()}")            
+            self.log.error("Cannot read axis Serial Number %s", str(e).strip())            
     
         return hw_id, sn_id
 
