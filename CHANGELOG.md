@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 
 ### Fixed
-
+  - Return empty string when hardware does not have serial number.
 
 ## [3.7.6] 
 ### Added
