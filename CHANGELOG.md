@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [3.8.x] 
 ### Added
     - Add axis list track command
+    - Add method for getting linked axes at IcePAPController class
 
 ### Removed
 
