@@ -19,4 +19,4 @@ from .utils import *
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-version = '3.8.2'
+version = '3.9.0'

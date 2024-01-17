@@ -5,7 +5,7 @@ from setuptools import find_packages
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-__version = '3.8.2'
+__version = '3.9.0'
 
 # windows installer:
 # python setup.py bdist_wininst
