@@ -716,6 +716,18 @@ class IcePAPController:
         """
         return self.send_cmd('?PMUX')
 
+    def get_linked(self):
+        """
+        Returns the current list of groups of linked drivers. 
+        Each group is returned in a separate line starting by the name 
+        of the group and followed by the corresponding list of axes.
+
+        (IcePAP user manual, page 80).
+
+        :return: list of groups of linked drivers.
+        """
+        return self.send_cmd('?LINKED')
+
     def sprog(self, filename, component=None, force=False, saving=False,
               options=''):
         """
