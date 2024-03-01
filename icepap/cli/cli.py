@@ -99,7 +99,8 @@ opt_racks = click.option(
 @click.group(invoke_without_command=True)
 @click.pass_context
 @click.argument("icepap", type=IcePAPController.from_url)
-@click.option("--axes", "axes_str", type=str, default="all", show_default=True,
+@click.option("--axes", "axes_str", type=str, default="alive",
+              show_default=True,
               help="comma separated list of axes. Also supports 'all' and "
                    "'alive'")
 @click.option("--table-style", type=TableStyles(), default="compact",
@@ -124,6 +125,12 @@ def cli(ctx, icepap, axes_str, table_style, pb_format, title, bottom_toolbar):
     ctx.obj["icepap"] = icepap
     ctx.obj["axes_str"] = axes_str
     ctx.obj['axes'] = get_axes(icepap, axes_str)
+    alive_axes = get_axes(icepap, 'alive')
+    all_axes = get_axes(icepap, 'all')
+    not_alive_axes = list(set(all_axes) - set(alive_axes))
+    if axes_str == 'all':
+        click.echo('Warning: There are not alive axes: {}'.format(
+            ', '.join(not_alive_axes)))
     ctx.obj['table_style'] = table_style
     ctx.obj['pb_format'] = pb_format
     ctx.obj['title'] = title
