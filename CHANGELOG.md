@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.9.x]
+## [3.10.x]
+### Added
+   - Show not alive axes if the option "axes" is " all"
+
+### Removed
+
+### Fixed
+
+### Changed
+   - Sendall responses are tabulated
+   - Change default "axes" option to "alive", not all commands are valid if 
+     the axes is not "alive".
+
+## [3.9.0]
 ### Added
     - Add method for getting linked axes at IcePAPController class
 
@@ -12,7 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-## [3.8.x] 
+## [3.8.2] 
 ### Added
     - Add axis list track command
 
@@ -249,7 +262,9 @@ For a full log of commits between versions run (in your git repo):
 Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
-[3.8.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.6.3...HEAD
+[3.10.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.10.0...HEAD
+[3.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.8.2...3.9.0
+[3.8.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.7.6...3.8.2
 [3.7.6]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.6.3...3.7.6
 [3.6.3]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...3.6.3
 [3.5.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...3.5.1
