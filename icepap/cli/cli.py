@@ -316,10 +316,10 @@ def sendall(ctx, cmd):
         try:
             output = axis.send_cmd(cmd)
             if output is not None:
-                click.echo('Axis {} anwser:\n'.format(axis.axis))
+                click.echo('Axis {} anwser:'.format(axis.axis))
                 for line in output:
-                    click.echo(line)
-                click.echo('-'*20)
+                    click.echo('  {}'.format(line))
+                click.echo('-'*40)
         except Exception as e:
             click.echo('Error sending command to {}'.format(axis.axis),
                        color='red')
