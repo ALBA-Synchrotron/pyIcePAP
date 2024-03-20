@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 
 ### Fixed
+  - icepapctl sendall allowed only one parameter and is not protected when 
+    the character ':' is used. 
+  - Shows PCB value for controller and drivers and IO value for drivers 
 
 ### Changed
    - Sendall responses are tabulated
