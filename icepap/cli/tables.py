@@ -199,7 +199,7 @@ def VersionTable(group, info=True,
             table.rows.append(row)
     else:
         print('Reading...')
-        header = "Axis", "SYSTEM", "DRIVER", "DSP", "FPGA"
+        header = "Axis", "SYSTEM", "DRIVER", "DSP", "FPGA", "PCB", "IO"
         for motor in group.motors:
             axis_ver = motor.ver
             diff = False
@@ -207,7 +207,8 @@ def VersionTable(group, info=True,
                 diff = True
 
             data = [motor.addr, axis_ver.system[0], axis_ver.driver[0],
-                    axis_ver.driver_dsp[0], axis_ver.driver_fpga[0]]
+                    axis_ver.driver_dsp[0], axis_ver.driver_fpga[0],
+                    axis_ver.driver_pcb[0], axis_ver.driver_io[0]]
 
             if diff:
                 color = ERROR_COLOR
