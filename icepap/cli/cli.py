@@ -308,10 +308,16 @@ def send(ctx, cmd):
 
 @cli.command()
 @click.pass_context
-@click.argument("cmd", type=str, required=True)
+@click.argument("cmd", nargs=-1, type=str, required=True)
 def sendall(ctx, cmd):
-    """ Send raw command to selected axes with option --axes """
+    """
+    Send raw command to selected axes with option --axes. The ':' character
+    will be removed from the command
+    """
     axes = ctx.obj['axes']
+    cmd = ' '.join(cmd)
+    if ':' in cmd:
+        cmd = cmd.split(':')[1]
     for axis in axes:
         try:
             output = axis.send_cmd(cmd)
