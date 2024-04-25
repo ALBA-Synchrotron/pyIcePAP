@@ -439,7 +439,7 @@ class IcePAPController:
         """
         cmd = '?FPOS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return list(map(float, ans))
+        return list(map(int, ans))
 
     def get_fstatus(self, axes):
         """
