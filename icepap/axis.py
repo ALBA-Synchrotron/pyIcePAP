@@ -713,6 +713,25 @@ class IcePAPAxis:
         """
         self.set_pos('AXIS', value)
 
+
+    @property
+    def pos_measure(self):
+        """
+        Read the measure register (IcePAP user manual pag. 108).
+
+        :return: int
+        """
+        return self.get_pos('MEASURE')
+
+    @pos_measure.setter
+    def pos_measure(self, value):
+        """
+        Set the measure register (IcePAP user manual pag. 108).
+
+        :param value: int
+        """
+        self.set_pos('MEASURE', value)
+
     @property
     def pos_shftenc(self):
         """
