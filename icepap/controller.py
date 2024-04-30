@@ -435,7 +435,7 @@ class IcePAPController:
 
         :param axes: [str/int]
         :param register: str
-        :return: [float]
+        :return: [int]
         """
         cmd = '?FPOS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
