@@ -29,16 +29,6 @@ You can install it using [conda](https://docs.conda.io):
 conda install -c conda-forge icepap
 ```
 
-## Usage
-
-The icepap python library in action:
-
-![spec in action](./demo.svg)
-
-The icepapctl command line tool in action:
-
-![spec in action](./icepapctl.svg)
-
 ## Documentation
 
 The project documentation can be found [here](https://alba-synchrotron.github.io/pyIcePAP-doc) or you can build it by executing:
