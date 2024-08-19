@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
   - Return same int type for fpos method 
+  - icepapctl crashes when master version is not a float, the master is 
+    corrupted it returns ??.??
 
 ### Changed
 

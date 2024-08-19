@@ -30,19 +30,31 @@ def human_host(host):
     return host
 
 
+def get_addr_ver(icepap):
+
+    if icepap.port != 5000:
+        addr = "{}:{}".format(icepap.host, icepap.port)
+    else:
+        addr = icepap.host
+
+    try:
+        ver = icepap.fver
+    except Exception:
+        ver = 'ERROR: Can not read master version'
+
+    return addr, ver
+
+
 class Toolbar:
     def __init__(self, icepap):
         self.icepap = icepap
-        if self.icepap.port != 5000:
-            self.addr = "{}:{}".format(self.icepap.host, self.icepap.port)
-        else:
-            self.addr = self.icepap.host
+        self.addr, self.ver = get_addr_ver(icepap)
 
     def __call__(self):
         msg = "icepapctl {} | {} - {}| " \
               "<b>[F5]</b>: State <b>[F6]</b>: Status | " \
               "<b>[Ctrl-D]</b>: Quit".format(sw_version, self.addr,
-                                             self.icepap.fver)
+                                             self.ver)
         return HTML(msg)
 
 
@@ -251,7 +263,12 @@ def step(prompt, context):
 
 def run(context):
     prompt = Prompt(context)
+    icepap = context.obj["icepap"]
     print('Icepap Console Application {}'.format(version))
+    addr, ver = get_addr_ver(icepap)
+    if 'ERROR' in ver:
+        ver = '\033[93m{}\033[0m'.format(ver)
+    print('Connected to: {} - {}'.format(addr, ver))
     print('Type "help" for more information.')
     while True:
         try:
