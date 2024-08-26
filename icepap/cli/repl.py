@@ -266,7 +266,7 @@ def run(context):
     icepap = context.obj["icepap"]
     print('Icepap Console Application {}'.format(version))
     addr, ver = get_addr_ver(icepap)
-    if 'ERROR' in ver:
+    if 'ERROR' in str(ver):
         ver = '\033[93m{}\033[0m'.format(ver)
     print('Connected to: {} - {}'.format(addr, ver))
     print('Type "help" for more information.')
