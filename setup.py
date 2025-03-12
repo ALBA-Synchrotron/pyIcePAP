@@ -63,10 +63,17 @@ setup(
     entry_points={
         'console_scripts': [
             'icepapctl = icepap.cli.cli:cli'
+        ],
+        "sinstruments.device": [
+            "IcePAP = icepap.simulator:IcePAP [simulator]"
         ]
+
     },
     install_requires=requires,
     setup_requires=setup_requirements,
     tests_require=test_requirements,
+    extras_require={
+        'simulator': ['sinstruments>=1.3', 'motorlib>=0.1']
+    },
     python_requires='>=3.5',
 )
