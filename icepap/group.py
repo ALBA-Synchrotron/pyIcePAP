@@ -1,34 +1,21 @@
+# -----------------------------------------------------------------------------
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
+#
+# Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
+#
+# Distributed under the terms of the GNU General Public License,
+# either version 3 of the License, or (at your option) any later version.
+# See LICENSE.txt for more info.
+#
+# You should have received a copy of the GNU General Public License
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
+# -----------------------------------------------------------------------------
 import time
 import collections.abc
+import contextlib
 
 from .axis import IcePAPAxis
-from .utils import State
-
-
-def get_ctrl_item(f, axes, default=None):
-    try:
-        return f(axes)
-    except Exception:
-        pass
-    values = []
-    for axis in axes:
-        try:
-            value = f(axis)[0]
-        except RuntimeError:
-            value = default
-        values.append(value)
-    return values
-
-
-def get_item(motors, name, default=None):
-    values = []
-    for motor in motors:
-        try:
-            value = getattr(motor, name)
-        except RuntimeError:
-            value = default
-        values.append(value)
-    return values
+from .utils import State, is_moving, get_ctrl_item, get_item
 
 
 class Group:
@@ -79,7 +66,7 @@ class Group:
         return get_ctrl_item(self.controller.get_states, self.axes, State(0))
 
     def is_moving(self):
-        return any(state.is_moving() for state in self.get_states())
+        return is_moving(self.get_states())
 
     def get_power(self):
         return get_ctrl_item(self.controller.get_power, self.axes)
@@ -120,3 +107,64 @@ def group(*objs):
         else:
             motors.extend(obj.motors)
     return Group(motors)
+
+
+def gen_move(group, target):
+    with ensure_power(group):
+        group.start_move(target)
+        for event in gen_motion(group):
+            yield event
+
+
+def gen_rmove(group, target):
+    with ensure_power(group):
+        group.start_rmove(target)
+        for event in gen_motion(group):
+            yield event
+
+
+def gen_motion(group):
+    while True:
+        states, positions = group.get_states(), group.get_pos()
+        yield states, positions
+        if not is_moving(states):
+            break
+
+
+@contextlib.contextmanager
+def ensure_power(obj, on=True):
+    """
+    Power context manager. Entering context ensures the motor(s) have power
+    (or an exception is thrown). Leaving the context leaves motor(s) has we
+    found them. The context manager object is an icepap.Group.
+
+    :param obj: a Group, IcePAPAxis or a sequence of IcePAPAxis
+    :param on: if True, ensures power on all motors and when leaving the
+               context restores power off on the motors  that were powered
+               of before. If False the reverse behavior is applied
+
+    Example::
+
+        from icepap import IcePAPController, ensure_power
+        ipap = IcePAPController("ipap.acme.com")
+        m1, m2 = ipap[1], ipap[2]
+        m1.power = False
+        m2.power = True
+        assert (m1.power, m2.power) == (False, True)
+        with ensure_power((m1, m2)) as group:
+            assert (m1.power, m2.power) == (True, True)
+            group.start_move((1000, 2000))
+            group.wait_move()
+        assert (m1.power, m2.power) == (False, True)
+    """
+    g = group(obj)
+    ctrl = g.controller
+    powers = g.get_power()
+    to_power = [addr for addr, power in zip(g.axes, powers) if power != on]
+    if to_power:
+        ctrl.set_power(to_power, on)
+    try:
+        yield g
+    finally:
+        if to_power:
+            ctrl.set_power(to_power, not on)

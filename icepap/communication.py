@@ -15,7 +15,7 @@ import array
 import struct
 import threading
 
-from .tcp import TCP
+from .tcp import TCP, Timeout
 
 
 __all__ = ['IcePAPCommunication']
@@ -32,6 +32,7 @@ class IcePAPCommunication:
         self._sock = TCP(host, port, timeout=timeout)
         self._sock.connect()
         self._lock = threading.Lock()
+        self.multiline_answer = False
 
     @property
     def host(self):
@@ -53,6 +54,7 @@ class IcePAPCommunication:
         :param cmd: Command without acknowledge character and CR and/or LF.
         :return: None or list of string without the command and the CRLF.
         """
+        self.multiline_answer = False
         cmd.upper().strip()
         flg_read_cmd = '?' in cmd
         flg_ecamdat_cmd = '*ECAMDAT' in cmd
@@ -88,7 +90,12 @@ class IcePAPCommunication:
                 ans = self._sock.read(8096).decode()
                 nb_dollars = ans.count("$")
                 if nb_dollars == 1:
-                    ans += self._sock.readline(eol=b"$\n").decode()
+                    ans += self._sock.readline(eol=b"$").decode()
+                    try:
+                        ans += self._sock.readline(eol=b"\n",
+                                                   timeout=0.001).decode()
+                    except Timeout:
+                        ans += '\n'
             else:
                 ans = None
 
@@ -102,6 +109,7 @@ class IcePAPCommunication:
             if ans is None:
                 result = ans
             elif '$' in ans:
+                self.multiline_answer = True
                 # Multi lines
                 ans = ans.split('$')[1]
                 lines = ans.split('\n')[1:-1]

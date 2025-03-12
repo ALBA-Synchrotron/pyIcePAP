@@ -5,7 +5,7 @@ from setuptools import find_packages
 
 # The version is updated automatically with bumpversion
 # Do not update manually
-__version = '3.6.2'
+__version = '3.11.2'
 
 # windows installer:
 # python setup.py bdist_wininst
@@ -60,16 +60,9 @@ setup(
         'Topic :: Communications',
         'Topic :: Software Development :: Libraries',
     ],
-    extras_require={
-        'simulator': ['sinstruments>=1.3', 'motorlib>=0.1']
-    },
     entry_points={
         'console_scripts': [
-            'icepap = icepap.__main__:main',
-            'icepapctl = icepap.cli:cli'
-        ],
-        "sinstruments.device": [
-            "IcePAP = icepap.simulator:IcePAP [simulator]"
+            'icepapctl = icepap.cli.cli:cli'
         ]
     },
     install_requires=requires,

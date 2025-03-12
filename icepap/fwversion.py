@@ -122,6 +122,8 @@ class FirmwareVersion(dict):
                                                   str(self.ctrl_dsp))
             msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'FPGA',
                                                   str(self.ctrl_fpga))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'PCB',
+                                                  str(self.ctrl_pcb))
             msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'MCPU0',
                                                   str(self.ctrl_mcpu0))
             msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'MCPU1',
@@ -135,6 +137,10 @@ class FirmwareVersion(dict):
                                                   str(self.driver_dsp))
             msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'FPGA',
                                                   str(self.driver_fpga))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'PCB',
+                                                  str(self.driver_pcb))
+            msg += '{0:}{1:<9s}:{2:>5s}\n'.format(sublevel, 'IO',
+                                                  str(self.driver_io))
         return msg
 
     def is_supported(self):
@@ -238,6 +244,15 @@ class FirmwareVersion(dict):
 
     @property
     @key_error
+    def ctrl_pcb(self):
+        """
+        Returns Controller FPGA version.
+
+        :return: str
+        """
+        return self['SYSTEM']['CONTROLLER']['PCB']
+    @property
+    @key_error
     def ctrl_mcpu0(self):
         """
         Returns MCPU0 version.
@@ -305,3 +320,13 @@ class FirmwareVersion(dict):
         :return: (float, str)
         """
         return self['SYSTEM']['DRIVER']['PCB']
+
+    @property
+    @key_error
+    def driver_io(self):
+        """
+        Returns driver PCB version.
+
+        :return: (float, str)
+        """
+        return self['SYSTEM']['DRIVER']['IO']

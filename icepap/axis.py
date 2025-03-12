@@ -504,7 +504,7 @@ class IcePAPAxis:
         """
         value = self.send_cmd('?NAME')
         if isinstance(value, list):
-            value = value[0]
+            value = ' '.join(value)
         return value
 
     @name.setter
@@ -522,11 +522,19 @@ class IcePAPAxis:
     def id(self):
         """
         Get hardware ID and the serial number (Icepap user manual pag. 80).
+        Ignoring errors from ?ID SN commands, return empty string in that case
 
         :return: (str HW ID, str SN)
         """
         hw_id = self.send_cmd('?ID HW')[0]
-        sn_id = self.send_cmd('?ID SN')[0]
+        sn_id = ''
+        try:
+            sn_ = self.send_cmd("?ID SN")
+            if sn_ is not None:
+                sn_id = sn_[0]
+        except Exception as e:
+            self.log.error("Cannot read axis Serial Number %s", str(e).strip())            
+    
         return hw_id, sn_id
 
     @property
@@ -706,6 +714,24 @@ class IcePAPAxis:
         self.set_pos('AXIS', value)
 
     @property
+    def pos_measure(self):
+        """
+        Read the measure register (IcePAP user manual pag. 108).
+
+        :return: int
+        """
+        return self.get_pos('MEASURE')
+
+    @pos_measure.setter
+    def pos_measure(self, value):
+        """
+        Set the measure register (IcePAP user manual pag. 108).
+
+        :param value: int
+        """
+        self.set_pos('MEASURE', value)
+
+    @property
     def pos_shftenc(self):
         """
         Read the shftenc register (IcePAP user manual pag. 108).
@@ -866,6 +892,24 @@ class IcePAPAxis:
         :param value: int
         """
         self.set_enc('AXIS', value)
+
+    @property
+    def enc_measure(self):
+        """
+        Read the measure register (IcePAP user manual pag. 108).
+
+        :return: int
+        """
+        return self.get_enc('MEASURE')
+
+    @enc_measure.setter
+    def enc_measure(self, value):
+        """
+        Set the measure register (IcePAP user manual pag. 108).
+
+        :param value: int
+        """
+        self.set_enc('MEASURE', value)
 
     @property
     def enc_shftenc(self):
@@ -1749,6 +1793,16 @@ class IcePAPAxis:
         :param mode: str
         """
         cmd = 'PTRACK {0} {1}'.format(signal, mode)
+        self.send_cmd(cmd)
+
+    def ltrack(self, signal="", mode='CYCLIC'):
+        """
+        Start list tracking mode (IcePAP user manual pag. 88).
+
+        :param signal: str
+        :param mode: str
+        """
+        cmd = 'LTRACK {0} {1}'.format(signal, mode)
         self.send_cmd(cmd)
 
     def set_ecam_table(self, lpos, source='AXIS', dtype='FLOAT'):

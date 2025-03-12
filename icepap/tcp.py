@@ -1,3 +1,15 @@
+# -----------------------------------------------------------------------------
+# This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
+#
+# Copyright 2008-2017 CELLS / ALBA Synchrotron, Bellaterra, Spain
+#
+# Distributed under the terms of the GNU General Public License,
+# either version 3 of the License, or (at your option) any later version.
+# See LICENSE.txt for more info.
+#
+# You should have received a copy of the GNU General Public License
+# along with icepap. If not, see <http://www.gnu.org/licenses/>.
+# -----------------------------------------------------------------------------
 import os
 import time
 import errno
@@ -34,7 +46,12 @@ def create_connection(host, port):
     sock.setblocking(False)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     res = sock.connect_ex((host, port))
-    if res not in {0, errno.EINPROGRESS}:
+    allowed_results = [0, errno.EINPROGRESS]
+    # Non-blocking sockets on Windows give the WSAEWOULDBLOCK when opening.
+    # Add this to allowed list.
+    if hasattr(errno, "WSAEWOULDBLOCK"):
+        allowed_results.append(errno.WSAEWOULDBLOCK)
+    if res not in allowed_results:
         raise to_error(res)
     return sock
 

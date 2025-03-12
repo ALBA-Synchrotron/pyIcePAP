@@ -4,10 +4,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-<!--## [Unreleased] -->
-<!--### Added -->
+## [3.11.x]
+### Added
+   - Add pos_measure and enc_measure to the Axis class
 
-## [3.6.x] 
+### Removed
+
+### Fixed
+  - Return same int type for fpos method 
+  - icepapctl crashes when master version is not a float, the master is 
+    corrupted it returns ??.??
+
+### Changed
+
+
+
+## [3.10.1]
+### Added
+   - Show not alive axes if the option "axes" is " all"
+
+### Removed
+
+### Fixed
+  - icepapctl sendall allowed only one parameter and is not protected when 
+    the character ':' is used. 
+  - Shows PCB value for controller and drivers and IO value for drivers 
+
+### Changed
+   - Sendall responses are tabulated
+   - Change default "axes" option to "alive", not all commands are valid if 
+     the axes is not "alive".
+
+## [3.9.0]
+### Added
+    - Add method for getting linked axes at IcePAPController class
+
+### Removed
+
+### Fixed
+
+## [3.8.2] 
+### Added
+    - Add axis list track command
+
+### Removed
+
+### Fixed
+  - Return empty string when hardware does not have serial number.
+
+## [3.7.6] 
+### Added
+ - Add find_racks method to get activate racks on the system.
+ - Add host and port public properties for the IcepapController.
+ - Refactor icepapctl application and add a REPL.  
+ - Allow to identify multilines answers
+
+### Removed
+ - Remove from the REPL Toolbar the mode and the port
+
+### Fixed
+ - Movement command does not accept negative values (Issue #77).
+ - Update icepapctl animation.
+ - Bug on repl when the mode is not the same for all axes.
+ - Communication error with multilines answers
+ - Fix typo
+ - Return names with spaces
+ - Fix bug when hardware does not have serial number
+
+## [3.6.3] 
 ### Added
  - Add fver property to read only the driver and the system version instead 
    of reading all modules versions.
@@ -20,6 +84,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Change TCP class logger name to use logging filtering on IcepapCMS
 - Remove deprecated array.tostring() and use array.tobytes() 
+- Fix socket connection on Windows.
 
 ## [3.5.1] 
 ### Added
@@ -215,8 +280,12 @@ For a full log of commits between versions run (in your git repo):
 Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
-[Unreleased]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/2.3.2...HEAD
-[3.6.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...HEAD
+[3.11.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.10.1...HEAD
+[3.10.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.10.0...3.10.1
+[3.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.8.2...3.9.0
+[3.8.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.7.6...3.8.2
+[3.7.6]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.6.3...3.7.6
+[3.6.3]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.5.1...3.6.3
 [3.5.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.4.1...3.5.1
 [3.4.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.3.0...3.4.1
 [3.3.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.2.2...3.3.0

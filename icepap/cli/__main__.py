@@ -1,3 +1,4 @@
+# !/usr/bin/env python
 # -----------------------------------------------------------------------------
 # This file is part of icepap (https://github.com/ALBA-Synchrotron/pyIcePAP)
 #
@@ -11,12 +12,8 @@
 # along with icepap. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-# TODO: better use the __all__ = [...] structure
-from .communication import IcePAPCommunication
-from .controller import IcePAPController
-from .fwversion import *
-from .utils import *
+from .cli import cli
 
-# The version is updated automatically with bumpversion
-# Do not update manually
-version = '3.11.2'
+
+if __name__ == '__main__':
+    cli()

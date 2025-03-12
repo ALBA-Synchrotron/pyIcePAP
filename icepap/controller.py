@@ -152,6 +152,13 @@ class IcePAPController:
 # -----------------------------------------------------------------------------
 #                       Properties
 # -----------------------------------------------------------------------------
+    @property
+    def host(self):
+        return self._comm.host
+
+    @property
+    def port(self):
+        return self._comm.port
 
     @property
     def axes(self):
@@ -228,6 +235,9 @@ class IcePAPController:
         cmd = 'MODE {0}'.format(value)
         self.send_cmd(cmd)
 
+    @property
+    def multiline_answer(self):
+        return self._comm.multiline_answer
 # -----------------------------------------------------------------------------
 #                       Commands
 # -----------------------------------------------------------------------------
@@ -266,6 +276,15 @@ class IcePAPController:
                         axis_nr = i * 10 + j + 1
                         axes.append(axis_nr)
         return axes
+
+    def find_racks(self):
+        racks_present = int(self._comm.send_cmd('?sysstat')[0], 16)
+        racks_mask = 1
+        racks = []
+        for i in range(16):
+            if (racks_present & racks_mask << i) > 0:
+                racks.append(i)
+        return racks
 
     def update_axes(self):
         """
@@ -416,11 +435,11 @@ class IcePAPController:
 
         :param axes: [str/int]
         :param register: str
-        :return: [float]
+        :return: [int]
         """
         cmd = '?FPOS {0} {1}'.format(register, self._alias2axisstr(axes))
         ans = self.send_cmd(cmd)
-        return list(map(float, ans))
+        return list(map(int, ans))
 
     def get_fstatus(self, axes):
         """
@@ -696,6 +715,18 @@ class IcePAPController:
         :return: list of multiplexer configurations.
         """
         return self.send_cmd('?PMUX')
+
+    def get_linked(self):
+        """
+        Returns the current list of groups of linked drivers. 
+        Each group is returned in a separate line starting by the name 
+        of the group and followed by the corresponding list of axes.
+
+        (IcePAP user manual, page 80).
+
+        :return: list of groups of linked drivers.
+        """
+        return self.send_cmd('?LINKED')
 
     def sprog(self, filename, component=None, force=False, saving=False,
               options=''):
