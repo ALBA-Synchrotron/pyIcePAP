@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.11.x]
+## [3.12.x]
+### Added
+   - Add simulator based on [sintruments](http://github.com/tiagocoutinho/sinstruments)
+
+### Removed
+
+### Fixed
+
+### Changed
+
+## [3.11.2]
 ### Added
    - Add pos_measure and enc_measure to the Axis class
 
@@ -16,8 +26,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     corrupted it returns ??.??
 
 ### Changed
-
-
 
 ## [3.10.1]
 ### Added
@@ -280,7 +288,8 @@ For a full log of commits between versions run (in your git repo):
 Last release of pyIcePAP library (old API).
 
 [keepachangelog.com]: http://keepachangelog.com
-[3.11.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.10.1...HEAD
+[3.12.x]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.11.2...HEAD
+[3.11.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.10.1...3.11.2
 [3.10.1]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.10.0...3.10.1
 [3.9.0]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.8.2...3.9.0
 [3.8.2]: https://github.com/ALBA-Synchrotron/pyIcePAP/compare/3.7.6...3.8.2
